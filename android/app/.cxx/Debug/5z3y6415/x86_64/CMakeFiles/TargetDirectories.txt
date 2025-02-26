@@ -1,0 +1,2 @@
+/home/kalaiselvan/Projects/Internship/Datayaan/yaantrac_app/android/app/.cxx/Debug/5z3y6415/x86_64/CMakeFiles/edit_cache.dir
+/home/kalaiselvan/Projects/Internship/Datayaan/yaantrac_app/android/app/.cxx/Debug/5z3y6415/x86_64/CMakeFiles/rebuild_cache.dir

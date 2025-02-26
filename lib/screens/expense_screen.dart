@@ -1,127 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
+import 'package:yaantrac_app/models/trip_summary.dart';
 import 'package:yaantrac_app/screens/add_expense_screen.dart';
+import 'package:yaantrac_app/screens/expense_list_screen.dart';
+import 'package:yaantrac_app/services/api_service.dart';
 
-// class ExpenseScreen extends StatelessWidget {
-//   const ExpenseScreen({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text("Expenses"),
-//         actions: const [
-//           Icon(Icons.settings),
-//         ],
-//       ),
-//       body: const Padding(
-//         padding: EdgeInsets.all(16),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             SizedBox(
-//               width: double.infinity,
-//               child: Card(
-//                 child: Padding(
-//                   padding: EdgeInsets.all(12.0),
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       Text("Expense",
-//                           style: TextStyle(
-//                               fontSize: 14, fontWeight: FontWeight.w500)),
-//                       Text(r"$30000",
-//                           style: TextStyle(
-//                               fontSize: 35, fontWeight: FontWeight.w600)),
-//                       Text("Last 30 days",
-//                           style: TextStyle(
-//                               fontSize: 12,
-//                               fontWeight: FontWeight.w400,
-//                               color: Colors.grey)),
-//                     ],
-//                   ),
-//                 ),
-//               ),
-//             ),
-//             SizedBox(height: 20,),
-//             Text("Category",style: TextStyle(fontSize:20,fontWeight: FontWeight.bold),),
-//             Card(
-//               child: Padding(
-//                 padding: EdgeInsets.all(20.0),
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     Row(
-//                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                       crossAxisAlignment: CrossAxisAlignment.center,
-//                       children: [
-//                         Column(
-//                           crossAxisAlignment: CrossAxisAlignment.start,
-//                           children: [
-//                             Text("Fuel",style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
-//                             Text("Company Car fuel",style: TextStyle(color: Colors.grey),),
-//                           ],
-//                         ),
-//                         Text(r"$1500",style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
-//                       ],
-//                     ),
-//                     SizedBox(height: 20,),
-//                     LinearProgressIndicator(
-//                       value: 10,
-//                       color: Colors.blue,
-//                       minHeight: 10,
-//                       borderRadius: BorderRadius.all(Radius.circular(10)),
-//                       backgroundColor: Colors.grey,
-//                     ),
-//                     SizedBox(height: 5,),
-//                     Text("55%",style: TextStyle(color: Colors.grey,fontSize: 12),)
-//                   ],
-//                 ),
-//               ),
-//             ),
-//             SizedBox(width: 10,),
-//             Card(
-//               child: Padding(
-//                 padding: EdgeInsets.all(20.0),
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     Row(
-//                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                       crossAxisAlignment: CrossAxisAlignment.center,
-//                       children: [
-//                         Column(
-//                           crossAxisAlignment: CrossAxisAlignment.start,
-//                           children: [
-//                             Text("Fuel",style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
-//                             Text("Company Car fuel",style: TextStyle(color: Colors.grey),),
-//                           ],
-//                         ),
-//                         Text(r"$1500",style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
-//                       ],
-//                     ),
-//                     SizedBox(height: 20,),
-//                     LinearProgressIndicator(
-//                       value: 10,
-//                       color: Colors.blue,
-//                       minHeight: 10,
-//                       borderRadius: BorderRadius.all(Radius.circular(10)),
-//                       backgroundColor: Colors.grey,
-//                     ),
-//                     SizedBox(height: 5,),
-//                     Text("55%",style: TextStyle(color: Colors.grey,fontSize: 12),)
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-class ExpenseScreen extends StatelessWidget {
+class ExpenseScreen extends StatefulWidget {
   const ExpenseScreen({super.key});
+
+  @override
+  State<ExpenseScreen> createState() => _ExpenseScreenState();
+}
+
+class _ExpenseScreenState extends State<ExpenseScreen> {
+  final int tripId=2;
+  late Future<TripProfitSummaryModel> tripProfitSummary;
+
+  Future<TripProfitSummaryModel> getTripProfit() async{
+    print("API URL: /trips/summary?tripId=$tripId");
+    try{
+      final response=await APIService.instance.request("/trips/summary?tripId=$tripId", DioMethod.get,contentType: "application/json");
+      if(response.statusCode==200){
+        // print("${response.data}");
+        Map<String,dynamic> responseData=response.data;
+
+        Map<String,dynamic> tripProfit=responseData['data'];
+        // setState(() {
+        //   tripProfitSummary=TripProfitSummaryModel.fromJson(tripProfit);
+        // });
+        return TripProfitSummaryModel.fromJson(tripProfit);
+      }
+      else{
+        throw Exception("Error: ${response.statusMessage}");
+      }
+    }
+    catch(err){
+      throw Exception("Error fetching summary: $err");
+    }
+
+  }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    tripProfitSummary=getTripProfit();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,76 +60,84 @@ class ExpenseScreen extends StatelessWidget {
           },
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Trip 1: San Francisco - Los Angeles',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
+      body: FutureBuilder<TripProfitSummaryModel>(
+        future: tripProfitSummary,
+        builder: (context,snapshot){
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          } else if (!snapshot.hasData) {
+            return const Center(child: Text("No report available"));
+          }
+          else{
+            final tripProfitSummary=snapshot.data;
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Trip 1: San Francisco - Los Angeles',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    height: 260,
+                    child: GridView.count(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 8,
+                      crossAxisSpacing: 8,
+                      childAspectRatio: 3 / 2,
+                      children:  [
+                        ExpenseCard(title: 'Fuel cost', amount: '\$${tripProfitSummary?.breakDown["FUEL"] ?? 0}'),
+                        ExpenseCard(title: 'Tolls', amount: '\$${tripProfitSummary?.breakDown["TOLL"] ?? 0}'),
+                        ExpenseCard(title: 'Maintenance', amount: '\$${tripProfitSummary?.breakDown["MISCELLANEOUS"] ?? 0}'),
+                        ExpenseCard(title: 'Income', amount: '\$${tripProfitSummary?.totalIncome ?? 0}'),
+                      ],
+                    ),),
+                  const SizedBox(height: 16),
+                   Row(
+                     crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SummaryCard(title: 'Expenses', amount: "\$${tripProfitSummary?.totalExpenses}"),
+                      const SizedBox(width: 16),
+                      SummaryCard(title: 'Profit by Trip', amount: "\$${tripProfitSummary?.profit}"),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Breakdown',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const BreakdownItem(title: 'Fuel cost', subtitle: 'Shell', amount: '\$48.00'),
+                  const BreakdownItem(title: 'Income', subtitle: 'Amazon Flex', amount: '\$100.00'),
+                ],
               ),
-            ),
-            const SizedBox(height: 16),
-          SizedBox(
-          height: 260,
-          child: GridView.count(
-            crossAxisCount: 2,
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
-            childAspectRatio: 3 / 2,
-            children: const [
-              ExpenseCard(title: 'Fuel cost', amount: '\$48.00'),
-              ExpenseCard(title: 'Tolls', amount: '\$0.00'),
-              ExpenseCard(title: 'Maintenance', amount: '\$0.00'),
-              ExpenseCard(title: 'Income', amount: '\$100.00'),
-            ],
-          ),),
-            const SizedBox(height: 16),
-            const Row(
-              children: [
-                SummaryCard(title: 'Expenses', amount: '\$48.00', percentage: '+12%'),
-                SizedBox(width: 16),
-                SummaryCard(title: 'Profit by Trip', amount: '\$52.00'),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Breakdown',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const BreakdownItem(title: 'Fuel cost', subtitle: 'Shell', amount: '\$48.00'),
-            const BreakdownItem(title: 'Income', subtitle: 'Amazon Flex', amount: '\$100.00'),
-          ],
-        ),
+            );
+          }
+        },
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SizedBox(
           width: double.infinity,
-          height: 50,
-          child: ElevatedButton(
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder:(context)=>const AddExpenseScreen()));
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text(
-              'Add expense',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
+          child: Row(
+            children: [
+              const SizedBox(width: 16),
+              Expanded(child: AppPrimaryButton(onPressed: (){
+                Navigator.push(context,MaterialPageRoute(builder: (context)=>const ExpensesListScreen(tripId: 2)));
+              }, title: "View")),
+            ],
           ),
         ),
       ),

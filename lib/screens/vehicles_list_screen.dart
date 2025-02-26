@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:yaantrac_app/models/tire.dart';
 import 'package:yaantrac_app/screens/expense_screen.dart';
 import 'package:yaantrac_app/screens/tires_list_screen.dart';
+import 'package:yaantrac_app/services/api_service.dart';
 
 class VehiclesListScreen extends StatefulWidget {
   const VehiclesListScreen({super.key});
@@ -10,10 +12,29 @@ class VehiclesListScreen extends StatefulWidget {
 }
 
 class _VehiclesListScreenState extends State<VehiclesListScreen> {
-  final List<bool> _isExpandedList = [false, false, false, false]; // Track expansion state for each item
+  final List<bool> _isExpandedList = [false, false, false, false];
+  List<TireModel> tires=[];
+  Future<void> getTires() async{
+    final response=await APIService.instance.request("/tires", DioMethod.get,contentType: "application/json");
+    if(response.statusCode==200){
+      // print("${response.data}");
+      Map<String,dynamic> responseData=response.data;
+
+      List<dynamic> tireList=responseData['data'];
+      setState(() {
+        tires=tireList.map((json)=>TireModel.fromJson(json)).toList();
+      });
+      // print(tires));
+    }
+    else{
+      print(response.statusMessage);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    getTires();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Vehicle"),

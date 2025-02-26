@@ -12,7 +12,7 @@ class AppPrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-        onPressed: (){},
+        onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           minimumSize: Size.fromHeight(height ?? 50),
           backgroundColor: AppColors.primaryColor,
