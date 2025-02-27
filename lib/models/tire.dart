@@ -5,10 +5,10 @@ class TireModel {
   final String model;
   final String size;
   final int stock;
-  final int tireId;
+  final int? tireId;
 
   TireModel({
-    required this.tireId,
+    this.tireId,
     required this.brand,
     required this.model,
     required this.size,

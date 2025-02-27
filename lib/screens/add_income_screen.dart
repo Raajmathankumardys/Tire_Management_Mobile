@@ -32,7 +32,6 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
         updatedAt: DateTime.now(),
       );
 
-      print("Submitted Income Data: ${income.toJson()}");
 
       try {
         final response = await APIService.instance.request(
@@ -41,12 +40,12 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
           formData: income.toJson(),
           contentType: "application/json",
         );
-
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Income added successfully!")),
           );
           _formKey.currentState?.reset();
+          Navigator.pop(context);
         } else {
           print(response.statusMessage);
         }
@@ -134,7 +133,7 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
                   children: [
                     Expanded(child: AppPrimaryButton(onPressed: () {}, title: "Attach Receipt")),
                     const SizedBox(width: 10),
-                    Expanded(child: AppPrimaryButton(onPressed: (){}, title: "Submit")),
+                    Expanded(child: AppPrimaryButton(onPressed: _submitIncome, title: "Submit")),
                   ],
                 ),
                 const SizedBox(height: 15),

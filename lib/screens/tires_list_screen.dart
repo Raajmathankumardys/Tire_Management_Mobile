@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
 import 'package:yaantrac_app/models/tire.dart';
 import 'package:yaantrac_app/screens/add_tire_screen.dart';
 import 'package:yaantrac_app/screens/tire_status_screen.dart';
@@ -51,22 +52,14 @@ class _TiresListScreenState extends State<TiresListScreen> {
           },
           icon: const Icon(Icons.arrow_back),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AddTireScreen()),
-              ).then((_) {
-                // Refresh tire list after adding a new tire
-                setState(() {
-                  futureTires = getTires();
-                });
-              });
-            },
-            icon: const Icon(Icons.add),
-          )
-        ],
+
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Expanded(child: AppPrimaryButton(onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const AddTireScreen()),
+        );
+        }, title: "Add Tire")),
       ),
       body: SafeArea(
         child: FutureBuilder<List<TireModel>>(
@@ -106,12 +99,15 @@ class _TiresListScreenState extends State<TiresListScreen> {
   Widget _buildTireListItem({required TireModel tire, required BuildContext context}) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => TireStatusScreen(tireId: tire.tireId),
-          ),
-        );
+        if(tire.tireId != null){
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TireStatusScreen(tireId: tire.tireId!),
+            ),
+          );
+        }
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Tire not found!!")));
       },
       child: Card(
         child: Padding(
