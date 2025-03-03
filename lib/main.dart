@@ -9,8 +9,9 @@ import 'package:yaantrac_app/screens/tire_status_screen.dart';
 import 'package:yaantrac_app/screens/tires_list_screen.dart';
 import 'package:yaantrac_app/screens/vehicles_list_screen.dart';
 import "package:flutter_dotenv/flutter_dotenv.dart";
-Future<void>  main() async {
-  await dotenv.load(fileName:".env");
+
+Future<void> main() async {
+  await dotenv.load(fileName: ".env");
   print("Base URL: ${dotenv.env["BASE_URL"]}");
   runApp(const MyApp());
 }
@@ -23,17 +24,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: Apptheme.lightTheme,
-       //home:const AddTireScreen(),
-       // home: const TiresListScreen(),
-      home:const VehiclesListScreen(),
-       // home: const AddExpenseScreen(),
+      theme: Apptheme.darkTheme,
+      //home:const AddTireScreen(),
+      // home: const TiresListScreen(),
+      home: const VehiclesListScreen(),
+      // home: const AddExpenseScreen(),
       //home:const FilterExpenseScreen(),
-     // home:const ExpenseScreen(),
+      // home:const ExpenseScreen(),
       //home:const NotificationScreen(),
       //home:const TireStatusScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
 }
-

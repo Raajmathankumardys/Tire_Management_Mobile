@@ -32,7 +32,6 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
         updatedAt: DateTime.now(),
       );
 
-
       try {
         final response = await APIService.instance.request(
           "/income/$tripId",
@@ -131,9 +130,13 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
                 const SizedBox(height: 5),
                 Row(
                   children: [
-                    Expanded(child: AppPrimaryButton(onPressed: () {}, title: "Attach Receipt")),
+                    Expanded(
+                        child: AppPrimaryButton(
+                            onPressed: () {}, title: "Attach Receipt")),
                     const SizedBox(width: 10),
-                    Expanded(child: AppPrimaryButton(onPressed: _submitIncome, title: "Submit")),
+                    Expanded(
+                        child: AppPrimaryButton(
+                            onPressed: _submitIncome, title: "Submit")),
                   ],
                 ),
                 const SizedBox(height: 15),
@@ -145,14 +148,23 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
                 const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Total Income", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-                    Text("1000", style: TextStyle(fontSize: 16, color: Colors.grey)),
+                    Text("Total Income",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w500)),
+                    Text("1000",
+                        style: TextStyle(fontSize: 16, color: Colors.grey)),
                     SizedBox(height: 10),
-                    Text("Total Expenses", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-                    Text("500", style: TextStyle(fontSize: 16, color: Colors.grey)),
+                    Text("Total Expenses",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w500)),
+                    Text("500",
+                        style: TextStyle(fontSize: 16, color: Colors.grey)),
                     SizedBox(height: 10),
-                    Text("Remaining Balance", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-                    Text("500", style: TextStyle(fontSize: 16, color: Colors.grey)),
+                    Text("Remaining Balance",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w500)),
+                    Text("500",
+                        style: TextStyle(fontSize: 16, color: Colors.grey)),
                   ],
                 ),
               ],

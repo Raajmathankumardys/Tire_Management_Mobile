@@ -154,76 +154,73 @@
 //     );
 //   }
 // }
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
 import 'package:yaantrac_app/common/widgets/input/app_input_field.dart';
 import 'package:yaantrac_app/services/api_service.dart';
-
 import '../models/tire.dart';
 
+class AddEditTireScreen extends StatefulWidget {
+  final TireModel? tire;
 
-class AddTireScreen extends StatefulWidget {
-  const AddTireScreen({super.key});
+  const AddEditTireScreen({super.key, this.tire});
 
   @override
-  State<AddTireScreen> createState() => _AddTireScreenState();
+  State<AddEditTireScreen> createState() => _AddEditTireScreenState();
 }
 
-class _AddTireScreenState extends State<AddTireScreen> {
+class _AddEditTireScreenState extends State<AddEditTireScreen> {
   final _formKey = GlobalKey<FormState>();
-  String _brand = '';
-  String _model = '';
-  String _size = '';
-  int _stock = 0;
-  String _purchaseDate = '';
+  late String _brand;
+  late String _model;
+  late String _size;
+  late int _stock;
 
-  final TextEditingController _dateController = TextEditingController();
-  DateTime? _selectedDate;
-
-  void _onDateSelected(DateTime date) {
-    setState(() {
-      _selectedDate = date;
-      _purchaseDate = "${date.day}/${date.month}/${date.year}";
-      _dateController.text = _purchaseDate;
-    });
+  @override
+  void initState() {
+    super.initState();
+    print(widget?.tire);
+    _brand = widget.tire?.brand ?? '';
+    _model = widget.tire?.model ?? '';
+    _size = widget.tire?.size ?? '';
+    _stock = widget.tire?.stock ?? 0;
   }
 
-  Future<void> _onSubmit() async{
+  Future<void> _onSubmit() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       final tire = TireModel(
-        tireId: DateTime.now().millisecondsSinceEpoch,
+        tireId: widget.tire?.tireId ?? DateTime.now().millisecondsSinceEpoch,
         brand: _brand,
         model: _model,
         size: _size,
-        stock: _stock,
+        stock: _stock.toInt(),
       );
-      try{
-        final response=await APIService.instance.request(
-          "/tires",
-          DioMethod.post,
+      print(tire.toJson());
+      try {
+        final response = await APIService.instance.request(
+          widget.tire == null ? "/tires" : "/tires/${tire.tireId}",
+          widget.tire == null ? DioMethod.post : DioMethod.put,
           formData: tire.toJson(),
           contentType: "application/json",
         );
-        if(response.statusCode==200){
-          Map<String,dynamic> responseData=response.data;
-          Map<String,dynamic> tire=responseData["data"];
-          TireModel tireModel=TireModel.fromJson(tire);
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Created successfully with id ${tireModel.tireId}"),),);
+        print(tire.toJson());
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(widget.tire == null
+                  ? "Tire added successfully!"
+                  : "Tire updated successfully!"),
+            ),
+          );
           Navigator.pop(context);
-        }
-        else{
+        } else {
           print(response.statusMessage);
         }
-
-      }
-      catch(err){
+      } catch (err) {
         print(err);
       }
-      print(tire.toJson());
     }
   }
 
@@ -231,7 +228,7 @@ class _AddTireScreenState extends State<AddTireScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Add Tire", style: TextStyle(fontSize: 20)),
+        title: Text(widget.tire == null ? "Add Tire" : "Edit Tire"),
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back),
@@ -259,21 +256,20 @@ class _AddTireScreenState extends State<AddTireScreen> {
                   label: "Size",
                   hint: "Enter size",
                   onInputChanged: (value) => _size = value ?? '',
+                  //_size = int.tryParse(value ?? '0') ?? 0),
                 ),
                 AppInputField(
                   label: "Stock",
                   hint: "Enter stock quantity",
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  onInputChanged: (value) => _stock = int.tryParse(value ?? '0') ?? 0,
+                  onInputChanged: (value) =>
+                      _stock = int.tryParse(value ?? '0') ?? 0,
                 ),
-
-                Row(
-                  children: [
-                    Expanded(child: AppPrimaryButton(onPressed: () {}, title: "Attach Receipt")),
-                    const SizedBox(width: 10),
-                    Expanded(child: AppPrimaryButton(onPressed: _onSubmit, title: "Submit")),
-                  ],
+                const SizedBox(height: 16),
+                AppPrimaryButton(
+                  onPressed: _onSubmit,
+                  title: widget.tire == null ? "Add Tire" : "Update Tire",
                 ),
               ],
             ),

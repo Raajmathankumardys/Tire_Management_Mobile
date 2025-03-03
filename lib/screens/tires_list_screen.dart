@@ -22,6 +22,52 @@ class _TiresListScreenState extends State<TiresListScreen> {
     futureTires = getTires();
   }
 
+  Future<void> _confirmDelete(int tireId) async {
+    bool? confirm = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Confirm Delete"),
+        content: const Text("Are you sure you want to delete this tire?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false), // No
+            child: const Text("No"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true), // Yes
+            child: const Text("Yes", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      _onDelete(tireId); // Call delete function if confirmed
+    }
+  }
+
+  Future<void> _onDelete(int tireId) async {
+    try {
+      final response = await APIService.instance.request(
+        "/tires/$tireId",
+        DioMethod.delete,
+      );
+      String tid = tireId.toString();
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Tire to deleted successfully!"),
+          ),
+        );
+        Navigator.pop(context);
+      } else {
+        print("Error: ${response.statusMessage}");
+      }
+    } catch (err) {
+      print("Delete Error: $err");
+    }
+  }
+
   Future<List<TireModel>> getTires() async {
     try {
       final response = await APIService.instance.request(
@@ -52,14 +98,20 @@ class _TiresListScreenState extends State<TiresListScreen> {
           },
           icon: const Icon(Icons.arrow_back),
         ),
-
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Expanded(child: AppPrimaryButton(onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const AddTireScreen()),
-        );
-        }, title: "Add Tire")),
+        child: Expanded(
+            child: AppPrimaryButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AddEditTireScreen(),
+                    ),
+                  );
+                },
+                title: "Add Tire")),
       ),
       body: SafeArea(
         child: FutureBuilder<List<TireModel>>(
@@ -84,7 +136,7 @@ class _TiresListScreenState extends State<TiresListScreen> {
                         tire: tire,
                         context: context,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
                     ],
                   );
                 },
@@ -96,10 +148,11 @@ class _TiresListScreenState extends State<TiresListScreen> {
     );
   }
 
-  Widget _buildTireListItem({required TireModel tire, required BuildContext context}) {
+  Widget _buildTireListItem(
+      {required TireModel tire, required BuildContext context}) {
     return GestureDetector(
       onTap: () {
-        if(tire.tireId != null){
+        if (tire.tireId != null) {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -107,7 +160,8 @@ class _TiresListScreenState extends State<TiresListScreen> {
             ),
           );
         }
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Tire not found!!")));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Tire not found!!")));
       },
       child: Card(
         child: Padding(
@@ -156,6 +210,28 @@ class _TiresListScreenState extends State<TiresListScreen> {
                   ],
                 ),
               ),
+              Row(
+                children: [
+                  _ActionButtonEdit(
+                      icon: Icons.edit,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddEditTireScreen(tire: tire),
+                          ),
+                        );
+
+                        //_onDelete(tire.tireId.toString());
+                      }),
+                  const SizedBox(width: 8),
+                  _ActionButtonDelete(
+                      icon: Icons.delete,
+                      onPressed: () {
+                        _confirmDelete(tire.tireId!.toInt());
+                      }),
+                ],
+              ),
             ],
           ),
         ),
@@ -164,3 +240,30 @@ class _TiresListScreenState extends State<TiresListScreen> {
   }
 }
 
+class _ActionButtonEdit extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  const _ActionButtonEdit({required this.icon, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(icon, color: Colors.green),
+      onPressed: onPressed,
+    );
+  }
+}
+
+class _ActionButtonDelete extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  const _ActionButtonDelete({required this.icon, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+        icon: Icon(icon, color: Colors.red), onPressed: onPressed);
+  }
+}

@@ -197,7 +197,6 @@
 //
 // }
 
-
 import 'package:flutter/material.dart';
 import 'package:yaantrac_app/models/expense.dart';
 import 'package:yaantrac_app/models/income.dart';
@@ -224,6 +223,52 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
     super.initState();
     futureExpenses = getExpenses();
     futureIncomes = getIncomes();
+  }
+
+  Future<void> _confirmDelete(int tireId) async {
+    bool? confirm = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Confirm Delete"),
+        content: const Text("Are you sure you want to delete this tire?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false), // No
+            child: const Text("No"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true), // Yes
+            child: const Text("Yes", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      _onDelete(tireId); // Call delete function if confirmed
+    }
+  }
+
+  Future<void> _onDelete(int tireId) async {
+    try {
+      final response = await APIService.instance.request(
+        "/tires/$tireId",
+        DioMethod.delete,
+      );
+      String tid = tireId.toString();
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Tire to deleted successfully!"),
+          ),
+        );
+        Navigator.pop(context);
+      } else {
+        print("Error: ${response.statusMessage}");
+      }
+    } catch (err) {
+      print("Delete Error: $err");
+    }
   }
 
   Future<List<ExpenseModel>> getExpenses() async {
@@ -268,6 +313,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.lightBlue,
           title: const Text("Expenses & Income"),
           bottom: TabBar(
             onTap: (index) {
@@ -276,7 +322,9 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
               });
             },
             tabs: const [
-              Tab(child: Text("Expense", style: TextStyle(color: Colors.white))),
+              Tab(
+                  child:
+                      Text("Expense", style: TextStyle(color: Colors.white))),
               Tab(child: Text("Income", style: TextStyle(color: Colors.white))),
             ],
           ),
@@ -362,6 +410,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
       },
     );
   }
+
   Widget _buildExpenseListItem({required ExpenseModel expense}) {
     return Card(
       child: Padding(
@@ -370,7 +419,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
           children: [
             const Icon(Icons.receipt_long, size: 48, color: Colors.blueGrey),
             const SizedBox(width: 16),
-            Expanded(
+            Container(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -406,26 +455,26 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
                 ],
               ),
             ),
-            MenuAnchor(
-              builder: (BuildContext context, MenuController controller, Widget? child) {
-                return IconButton(
-                  icon: const Icon(Icons.more_vert),
-                  onPressed: () => controller.open(),
-                );
-              },
-              menuChildren: [
-                MenuItemButton(
-                  child: const Text('Update'),
-                  onPressed: () {
-                    // Handle update logic
-                  },
-                ),
-                MenuItemButton(
-                  child: const Text('Delete'),
-                  onPressed: () {
-                    // Handle delete logic
-                  },
-                ),
+            Row(
+              children: [
+                _ActionButtonEdit(
+                    icon: Icons.edit,
+                    onPressed: () {
+                      /*Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddEditTireScreen(tire: tire),
+                        ),
+                      );*/
+
+                      //_onDelete(tire.tireId.toString());
+                    }),
+                const SizedBox(width: 8),
+                _ActionButtonDelete(
+                    icon: Icons.delete,
+                    onPressed: () {
+                      //_confirmDelete(tire.tireId!.toInt());
+                    }),
               ],
             ),
           ],
@@ -433,8 +482,6 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
       ),
     );
   }
-
-
 
   Widget _buildIncomeListItem({required IncomeModel income}) {
     return _buildListItem(
@@ -445,20 +492,83 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
     );
   }
 
-  Widget _buildListItem({required String title, required double amount, required DateTime date, required String description}) {
+  Widget _buildListItem(
+      {required String title,
+      required double amount,
+      required DateTime date,
+      required String description}) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-            Text('Amount: ₹${amount.toStringAsFixed(2)}'),
-            Text('Date: ${date.toLocal()}'.split(' ')[0]),
-            Text('Description: $description'),
-          ],
-        ),
-      ),
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w500)),
+                  Text('Amount: ₹${amount.toStringAsFixed(2)}'),
+                  Text('Date: ${date.toLocal()}'.split(' ')[0]),
+                  Text('Description: $description'),
+                ],
+              ),
+              SizedBox(
+                width: 50,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  _ActionButtonEdit(
+                      icon: Icons.edit,
+                      onPressed: () {
+                        /*Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddEditTireScreen(tire: tire),
+                        ),
+                      );*/
+
+                        //_onDelete(tire.tireId.toString());
+                      }),
+                  const SizedBox(width: 8),
+                  _ActionButtonDelete(
+                      icon: Icons.delete,
+                      onPressed: () {
+                        //_confirmDelete(tire.tireId!.toInt());
+                      }),
+                ],
+              ),
+            ],
+          )),
     );
+  }
+}
+
+class _ActionButtonEdit extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  const _ActionButtonEdit({required this.icon, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(icon, color: Colors.green),
+      onPressed: onPressed,
+    );
+  }
+}
+
+class _ActionButtonDelete extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  const _ActionButtonDelete({required this.icon, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+        icon: Icon(icon, color: Colors.red), onPressed: onPressed);
   }
 }

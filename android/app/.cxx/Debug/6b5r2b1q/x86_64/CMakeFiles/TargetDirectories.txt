@@ -1,0 +1,2 @@
+C:/Users/harsa/AndroidStudioProjects/yaantrac-mobile/android/app/.cxx/Debug/6b5r2b1q/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/harsa/AndroidStudioProjects/yaantrac-mobile/android/app/.cxx/Debug/6b5r2b1q/x86_64/CMakeFiles/rebuild_cache.dir

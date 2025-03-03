@@ -21,7 +21,7 @@ class TireModel {
       tireId: json['tireId'] ?? 0,
       brand: json['brand'] ?? '',
       model: json['model'] ?? '',
-      size: json['size'] ?? '',
+      size: json['size'] ?? 0,
       stock: json['stock'] ?? 0,
     );
   }
@@ -29,7 +29,7 @@ class TireModel {
   // TireModel to JSON
   Map<String, dynamic> toJson() {
     return {
-      'tireId':tireId,
+      'tireId': tireId,
       'brand': brand,
       'model': model,
       'size': size,

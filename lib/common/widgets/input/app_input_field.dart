@@ -30,7 +30,7 @@ class AppInputField extends StatelessWidget {
     this.dropdownItems,
     this.onDropdownChanged,
     this.onDateSelected,
-    this.disabled=false,
+    this.disabled = false,
     this.onInputChanged,
     this.defaultValue,
   });
@@ -90,8 +90,8 @@ class AppInputField extends StatelessWidget {
               hintText: hint,
               hintStyle: const TextStyle(color: Colors.grey),
             ),
-            validator: (value){
-              if(value == null ||  value.isEmpty){
+            validator: (value) {
+              if (value == null || value.isEmpty) {
                 return "Please fill this field";
               }
               return null;
