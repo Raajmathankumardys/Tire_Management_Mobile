@@ -14,7 +14,7 @@ class AddIncomeScreen extends StatefulWidget {
 }
 
 class _AddIncomeScreenState extends State<AddIncomeScreen> {
-  final int tripId = 2;
+  final int tripId = 1;
   String selectedIncomeType = "";
   DateTime selectedDate = DateTime.now();
   double amount = 0.0;
@@ -31,7 +31,6 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
-
 
       try {
         final response = await APIService.instance.request(

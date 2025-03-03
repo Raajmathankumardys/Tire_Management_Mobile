@@ -13,7 +13,7 @@ class ExpenseScreen extends StatefulWidget {
 }
 
 class _ExpenseScreenState extends State<ExpenseScreen> {
-  final int tripId=2;
+  final int tripId=1;
   late Future<TripProfitSummaryModel> tripProfitSummary;
 
   Future<TripProfitSummaryModel> getTripProfit() async{
@@ -135,7 +135,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
             children: [
               const SizedBox(width: 16),
               Expanded(child: AppPrimaryButton(onPressed: (){
-                Navigator.push(context,MaterialPageRoute(builder: (context)=>const ExpensesListScreen(tripId: 2)));
+                Navigator.push(context,MaterialPageRoute(builder: (context)=>const ExpensesListScreen(tripId: 1)));
               }, title: "View")),
             ],
           ),
