@@ -14,7 +14,7 @@ class AddIncomeScreen extends StatefulWidget {
 }
 
 class _AddIncomeScreenState extends State<AddIncomeScreen> {
-  final int tripId = 2;
+  final int tripId = 1;
   String selectedIncomeType = "";
   DateTime selectedDate = DateTime.now();
   double amount = 0.0;
