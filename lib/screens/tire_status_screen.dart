@@ -14,42 +14,42 @@ class TireStatusScreen extends StatefulWidget {
 }
 
 class _TireStatusScreenState extends State<TireStatusScreen> {
-  List<TirePerformanceModel> tirePerformances=[];
-  bool isLoading=true;
+  List<TirePerformanceModel> tirePerformances = [];
+  bool isLoading = true;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     fetchTireStatus();
-
   }
-  Future<void> fetchTireStatus()async{
+
+  Future<void> fetchTireStatus() async {
     try {
-      final response=await APIService.instance.request("/tires/${widget.tireId}/performances",DioMethod.get);
-      if(response.statusCode==200)
-      {
+      final response = await APIService.instance
+          .request("/tires/${widget.tireId}/performances", DioMethod.get);
+      if (response.statusCode == 200) {
         Map<String, dynamic> responseData = response.data;
         List<dynamic> performanceList = responseData['data'];
         setState(() {
-          tirePerformances=performanceList.map((json)=>TirePerformanceModel.fromJson(json)).toList();
-          isLoading=false;
+          tirePerformances = performanceList
+              .map((json) => TirePerformanceModel.fromJson(json))
+              .toList();
+          isLoading = false;
         });
         print(tirePerformances);
-
-      }
-      else{
+      } else {
         print(response.statusMessage);
+        print("Hello Error1");
       }
-    }
-    catch(err){
+    } catch (err) {
       print(err);
+      print("Hello Error");
     }
-
   }
+
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         actions: const [
@@ -230,10 +230,7 @@ class _TireStatusScreenState extends State<TireStatusScreen> {
                         ],
                       ),
                       SizedBox(height: 16),
-                      SizedBox(
-                        height: 148,
-                        child: LineChartWidget()
-                      ),
+                      SizedBox(height: 148, child: LineChartWidget()),
                       SizedBox(height: 16),
                     ],
                   ),

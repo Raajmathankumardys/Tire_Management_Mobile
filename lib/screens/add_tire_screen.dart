@@ -158,6 +158,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
 import 'package:yaantrac_app/common/widgets/input/app_input_field.dart';
+import 'package:yaantrac_app/screens/tires_list_screen.dart';
 import 'package:yaantrac_app/services/api_service.dart';
 import '../models/tire.dart';
 
@@ -180,21 +181,24 @@ class _AddEditTireScreenState extends State<AddEditTireScreen> {
   @override
   void initState() {
     super.initState();
-    print(widget?.tire);
+    print(widget?.tire?.toJson());
     _brand = widget.tire?.brand ?? '';
     _model = widget.tire?.model ?? '';
     _size = widget.tire?.size ?? '';
     _stock = widget.tire?.stock ?? 0;
   }
 
-  Future<void> _onSubmit() async {
+  _onSubmit() async {
     if (_formKey.currentState!.validate()) {
+      var tid = (widget.tire == null)
+          ? DateTime.now().millisecondsSinceEpoch
+          : widget.tire!.tireId;
       _formKey.currentState!.save();
       final tire = TireModel(
-        tireId: widget.tire?.tireId ?? DateTime.now().millisecondsSinceEpoch,
+        tireId: tid,
         brand: _brand,
         model: _model,
-        size: _size,
+        size: _size.toString(),
         stock: _stock.toInt(),
       );
       print(tire.toJson());
@@ -214,7 +218,9 @@ class _AddEditTireScreenState extends State<AddEditTireScreen> {
                   : "Tire updated successfully!"),
             ),
           );
-          Navigator.pop(context);
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => TiresListScreen()),
+              (route) => false);
         } else {
           print(response.statusMessage);
         }
@@ -245,22 +251,26 @@ class _AddEditTireScreenState extends State<AddEditTireScreen> {
                 AppInputField(
                   label: "Tire Model",
                   hint: "Enter tire model",
+                  defaultValue: _model,
                   onInputChanged: (value) => _model = value ?? '',
                 ),
                 AppInputField(
                   label: "Brand",
                   hint: "Enter brand",
+                  defaultValue: _brand,
                   onInputChanged: (value) => _brand = value ?? '',
                 ),
                 AppInputField(
                   label: "Size",
                   hint: "Enter size",
-                  onInputChanged: (value) => _size = value ?? '',
+                  defaultValue: _size,
+                  onInputChanged: (value) => _size = value.toString() ?? '',
                   //_size = int.tryParse(value ?? '0') ?? 0),
                 ),
                 AppInputField(
                   label: "Stock",
                   hint: "Enter stock quantity",
+                  defaultValue: _stock.toString(),
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   onInputChanged: (value) =>

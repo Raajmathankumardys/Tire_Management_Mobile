@@ -4,10 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
 import 'package:yaantrac_app/common/widgets/input/app_input_field.dart';
 import 'package:yaantrac_app/models/income.dart'; // Replace with the actual income model
+import 'package:yaantrac_app/screens/expense_list_screen.dart';
 import 'package:yaantrac_app/services/api_service.dart';
 
+import 'expense_screen.dart';
+
 class AddIncomeScreen extends StatefulWidget {
-  const AddIncomeScreen({super.key});
+  final IncomeModel? income;
+  const AddIncomeScreen({super.key, this.income});
 
   @override
   State<AddIncomeScreen> createState() => _AddIncomeScreenState();
@@ -19,32 +23,67 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
   DateTime selectedDate = DateTime.now();
   double amount = 0.0;
   String description = "";
+  late double _amount;
+  late DateTime _incomeDate;
+  late int _tripId;
+  late String _description;
+  final TextEditingController _dateController = TextEditingController();
+
+  @override
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _amount = widget.income?.amount ?? 0.0;
+    _incomeDate = widget.income?.incomeDate ?? DateTime.now();
+    _dateController.text =
+        "$_incomeDate.toLocal()}".split(' ')[0]; // Format the date
+    _tripId = widget.income?.tripId ?? 0;
+    _description = widget.income?.description ?? "";
+  }
+
+  String _formatDate(DateTime date) {
+    return "${date.day.toString().padLeft(2, '0')}-"
+        "${date.month.toString().padLeft(2, '0')}-"
+        "${date.year}";
+  }
+
   final _formKey = GlobalKey<FormState>();
 
   void _submitIncome() async {
+    var iid = (widget.income == null) ? null : widget.income!.incomeId;
     if (_formKey.currentState!.validate()) {
       IncomeModel income = IncomeModel(
-        amount: amount,
-        incomeDate: selectedDate,
+        incomeId: iid,
+        amount: _amount,
+        incomeDate: _incomeDate,
         tripId: tripId,
-        description: description,
+        description: _description,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
-
+      print(income.toJson());
       try {
         final response = await APIService.instance.request(
-          "/income/$tripId",
-          DioMethod.post,
+          widget.income == null
+              ? "/income/${income.tripId}"
+              : "/income/${income.incomeId}",
+          widget.income == null ? DioMethod.post : DioMethod.put,
           formData: income.toJson(),
           contentType: "application/json",
         );
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Income added successfully!")),
+            SnackBar(
+                content: Text(widget.income == null
+                    ? "Income added successfully!"
+                    : "Income updated successfully!")),
           );
           _formKey.currentState?.reset();
-          Navigator.pop(context);
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                  builder: (context) => ExpensesListScreen(tripId: tripId)),
+              (route) => false);
         } else {
           print(response.statusMessage);
         }
@@ -91,17 +130,18 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   disabled: true,
-                  defaultValue: tripId.toString(),
+                  defaultValue: _tripId.toString(),
                 ),
                 const SizedBox(height: 5),
                 AppInputField(
                   label: "Amount",
                   hint: "Enter Amount",
                   keyboardType: TextInputType.number,
+                  defaultValue: _amount.toString(),
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   onInputChanged: (value) {
                     setState(() {
-                      amount = double.parse(value!);
+                      _amount = double.parse(value!);
                     });
                   },
                 ),
@@ -109,10 +149,13 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
                 AppInputField(
                   label: "Date",
                   isDatePicker: true,
+                  controller:
+                      _dateController, // Use the controller instead of defaultValue
                   onDateSelected: (date) {
-                    print(date);
                     setState(() {
-                      selectedDate = date;
+                      _incomeDate = date;
+                      _dateController.text =
+                          _formatDate(date); // Update text in field
                     });
                   },
                 ),
@@ -121,9 +164,10 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
                   label: "Description",
                   hint: "Enter Description",
                   keyboardType: TextInputType.multiline,
+                  defaultValue: _description.toString(),
                   onInputChanged: (value) {
                     setState(() {
-                      description = value!;
+                      _description = value!;
                     });
                   },
                 ),
@@ -136,7 +180,10 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                         child: AppPrimaryButton(
-                            onPressed: _submitIncome, title: "Submit")),
+                            onPressed: _submitIncome,
+                            title: widget.income?.incomeId == null
+                                ? "Submit"
+                                : "Update")),
                   ],
                 ),
                 const SizedBox(height: 15),

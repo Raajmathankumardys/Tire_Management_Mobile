@@ -198,6 +198,7 @@
 // }
 
 import 'package:flutter/material.dart';
+import 'package:yaantrac_app/common/widgets/button/action_button.dart';
 import 'package:yaantrac_app/models/expense.dart';
 import 'package:yaantrac_app/models/income.dart';
 import 'package:yaantrac_app/screens/add_expense_screen.dart';
@@ -225,12 +226,18 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
     futureIncomes = getIncomes();
   }
 
-  Future<void> _confirmDelete(int tireId) async {
+  String _formatDate(DateTime date) {
+    return "${date.day.toString().padLeft(2, '0')}-"
+        "${date.month.toString().padLeft(2, '0')}-"
+        "${date.year}";
+  }
+
+  Future<void> _confirmDeleteexpense(int expenseId) async {
     bool? confirm = await showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Confirm Delete"),
-        content: const Text("Are you sure you want to delete this tire?"),
+        content: const Text("Are you sure you want to delete this Expense?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false), // No
@@ -245,24 +252,77 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
     );
 
     if (confirm == true) {
-      _onDelete(tireId); // Call delete function if confirmed
+      _onDeleteexpense(expenseId); // Call delete function if confirmed
     }
   }
 
-  Future<void> _onDelete(int tireId) async {
+  Future<void> _onDeleteexpense(int expenseId) async {
     try {
       final response = await APIService.instance.request(
-        "/tires/$tireId",
+        "expenses/$expenseId",
         DioMethod.delete,
       );
-      String tid = tireId.toString();
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Tire to deleted successfully!"),
+            content: Text("Expense deleted successfully!"),
           ),
         );
-        Navigator.pop(context);
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+                builder: (context) =>
+                    ExpensesListScreen(tripId: widget.tripId)),
+            (route) => false);
+      } else {
+        print("Error: ${response.statusMessage}");
+      }
+    } catch (err) {
+      print("Delete Error: $err");
+    }
+  }
+
+  Future<void> _confirmDeleteincome(int incomeId) async {
+    print(incomeId);
+    bool? confirm = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Confirm Delete"),
+        content: const Text("Are you sure you want to delete this income?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false), // No
+            child: const Text("No"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true), // Yes
+            child: const Text("Yes", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      _onDeleteincome(incomeId); // Call delete function if confirmed
+    }
+  }
+
+  Future<void> _onDeleteincome(int incomeId) async {
+    try {
+      print(incomeId);
+      final response = await APIService.instance.request(
+          "/income/$incomeId", DioMethod.delete,
+          contentType: "application/json");
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Expense deleted successfully!"),
+          ),
+        );
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+                builder: (context) =>
+                    ExpensesListScreen(tripId: widget.tripId)),
+            (route) => false);
       } else {
         print("Error: ${response.statusMessage}");
       }
@@ -280,6 +340,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
       );
       if (response.statusCode == 200) {
         List<dynamic> expenseList = response.data['data'];
+        //print(response.data['data']);
         return expenseList.map((json) => ExpenseModel.fromJson(json)).toList();
       } else {
         throw Exception("Error: ${response.statusMessage}");
@@ -344,7 +405,9 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => _selectedIndex == 0
-                            ? const AddExpenseScreen()
+                            ? AddExpenseScreen(
+                                trid: widget.tripId,
+                              )
                             : const AddIncomeScreen(),
                       ),
                     );
@@ -419,7 +482,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
           children: [
             const Icon(Icons.receipt_long, size: 48, color: Colors.blueGrey),
             const SizedBox(width: 16),
-            Container(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -439,7 +502,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
                     ),
                   ),
                   Text(
-                    'Date: ${expense.expenseDate.toLocal()}'.split(' ')[0],
+                    'Date: ${_formatDate(expense.expenseDate)}',
                     style: const TextStyle(
                       color: Color(0xFF93adc8),
                       fontSize: 14,
@@ -457,23 +520,26 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
             ),
             Row(
               children: [
-                _ActionButtonEdit(
+                ActionButton(
                     icon: Icons.edit,
+                    color: Colors.green,
                     onPressed: () {
-                      /*Navigator.push(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => AddEditTireScreen(tire: tire),
+                          builder: (context) => AddExpenseScreen(
+                            expense: expense,
+                            trid: widget.tripId,
+                          ),
                         ),
-                      );*/
-
-                      //_onDelete(tire.tireId.toString());
+                      );
                     }),
-                const SizedBox(width: 8),
-                _ActionButtonDelete(
+                SizedBox(width: 10),
+                ActionButton(
                     icon: Icons.delete,
+                    color: Colors.red,
                     onPressed: () {
-                      //_confirmDelete(tire.tireId!.toInt());
+                      _confirmDeleteexpense(expense.expenseId!.toInt());
                     }),
               ],
             ),
@@ -485,6 +551,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
 
   Widget _buildIncomeListItem({required IncomeModel income}) {
     return _buildListItem(
+      income: income,
       title: "Income",
       amount: income.amount,
       date: income.incomeDate,
@@ -493,7 +560,8 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
   }
 
   Widget _buildListItem(
-      {required String title,
+      {required IncomeModel income,
+      required String title,
       required double amount,
       required DateTime date,
       required String description}) {
@@ -502,73 +570,45 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
           padding: const EdgeInsets.all(8.0),
           child: Row(
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title,
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w500)),
-                  Text('Amount: ₹${amount.toStringAsFixed(2)}'),
-                  Text('Date: ${date.toLocal()}'.split(' ')[0]),
-                  Text('Description: $description'),
-                ],
-              ),
-              SizedBox(
-                width: 50,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title,
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w500)),
+                    Text('Amount: ₹${amount.toStringAsFixed(2)}'),
+                    Text('Date: ${_formatDate(income.incomeDate)}'),
+                    Text('Description: $description'),
+                  ],
+                ),
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  _ActionButtonEdit(
+                  ActionButton(
                       icon: Icons.edit,
+                      color: Colors.green,
                       onPressed: () {
-                        /*Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AddEditTireScreen(tire: tire),
-                        ),
-                      );*/
-
-                        //_onDelete(tire.tireId.toString());
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddIncomeScreen(
+                              income: income,
+                            ),
+                          ),
+                        );
                       }),
-                  const SizedBox(width: 8),
-                  _ActionButtonDelete(
+                  SizedBox(width: 10),
+                  ActionButton(
                       icon: Icons.delete,
+                      color: Colors.red,
                       onPressed: () {
-                        //_confirmDelete(tire.tireId!.toInt());
+                        _confirmDeleteincome(income.incomeId!.toInt());
                       }),
                 ],
               ),
             ],
           )),
     );
-  }
-}
-
-class _ActionButtonEdit extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onPressed;
-
-  const _ActionButtonEdit({required this.icon, required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      icon: Icon(icon, color: Colors.green),
-      onPressed: onPressed,
-    );
-  }
-}
-
-class _ActionButtonDelete extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onPressed;
-
-  const _ActionButtonDelete({required this.icon, required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-        icon: Icon(icon, color: Colors.red), onPressed: onPressed);
   }
 }

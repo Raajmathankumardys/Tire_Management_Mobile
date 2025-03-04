@@ -5,6 +5,7 @@ import 'package:yaantrac_app/models/tire.dart';
 import 'package:yaantrac_app/screens/add_tire_screen.dart';
 import 'package:yaantrac_app/screens/tire_status_screen.dart';
 import 'package:yaantrac_app/services/api_service.dart';
+import 'package:yaantrac_app/common/widgets/button/action_button.dart';
 
 class TiresListScreen extends StatefulWidget {
   const TiresListScreen({super.key});
@@ -18,8 +19,8 @@ class _TiresListScreenState extends State<TiresListScreen> {
 
   @override
   void initState() {
-    super.initState();
     futureTires = getTires();
+    super.initState();
   }
 
   Future<void> _confirmDelete(int tireId) async {
@@ -49,17 +50,17 @@ class _TiresListScreenState extends State<TiresListScreen> {
   Future<void> _onDelete(int tireId) async {
     try {
       final response = await APIService.instance.request(
-        "/tires/$tireId",
-        DioMethod.delete,
-      );
+          "/tires/$tireId", DioMethod.delete,
+          contentType: "application/json");
       String tid = tireId.toString();
       if (response.statusCode == 200) {
+        print("API CAlled");
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Tire to deleted successfully!"),
           ),
         );
-        Navigator.pop(context);
+        getTires();
       } else {
         print("Error: ${response.statusMessage}");
       }
@@ -76,6 +77,7 @@ class _TiresListScreenState extends State<TiresListScreen> {
         contentType: "application/json",
       );
       if (response.statusCode == 200) {
+        print("API CAlled");
         Map<String, dynamic> responseData = response.data;
         List<dynamic> tireList = responseData['data'];
         return tireList.map((json) => TireModel.fromJson(json)).toList();
@@ -103,13 +105,24 @@ class _TiresListScreenState extends State<TiresListScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Expanded(
             child: AppPrimaryButton(
-                onPressed: () {
+                onPressed: () async {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const AddEditTireScreen(),
+                        builder: (context) => AddEditTireScreen()),
+                  ).then((value) => setState(() {
+                        futureTires =
+                            getTires(); // Refresh data after returning
+                      }));
+                  /* await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ,
                     ),
                   );
+                  setState(() {
+                    futureTires = getTires(); // Refresh data after returning
+                  });*/
                 },
                 title: "Add Tire")),
       ),
@@ -212,24 +225,26 @@ class _TiresListScreenState extends State<TiresListScreen> {
               ),
               Row(
                 children: [
-                  _ActionButtonEdit(
-                      icon: Icons.edit,
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => AddEditTireScreen(tire: tire),
-                          ),
-                        );
-
-                        //_onDelete(tire.tireId.toString());
-                      }),
-                  const SizedBox(width: 8),
-                  _ActionButtonDelete(
-                      icon: Icons.delete,
-                      onPressed: () {
-                        _confirmDelete(tire.tireId!.toInt());
-                      }),
+                  ActionButton(
+                    icon: Icons.edit,
+                    color: Colors.green,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddEditTireScreen(tire: tire),
+                        ),
+                      );
+                    },
+                  ),
+                  SizedBox(width: 8),
+                  ActionButton(
+                    icon: Icons.delete,
+                    color: Colors.red,
+                    onPressed: () {
+                      _confirmDelete(tire.tireId!.toInt());
+                    },
+                  ),
                 ],
               ),
             ],
@@ -237,33 +252,5 @@ class _TiresListScreenState extends State<TiresListScreen> {
         ),
       ),
     );
-  }
-}
-
-class _ActionButtonEdit extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onPressed;
-
-  const _ActionButtonEdit({required this.icon, required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      icon: Icon(icon, color: Colors.green),
-      onPressed: onPressed,
-    );
-  }
-}
-
-class _ActionButtonDelete extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onPressed;
-
-  const _ActionButtonDelete({required this.icon, required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-        icon: Icon(icon, color: Colors.red), onPressed: onPressed);
   }
 }

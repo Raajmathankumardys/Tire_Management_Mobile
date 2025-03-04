@@ -6,10 +6,15 @@ import 'package:flutter/services.dart';
 import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
 import 'package:yaantrac_app/common/widgets/input/app_input_field.dart';
 import 'package:yaantrac_app/models/expense.dart';
+import 'package:yaantrac_app/screens/expense_list_screen.dart';
 import 'package:yaantrac_app/services/api_service.dart';
 
+import 'expense_screen.dart';
+
 class AddExpenseScreen extends StatefulWidget {
-  const AddExpenseScreen({super.key});
+  final ExpenseModel? expense;
+  final int? trid;
+  const AddExpenseScreen({super.key, this.expense, required this.trid});
 
   @override
   State<AddExpenseScreen> createState() => _AddExpenseScreenState();
@@ -22,30 +27,104 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   double amount = 0.0;
   String description = "";
 
+  late double _amount;
+  late ExpenseCategory _category;
+  late DateTime _expenseDate;
+  late int _tripId;
+  late String _description;
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _dateController = TextEditingController();
+  late String cat;
+
+  @override
+  void initState() {
+    super.initState();
+    print(widget.expense?.toJson());
+    gettrip();
+    _amount = widget.expense?.amount ?? 0.0;
+    _category = widget.expense?.category ?? ExpenseCategory.FUEL;
+    _expenseDate = widget.expense?.expenseDate ?? DateTime.now();
+    _dateController.text = "$_expenseDate.toLocal()}".split(' ')[0];
+    _tripId = widget.expense?.tripId ?? 0;
+    _description = widget.expense?.description ?? " ";
+
+    switch (_category.toString().split(".")[1]) {
+      case "FUEL":
+        cat = "Fuel Costs";
+        break;
+      case "DRIVER_ALLOWANCE":
+        cat = "Driver Allowances";
+        break;
+      case "TOLL":
+        cat = "Toll Charges";
+        break;
+      case "MAINTENANCE":
+        cat = "Maintenance";
+        break;
+      default:
+        cat = "Miscellaneous";
+    }
+  }
+
+  Map<String, dynamic>? trip;
+  String _formatDate(DateTime date) {
+    return "${date.day.toString().padLeft(2, '0')}-"
+        "${date.month.toString().padLeft(2, '0')}-"
+        "${date.year}";
+  }
+
+  Future<void> gettrip() async {
+    try {
+      final response = await APIService.instance.request(
+          "/trips/${widget.trid}", DioMethod.get,
+          contentType: "application/json");
+      if (response.statusCode == 200) {
+        trip = response.data;
+        print("Get");
+        print(trip);
+      } else {
+        print(response.statusMessage);
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
 
   void _submitExpense() async {
+    var eid = (widget.expense == null)
+        ? DateTime.now().millisecondsSinceEpoch
+        : widget.expense!.expenseId;
     if (_formKey.currentState!.validate()) {
-      ExpenseModel expense = ExpenseModel(
-        amount: amount,
-        category: selectedExpenseType,
-        expenseDate: selectedDate,
-        tripId: tripId,
-        description: description,
-        attachmentUrl: "",
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
-      print("Submitted Expense Data: ${expense.toJson()}");
+      var expense = {
+        "expenseId": eid,
+        "amount": amount,
+        "category": selectedExpenseType,
+        "expenseDate": selectedDate,
+        "description": description,
+        "attachmentUrl": "",
+        "createdAt": DateTime.now(),
+        "updatedAt": DateTime.now(),
+        //"trip": trip,
+      };
+      print("Submitted Expense Data: ${expense}");
 
       try {
         final response = await APIService.instance.request(
-            "/expenses/$tripId", DioMethod.post,
-            formData: expense.toJson(), contentType: "application/json");
+            widget.expense == null
+                ? "/expenses/${_tripId}"
+                : "/expenses/${eid}",
+            widget.expense == null ? DioMethod.post : DioMethod.put,
+            formData: expense,
+            contentType: "application/json");
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context)
               .showSnackBar(const SnackBar(content: Text("Added data")));
           _formKey.currentState?.reset();
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                  builder: (context) =>
+                      ExpensesListScreen(tripId: widget.trid!.toInt())),
+              (route) => false);
         } else {
           print(response.statusMessage);
         }
@@ -89,35 +168,43 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                 AppInputField(
                   label: "Trip Id",
                   hint: "Enter Trip Id",
+                  defaultValue: widget.trid.toString() ?? "null",
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   disabled: true,
-                  defaultValue: tripId.toString(),
                 ),
                 const SizedBox(height: 5),
                 AppInputField(
                   label: "Expense Type",
-                  isDropdown: true,
+                  isDropdown: true, hint: cat,
+                  defaultValue: cat, // Correct default value
                   dropdownItems: const [
                     DropdownMenuItem(value: "FUEL", child: Text("Fuel Costs")),
                     DropdownMenuItem(
-                        value: "DRIVER", child: Text("Driver Allowances")),
+                        value: "DRIVER_ALLOWANCE",
+                        child: Text("Driver Allowances")),
                     DropdownMenuItem(
                         value: "TOLL", child: Text("Toll Charges")),
                     DropdownMenuItem(
                         value: "MAINTENANCE", child: Text("Maintenance")),
+                    DropdownMenuItem(
+                        value: "MISCELLANEOUS", child: Text("Miscellaneous")),
                   ],
                   onDropdownChanged: (value) {
-                    selectedExpenseType = ExpenseCategory.values.firstWhere(
-                      (e) => e.toString().split(".").last == value,
-                      orElse: () => ExpenseCategory.MISCELLANEOUS,
-                    );
+                    setState(() {
+                      selectedExpenseType = ExpenseCategory.values.firstWhere(
+                        (e) => e.name == value,
+                        orElse: () => ExpenseCategory.MISCELLANEOUS,
+                      );
+                      print("Selected Expense Type: $selectedExpenseType");
+                    });
                   },
                 ),
                 const SizedBox(height: 5),
                 AppInputField(
                   label: "Amount",
                   hint: "Enter Amount",
+                  defaultValue: _amount.toString(),
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   onInputChanged: (value) {
@@ -130,9 +217,14 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                 AppInputField(
                   label: "Date",
                   isDatePicker: true,
+                  controller: _dateController,
+                  defaultValue: "${_expenseDate.toLocal()}"
+                      .split(' ')[0], // Show only date
                   onDateSelected: (date) {
                     setState(() {
                       selectedDate = date;
+                      _dateController.text =
+                          _formatDate(selectedDate); // Update text in field
                     });
                   },
                 ),
@@ -140,6 +232,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                 AppInputField(
                   label: "Description",
                   hint: "Enter Description",
+                  defaultValue: _description,
                   keyboardType: TextInputType.multiline,
                   onInputChanged: (value) {
                     setState(() {
