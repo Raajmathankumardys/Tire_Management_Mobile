@@ -1,9 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:yaantrac_app/models/tire_performance.dart';
 
 class LineChartWidget extends StatelessWidget {
-  final List<dynamic> data;
-  const LineChartWidget({super.key, required this.data});
+  const LineChartWidget(List<TirePerformanceModel> list, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +15,7 @@ class LineChartWidget extends StatelessWidget {
         lineBarsData: [
           LineChartBarData(
             spots: const [
-              FlSpot(0, 30),
+              FlSpot(0, 20),
               FlSpot(1, 32),
               FlSpot(2, 28),
               FlSpot(3, 34),

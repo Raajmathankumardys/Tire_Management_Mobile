@@ -14,262 +14,216 @@ class TireStatusScreen extends StatefulWidget {
 }
 
 class _TireStatusScreenState extends State<TireStatusScreen> {
-  List<TirePerformanceModel> tirePerformances = [];
   bool isLoading = true;
+  List<TirePerformanceModel> tirePerformances = [];
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     fetchTireStatus();
   }
 
   Future<void> fetchTireStatus() async {
     try {
-      final response = await APIService.instance
-          .request("/tires/${widget.tireId}/performances", DioMethod.get);
+      final response = await APIService.instance.request(
+        "https://yaantrac-backend.onrender.com/api/tires/${widget.tireId}/performances",
+        DioMethod.get,
+        contentType: "application/json",
+      );
+
       if (response.statusCode == 200) {
         Map<String, dynamic> responseData = response.data;
-        List<dynamic> performanceList = responseData['data'];
+        var performanceList = responseData['data'] as List<dynamic>;
+
+        List<TirePerformanceModel> fetchedData = performanceList
+            .map((json) => TirePerformanceModel.fromJson(json))
+            .toList();
+
         setState(() {
-          tirePerformances = performanceList
-              .map((json) => TirePerformanceModel.fromJson(json))
-              .toList();
+          tirePerformances = fetchedData;
           isLoading = false;
         });
-        print(tirePerformances);
       } else {
-        print(response.statusMessage);
-        print("Hello Error1");
+        throw Exception("Error: ${response.statusMessage}");
       }
-    } catch (err) {
-      print(err);
-      print("Hello Error");
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print("Error fetching tires: $e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(
+        child: Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.lightBlue,
         actions: const [
           Icon(Icons.search),
         ],
         title: const Align(
           alignment: Alignment.centerLeft,
-          child: Text("Tires", style: TextStyle(fontSize: 20)),
+          child: Text("Tire Performance", style: TextStyle(fontSize: 20)),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              // Tabs section
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.only(bottom: 13, top: 16),
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: Color(0xFF0D7CF2),
-                                  width: 3,
-                                ),
-                              ),
-                            ),
-                            child: const Text(
-                              'All',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.only(bottom: 13, top: 16),
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: Colors.transparent,
-                                  width: 3,
-                                ),
-                              ),
-                            ),
-                            child: const Text(
-                              'Low Pressure',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF49719C),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Recently Added Section
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Recently added',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Card(
-                        child: Container(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : tirePerformances.isEmpty
+              ? const Center(
+                  child: Text(
+                  "No data available",
+                  style: TextStyle(fontSize: 18),
+                ))
+              : SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Padding(
                           padding: const EdgeInsets.all(16),
-                          color: Colors.grey[50],
-                          width: double.infinity,
-                          child: const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Fleet 3, Vehicle 1',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black,
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Last updated at ${tirePerformances.first.localDateTime}',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                'Status: In Service',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.normal,
-                                  color: Color(0xFF49719C),
+                                const SizedBox(height: 8),
+                                Card(
+                                  child: Container(
+                                    padding: const EdgeInsets.all(16),
+                                    color: Colors.grey[50],
+                                    width: double.infinity,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Pressure: ${tirePerformances.first.pressure} PSI',
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            color: Color(0xFF49719C),
+                                          ),
+                                        ),
+                                        Text(
+                                          'Temperature: ${tirePerformances.first.temperature} °C',
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            color: Color(0xFF49719C),
+                                          ),
+                                        ),
+                                        Text(
+                                          'Wear: ${tirePerformances.first.wear}',
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            color: Color(0xFF49719C),
+                                          ),
+                                        ),
+                                        Text(
+                                          'Distance Traveled: ${tirePerformances.first.distanceTraveled} KM',
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            color: Color(0xFF49719C),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                '235/45ZR18',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.normal,
-                                  color: Color(0xFF49719C),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              // Pressure Card Section
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFFCEDBE8)),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Pressure',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black,
-                        ),
-                      ),
-                      Text(
-                        '30PSI',
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            'Today',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.normal,
-                              color: Color(0xFF49719C),
+                              ],
                             ),
                           ),
-                          SizedBox(width: 4),
-                          Text(
-                            '+2%',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF078838),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              border:
+                                  Border.all(color: const Color(0xFFCEDBE8)),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Tire Performance Graph',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                const SizedBox(height: 50),
+                                SizedBox(
+                                  height: 300,
+                                  child: LineChartWidget(
+                                      tirePerformances: tirePerformances),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                      SizedBox(height: 16),
-                      SizedBox(height: 148, child: LineChartWidget()),
-                      SizedBox(height: 16),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    ));
   }
 }
 
 class LineChartWidget extends StatelessWidget {
-  const LineChartWidget({super.key});
+  final List<TirePerformanceModel> tirePerformances;
+
+  const LineChartWidget({super.key, required this.tirePerformances});
 
   @override
   Widget build(BuildContext context) {
-    return LineChart(
-      LineChartData(
-        gridData: const FlGridData(show: false),
-        titlesData: const FlTitlesData(show: false),
-        borderData: FlBorderData(show: false),
-        lineBarsData: [
-          LineChartBarData(
-            spots: const [
-              FlSpot(0, 30),
-              FlSpot(1, 32),
-              FlSpot(2, 28),
-              FlSpot(3, 34),
-              FlSpot(4, 30),
-              FlSpot(5, 33),
-              FlSpot(6, 31),
-            ],
-            isCurved: true,
-            dotData: const FlDotData(show: false),
-            belowBarData: BarAreaData(show: false),
-          ),
-        ],
+    if (tirePerformances.isEmpty) {
+      return const Center(child: Text("No performance data available"));
+    }
+    return SizedBox(
+      height: 300,
+      child: LineChart(
+        LineChartData(
+          gridData: const FlGridData(show: false),
+          titlesData: FlTitlesData(show: false),
+          borderData: FlBorderData(show: false),
+          lineBarsData: [
+            LineChartBarData(
+              spots: [
+                FlSpot(
+                    0,
+                    tirePerformances.isNotEmpty
+                        ? tirePerformances[0].pressure
+                        : 0),
+                FlSpot(
+                    1,
+                    tirePerformances.isNotEmpty
+                        ? tirePerformances[0].temperature
+                        : 0),
+                FlSpot(2,
+                    tirePerformances.isNotEmpty ? tirePerformances[0].wear : 0),
+                FlSpot(
+                    3,
+                    tirePerformances.isNotEmpty
+                        ? tirePerformances[0].distanceTraveled
+                        : 0),
+              ],
+              isCurved: true,
+              dotData: const FlDotData(show: false),
+              belowBarData: BarAreaData(show: false),
+            ),
+          ],
+        ),
       ),
     );
   }

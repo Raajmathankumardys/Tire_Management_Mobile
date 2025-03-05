@@ -66,8 +66,8 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
       try {
         final response = await APIService.instance.request(
           widget.income == null
-              ? "/income/${income.tripId}"
-              : "/income/${income.incomeId}",
+              ? "https://yaantrac-backend.onrender.com/api/income/${income.tripId}"
+              : "https://yaantrac-backend.onrender.com/api/income/${income.incomeId}",
           widget.income == null ? DioMethod.post : DioMethod.put,
           formData: income.toJson(),
           contentType: "application/json",

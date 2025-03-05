@@ -203,6 +203,7 @@ import 'package:yaantrac_app/models/expense.dart';
 import 'package:yaantrac_app/models/income.dart';
 import 'package:yaantrac_app/screens/add_expense_screen.dart';
 import 'package:yaantrac_app/screens/add_income_screen.dart';
+import 'package:yaantrac_app/screens/expense_screen.dart';
 import 'package:yaantrac_app/services/api_service.dart';
 import '../common/widgets/button/app_primary_button.dart';
 
@@ -233,6 +234,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
   }
 
   Future<void> _confirmDeleteexpense(int expenseId) async {
+    print(expenseId);
     bool? confirm = await showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -259,10 +261,14 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
   Future<void> _onDeleteexpense(int expenseId) async {
     try {
       final response = await APIService.instance.request(
-        "expenses/$expenseId",
+        "https://yaantrac-backend.onrender.com/api/expenses/$expenseId",
         DioMethod.delete,
+        contentType: "application/json",
       );
-      if (response.statusCode == 200) {
+      if (response.statusCode == 204) {
+        setState(() {
+          futureExpenses = getExpenses();
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Expense deleted successfully!"),
@@ -310,12 +316,13 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
     try {
       print(incomeId);
       final response = await APIService.instance.request(
-          "/income/$incomeId", DioMethod.delete,
+          "https://yaantrac-backend.onrender.com/api/income/$incomeId",
+          DioMethod.delete,
           contentType: "application/json");
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Expense deleted successfully!"),
+            content: Text("Income deleted successfully!"),
           ),
         );
         Navigator.of(context).pushAndRemoveUntil(
@@ -334,7 +341,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
   Future<List<ExpenseModel>> getExpenses() async {
     try {
       final response = await APIService.instance.request(
-        "/expenses/trip/${widget.tripId}",
+        "https://yaantrac-backend.onrender.com/api/expenses/trip/${widget.tripId}",
         DioMethod.get,
         contentType: "application/json",
       );
@@ -352,13 +359,15 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
 
   Future<List<IncomeModel>> getIncomes() async {
     try {
+      print(widget.tripId);
       final response = await APIService.instance.request(
-        "/income?tripId=${widget.tripId}",
+        "https://yaantrac-backend.onrender.com/api/income/?tripId=${widget.tripId}",
         DioMethod.get,
         contentType: "application/json",
       );
       if (response.statusCode == 200) {
         List<dynamic> incomeList = response.data['data'];
+        print(incomeList);
         return incomeList.map((json) => IncomeModel.fromJson(json)).toList();
       } else {
         throw Exception("Error: ${response.statusMessage}");
@@ -390,7 +399,15 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
             ],
           ),
           leading: IconButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ExpenseScreen(
+                          tripid: widget.tripId,
+                        )),
+              );
+            },
             icon: const Icon(Icons.arrow_back),
           ),
         ),

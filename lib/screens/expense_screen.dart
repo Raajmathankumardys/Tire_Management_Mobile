@@ -3,28 +3,33 @@ import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
 import 'package:yaantrac_app/models/trip_summary.dart';
 import 'package:yaantrac_app/screens/add_expense_screen.dart';
 import 'package:yaantrac_app/screens/expense_list_screen.dart';
+import 'package:yaantrac_app/screens/vehicles_list_screen.dart';
 import 'package:yaantrac_app/services/api_service.dart';
 
+var _tripid;
+
 class ExpenseScreen extends StatefulWidget {
-  const ExpenseScreen({super.key});
+  final int? tripid;
+  const ExpenseScreen({super.key, required this.tripid});
 
   @override
   State<ExpenseScreen> createState() => _ExpenseScreenState();
 }
 
 class _ExpenseScreenState extends State<ExpenseScreen> {
-  final int tripId = 1;
   late Future<TripProfitSummaryModel> tripProfitSummary;
 
   Future<TripProfitSummaryModel> getTripProfit() async {
-    print("API URL: /trips/summary?tripId=$tripId");
+    print("API URL: /trips/summary?tripId=${widget.tripid}");
     try {
       final response = await APIService.instance.request(
-          "/trips/summary?tripId=$tripId", DioMethod.get,
+          "https://yaantrac-backend.onrender.com/api/trips/summary?tripId=${widget.tripid}",
+          DioMethod.get,
           contentType: "application/json");
       if (response.statusCode == 200) {
         // print("${response.data}");
         Map<String, dynamic> responseData = response.data;
+        print(responseData);
 
         Map<String, dynamic> tripProfit = responseData['data'];
         // setState(() {
@@ -44,6 +49,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
     // TODO: implement initState
     super.initState();
     tripProfitSummary = getTripProfit();
+    _tripid = widget.tripid;
   }
 
   @override
@@ -56,7 +62,10 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => VehiclesListScreen()),
+            );
           },
         ),
       ),
@@ -76,8 +85,8 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Trip 1: San Francisco - Los Angeles',
+                  Text(
+                    'Trip Summary',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -86,7 +95,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                   ),
                   const SizedBox(height: 16),
                   SizedBox(
-                    height: 260,
+                    height: 400,
                     child: GridView.count(
                       crossAxisCount: 2,
                       mainAxisSpacing: 8,
@@ -98,11 +107,19 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                             amount:
                                 '\$${tripProfitSummary?.breakDown["FUEL"] ?? 0}'),
                         ExpenseCard(
+                            title: 'Driver Allowances',
+                            amount:
+                                '\$${tripProfitSummary?.breakDown["DRIVER_ALLOWANCE"] ?? 0}'),
+                        ExpenseCard(
                             title: 'Tolls',
                             amount:
                                 '\$${tripProfitSummary?.breakDown["TOLL"] ?? 0}'),
                         ExpenseCard(
                             title: 'Maintenance',
+                            amount:
+                                '\$${tripProfitSummary?.breakDown["MAINTENANCE"] ?? 0}'),
+                        ExpenseCard(
+                            title: 'Miscellanous',
                             amount:
                                 '\$${tripProfitSummary?.breakDown["MISCELLANEOUS"] ?? 0}'),
                         ExpenseCard(
@@ -125,7 +142,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  const Text(
+                  /*const Text(
                     'Breakdown',
                     style: TextStyle(
                       fontSize: 20,
@@ -139,7 +156,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                   const BreakdownItem(
                       title: 'Income',
                       subtitle: 'Amazon Flex',
-                      amount: '\$100.00'),
+                      amount: '\$100.00'),*/
                 ],
               ),
             );
@@ -160,7 +177,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    const ExpensesListScreen(tripId: 1)));
+                                    ExpensesListScreen(tripId: _tripid)));
                       },
                       title: "View")),
             ],
@@ -175,7 +192,8 @@ class ExpenseCard extends StatelessWidget {
   final String title;
   final String amount;
 
-  const ExpenseCard({super.key, required this.title, required this.amount});
+  const ExpenseCard(
+      {super.key, required this.title, required this.amount, required});
 
   @override
   Widget build(BuildContext context) {
@@ -235,7 +253,7 @@ class SummaryCard extends StatelessWidget {
   }
 }
 
-class BreakdownItem extends StatelessWidget {
+/*class BreakdownItem extends StatelessWidget {
   final String title;
   final String subtitle;
   final String amount;
@@ -270,4 +288,4 @@ class BreakdownItem extends StatelessWidget {
       ),
     );
   }
-}
+}*/

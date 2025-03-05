@@ -4,6 +4,7 @@ import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
 import 'package:yaantrac_app/models/tire.dart';
 import 'package:yaantrac_app/screens/add_tire_screen.dart';
 import 'package:yaantrac_app/screens/tire_status_screen.dart';
+import 'package:yaantrac_app/screens/vehicles_list_screen.dart';
 import 'package:yaantrac_app/services/api_service.dart';
 import 'package:yaantrac_app/common/widgets/button/action_button.dart';
 
@@ -50,17 +51,21 @@ class _TiresListScreenState extends State<TiresListScreen> {
   Future<void> _onDelete(int tireId) async {
     try {
       final response = await APIService.instance.request(
-          "/tires/$tireId", DioMethod.delete,
+          "https://yaantrac-backend.onrender.com/api/tires/$tireId",
+          DioMethod.delete,
           contentType: "application/json");
       String tid = tireId.toString();
       if (response.statusCode == 200) {
         print("API CAlled");
+        setState(() {
+          futureTires = getTires();
+        });
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Tire to deleted successfully!"),
           ),
         );
-        getTires();
       } else {
         print("Error: ${response.statusMessage}");
       }
@@ -70,9 +75,10 @@ class _TiresListScreenState extends State<TiresListScreen> {
   }
 
   Future<List<TireModel>> getTires() async {
+    print("API CAlled");
     try {
       final response = await APIService.instance.request(
-        "/tires",
+        "https://yaantrac-backend.onrender.com/api/tires",
         DioMethod.get,
         contentType: "application/json",
       );
@@ -96,35 +102,26 @@ class _TiresListScreenState extends State<TiresListScreen> {
         title: const Text("Tires"),
         leading: IconButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => VehiclesListScreen()),
+                (route) => false);
           },
           icon: const Icon(Icons.arrow_back),
         ),
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Expanded(
-            child: AppPrimaryButton(
-                onPressed: () async {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => AddEditTireScreen()),
-                  ).then((value) => setState(() {
-                        futureTires =
-                            getTires(); // Refresh data after returning
-                      }));
-                  /* await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ,
-                    ),
-                  );
-                  setState(() {
-                    futureTires = getTires(); // Refresh data after returning
-                  });*/
-                },
-                title: "Add Tire")),
+        child: AppPrimaryButton(
+          onPressed: () async {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AddEditTireScreen()),
+            ).then((value) => setState(() {
+                  futureTires = getTires(); // Refresh data after returning
+                }));
+          },
+          title: "Add Tire",
+        ),
       ),
       body: SafeArea(
         child: FutureBuilder<List<TireModel>>(
@@ -172,9 +169,10 @@ class _TiresListScreenState extends State<TiresListScreen> {
               builder: (context) => TireStatusScreen(tireId: tire.tireId!),
             ),
           );
+        } else {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text("Tire not found!!")));
         }
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("Tire not found!!")));
       },
       child: Card(
         child: Padding(

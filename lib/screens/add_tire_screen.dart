@@ -190,9 +190,7 @@ class _AddEditTireScreenState extends State<AddEditTireScreen> {
 
   _onSubmit() async {
     if (_formKey.currentState!.validate()) {
-      var tid = (widget.tire == null)
-          ? DateTime.now().millisecondsSinceEpoch
-          : widget.tire!.tireId;
+      var tid = (widget.tire == null) ? null : widget.tire!.tireId;
       _formKey.currentState!.save();
       final tire = TireModel(
         tireId: tid,
@@ -204,7 +202,9 @@ class _AddEditTireScreenState extends State<AddEditTireScreen> {
       print(tire.toJson());
       try {
         final response = await APIService.instance.request(
-          widget.tire == null ? "/tires" : "/tires/${tire.tireId}",
+          widget.tire == null
+              ? "https://yaantrac-backend.onrender.com/api/tires"
+              : "https://yaantrac-backend.onrender.com/api/tires/${tire.tireId}",
           widget.tire == null ? DioMethod.post : DioMethod.put,
           formData: tire.toJson(),
           contentType: "application/json",

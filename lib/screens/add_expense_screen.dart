@@ -21,7 +21,7 @@ class AddExpenseScreen extends StatefulWidget {
 }
 
 class _AddExpenseScreenState extends State<AddExpenseScreen> {
-  final int tripId = 2;
+  final int tripId = 1;
   ExpenseCategory selectedExpenseType = ExpenseCategory.MISCELLANEOUS;
   DateTime selectedDate = DateTime.now();
   double amount = 0.0;
@@ -40,14 +40,15 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   void initState() {
     super.initState();
     print(widget.expense?.toJson());
+    print(widget.trid);
     gettrip();
     _amount = widget.expense?.amount ?? 0.0;
     _category = widget.expense?.category ?? ExpenseCategory.FUEL;
     _expenseDate = widget.expense?.expenseDate ?? DateTime.now();
-    _dateController.text = "$_expenseDate.toLocal()}".split(' ')[0];
+    _dateController.text = _formatDate(_expenseDate);
     _tripId = widget.expense?.tripId ?? 0;
     _description = widget.expense?.description ?? " ";
-
+    selectedExpenseType = widget.expense?.category ?? ExpenseCategory.FUEL;
     switch (_category.toString().split(".")[1]) {
       case "FUEL":
         cat = "Fuel Costs";
@@ -76,7 +77,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   Future<void> gettrip() async {
     try {
       final response = await APIService.instance.request(
-          "/trips/${widget.trid}", DioMethod.get,
+          "https://yaantrac-backend.onrender.com/api/trips/${widget.trid}",
+          DioMethod.get,
           contentType: "application/json");
       if (response.statusCode == 200) {
         trip = response.data;
@@ -91,34 +93,51 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   }
 
   void _submitExpense() async {
-    var eid = (widget.expense == null)
-        ? DateTime.now().millisecondsSinceEpoch
-        : widget.expense!.expenseId;
+    var eid = (widget.expense == null) ? null : widget.expense!.expenseId;
     if (_formKey.currentState!.validate()) {
-      var expense = {
-        "expenseId": eid,
-        "amount": amount,
-        "category": selectedExpenseType,
-        "expenseDate": selectedDate,
-        "description": description,
-        "attachmentUrl": "",
-        "createdAt": DateTime.now(),
-        "updatedAt": DateTime.now(),
-        //"trip": trip,
-      };
+      var expense;
+      if (widget.expense != null) {
+        expense = {
+          "expenseId": eid,
+          "trip": {
+            "id": widget.trid,
+          },
+          "amount": _amount,
+          "category": selectedExpenseType.toString().split('.')[1],
+          "expenseDate": _expenseDate.toIso8601String(),
+          "description": _description,
+          "attachmentUrl": "",
+          "createdAt": DateTime.now().toIso8601String(),
+          "updatedAt": DateTime.now().toIso8601String()
+        };
+      } else {
+        expense = {
+          "expenseId": eid,
+          "tripId": widget.trid,
+          "amount": _amount,
+          "category": selectedExpenseType.toString().split('.')[1],
+          "expenseDate": _expenseDate.toIso8601String(),
+          "description": _description,
+          "attachmentUrl": "",
+          "createdAt": DateTime.now().toIso8601String(),
+          "updatedAt": DateTime.now().toIso8601String()
+        };
+      }
       print("Submitted Expense Data: ${expense}");
 
       try {
         final response = await APIService.instance.request(
             widget.expense == null
-                ? "/expenses/${_tripId}"
-                : "/expenses/${eid}",
+                ? "https://yaantrac-backend.onrender.com/api/expenses/${widget.trid}"
+                : "https://yaantrac-backend.onrender.com/api/expenses/${eid}",
             widget.expense == null ? DioMethod.post : DioMethod.put,
             formData: expense,
             contentType: "application/json");
         if (response.statusCode == 200) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text("Added data")));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text((widget.expense == null)
+                  ? "Expense Added Sucessfully"
+                  : "Expense Updated Sucessfully")));
           _formKey.currentState?.reset();
           Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(
@@ -177,7 +196,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                 AppInputField(
                   label: "Expense Type",
                   isDropdown: true, hint: cat,
-                  defaultValue: cat, // Correct default value
+                  defaultValue:
+                      selectedExpenseType.toString(), // Correct default value
                   dropdownItems: const [
                     DropdownMenuItem(value: "FUEL", child: Text("Fuel Costs")),
                     DropdownMenuItem(
@@ -191,6 +211,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                         value: "MISCELLANEOUS", child: Text("Miscellaneous")),
                   ],
                   onDropdownChanged: (value) {
+                    print(value);
                     setState(() {
                       selectedExpenseType = ExpenseCategory.values.firstWhere(
                         (e) => e.name == value,
@@ -209,7 +230,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   onInputChanged: (value) {
                     setState(() {
-                      amount = double.parse(value!);
+                      _amount = double.parse(value!);
                     });
                   },
                 ),
@@ -217,14 +238,12 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                 AppInputField(
                   label: "Date",
                   isDatePicker: true,
-                  controller: _dateController,
-                  defaultValue: "${_expenseDate.toLocal()}"
-                      .split(' ')[0], // Show only date
+                  controller: _dateController, // Show only date
                   onDateSelected: (date) {
                     setState(() {
-                      selectedDate = date;
+                      _expenseDate = date;
                       _dateController.text =
-                          _formatDate(selectedDate); // Update text in field
+                          _formatDate(date); // Update text in field
                     });
                   },
                 ),
@@ -236,7 +255,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                   keyboardType: TextInputType.multiline,
                   onInputChanged: (value) {
                     setState(() {
-                      description = value!;
+                      _description = value!;
                     });
                   },
                 ),
