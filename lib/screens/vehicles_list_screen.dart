@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:yaantrac_app/models/tire.dart';
 import 'package:yaantrac_app/screens/add_vehicle_screen.dart';
 import 'package:yaantrac_app/screens/expense_screen.dart';
 import 'package:yaantrac_app/screens/tires_list_screen.dart';
@@ -22,18 +20,32 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
   var tripid;
   Future<List<Vehicle>> getTrips() async {
     try {
-      print("API CAlled");
+      print("API Called");
       final response = await APIService.instance.request(
         "https://yaantrac-backend.onrender.com/api/trips",
         DioMethod.get,
         contentType: "application/json",
       );
-      if (response.statusCode == 200) {
-        print(response.data);
-        //Map<String, dynamic> responseData = response.data;
-        List<dynamic> vehicleList = response.data;
 
-        return vehicleList.map((json) => Vehicle.fromJson(json)).toList();
+      print("Response Type: ${response.data.runtimeType}");
+      print("Response Data: ${response.data}");
+
+      if (response.statusCode == 200) {
+        if (response.data is Map<String, dynamic>) {
+          // Inspect the response to find the actual list
+          if (response.data.containsKey("data")) {
+            // Example key
+            List<dynamic> vehicleList = response.data["data"];
+            return vehicleList.map((json) => Vehicle.fromJson(json)).toList();
+          } else {
+            throw Exception(
+                "Unexpected API response format: Missing 'data' key");
+          }
+        } else if (response.data is List) {
+          return response.data.map((json) => Vehicle.fromJson(json)).toList();
+        } else {
+          throw Exception("Unexpected response format");
+        }
       } else {
         throw Exception("Error: ${response.statusMessage}");
       }
@@ -150,7 +162,7 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
                         expansionCallback: (panelIndex, isExpanded) {
                           setState(() {
                             _isExpandedList[index] = !_isExpandedList[index];
-                            tripid = vehicle.tripId;
+                            tripid = vehicle.id;
                             print(tripid);
                           });
                         },

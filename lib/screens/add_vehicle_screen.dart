@@ -30,7 +30,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
   _onSubmit() async {
     if (_formKey.currentState!.validate()) {
       final vehicle = Vehicle(
-          tripId: null,
+          id: null,
           vehicleNumber: vehiclenumber.toString(),
           driverName: drivername.toString(),
           startDate: startdate,

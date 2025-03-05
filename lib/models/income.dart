@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class IncomeModel {
-  final int? incomeId;
+  final int? id;
   final int tripId;
   final double amount;
   final DateTime incomeDate;
@@ -10,7 +10,7 @@ class IncomeModel {
   final DateTime updatedAt;
 
   IncomeModel({
-    this.incomeId,
+    this.id,
     required this.tripId,
     required this.amount,
     required this.incomeDate,
@@ -21,7 +21,7 @@ class IncomeModel {
 
   factory IncomeModel.fromJson(Map<String, dynamic> json) {
     return IncomeModel(
-      incomeId: json['incomeId'],
+      id: json['id'],
       tripId: json['tripId'],
       amount: (json['amount'] as num).toDouble(),
       incomeDate: DateTime.parse(json['incomeDate']),
@@ -33,7 +33,7 @@ class IncomeModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'incomeId': incomeId,
+      'id': id,
       'tripId': tripId,
       'amount': amount,
       'incomeDate': incomeDate.toIso8601String(),

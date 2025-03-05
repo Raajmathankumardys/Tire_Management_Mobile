@@ -25,6 +25,7 @@ class _TiresListScreenState extends State<TiresListScreen> {
   }
 
   Future<void> _confirmDelete(int tireId) async {
+    print(tireId);
     bool? confirm = await showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -55,6 +56,7 @@ class _TiresListScreenState extends State<TiresListScreen> {
           DioMethod.delete,
           contentType: "application/json");
       String tid = tireId.toString();
+      print(tid);
       if (response.statusCode == 200) {
         print("API CAlled");
         setState(() {
@@ -86,6 +88,7 @@ class _TiresListScreenState extends State<TiresListScreen> {
         print("API CAlled");
         Map<String, dynamic> responseData = response.data;
         List<dynamic> tireList = responseData['data'];
+        print(tireList);
         return tireList.map((json) => TireModel.fromJson(json)).toList();
       } else {
         throw Exception("Error: ${response.statusMessage}");
@@ -162,11 +165,11 @@ class _TiresListScreenState extends State<TiresListScreen> {
       {required TireModel tire, required BuildContext context}) {
     return GestureDetector(
       onTap: () {
-        if (tire.tireId != null) {
+        if (tire.id != null) {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => TireStatusScreen(tireId: tire.tireId!),
+              builder: (context) => TireStatusScreen(tireId: tire.id!),
             ),
           );
         } else {
@@ -227,6 +230,7 @@ class _TiresListScreenState extends State<TiresListScreen> {
                     icon: Icons.edit,
                     color: Colors.green,
                     onPressed: () {
+                      print(tire);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -240,7 +244,7 @@ class _TiresListScreenState extends State<TiresListScreen> {
                     icon: Icons.delete,
                     color: Colors.red,
                     onPressed: () {
-                      _confirmDelete(tire.tireId!.toInt());
+                      _confirmDelete(tire.id!.toInt());
                     },
                   ),
                 ],

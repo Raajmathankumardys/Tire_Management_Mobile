@@ -556,7 +556,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
                     icon: Icons.delete,
                     color: Colors.red,
                     onPressed: () {
-                      _confirmDeleteexpense(expense.expenseId!.toInt());
+                      _confirmDeleteexpense(expense.id!.toInt());
                     }),
               ],
             ),
@@ -620,7 +620,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
                       icon: Icons.delete,
                       color: Colors.red,
                       onPressed: () {
-                        _confirmDeleteincome(income.incomeId!.toInt());
+                        _confirmDeleteincome(income.id!.toInt());
                       }),
                 ],
               ),

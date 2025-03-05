@@ -39,8 +39,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   @override
   void initState() {
     super.initState();
-    print(widget.expense?.toJson());
-    print(widget.trid);
+
     gettrip();
     _amount = widget.expense?.amount ?? 0.0;
     _category = widget.expense?.category ?? ExpenseCategory.FUEL;
@@ -93,15 +92,13 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   }
 
   void _submitExpense() async {
-    var eid = (widget.expense == null) ? null : widget.expense!.expenseId;
+    var eid = (widget.expense == null) ? null : widget.expense!.id;
     if (_formKey.currentState!.validate()) {
       var expense;
       if (widget.expense != null) {
         expense = {
-          "expenseId": eid,
-          "trip": {
-            "id": widget.trid,
-          },
+          "id": eid,
+          "tripId": widget.trid,
           "amount": _amount,
           "category": selectedExpenseType.toString().split('.')[1],
           "expenseDate": _expenseDate.toIso8601String(),
@@ -112,7 +109,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         };
       } else {
         expense = {
-          "expenseId": eid,
+          "id": eid,
           "tripId": widget.trid,
           "amount": _amount,
           "category": selectedExpenseType.toString().split('.')[1],
@@ -161,7 +158,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
           "Expense",
           style: TextStyle(fontSize: 20),
         ),
-        actions: const [Icon(Icons.search)],
         leading: Builder(builder: (BuildContext context) {
           return IconButton(
             onPressed: () {
@@ -269,34 +265,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                     Expanded(
                         child: AppPrimaryButton(
                             onPressed: _submitExpense, title: "Submit")),
-                  ],
-                ),
-                const SizedBox(height: 15),
-                const Text(
-                  "Summary",
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 25),
-                ),
-                const SizedBox(height: 10),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Total Income",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w500)),
-                    Text("1000",
-                        style: TextStyle(fontSize: 16, color: Colors.grey)),
-                    SizedBox(height: 10),
-                    Text("Total Expenses",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w500)),
-                    Text("500",
-                        style: TextStyle(fontSize: 16, color: Colors.grey)),
-                    SizedBox(height: 10),
-                    Text("Remaining Balance",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w500)),
-                    Text("500",
-                        style: TextStyle(fontSize: 16, color: Colors.grey)),
                   ],
                 ),
               ],

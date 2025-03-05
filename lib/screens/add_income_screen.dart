@@ -51,10 +51,10 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
   final _formKey = GlobalKey<FormState>();
 
   void _submitIncome() async {
-    var iid = (widget.income == null) ? null : widget.income!.incomeId;
+    var iid = (widget.income == null) ? null : widget.income!.id;
     if (_formKey.currentState!.validate()) {
       IncomeModel income = IncomeModel(
-        incomeId: iid,
+        id: iid,
         amount: _amount,
         incomeDate: _incomeDate,
         tripId: tripId,
@@ -67,7 +67,7 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
         final response = await APIService.instance.request(
           widget.income == null
               ? "https://yaantrac-backend.onrender.com/api/income/${income.tripId}"
-              : "https://yaantrac-backend.onrender.com/api/income/${income.incomeId}",
+              : "https://yaantrac-backend.onrender.com/api/income/${income.id}",
           widget.income == null ? DioMethod.post : DioMethod.put,
           formData: income.toJson(),
           contentType: "application/json",
@@ -101,7 +101,6 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
           "Income",
           style: TextStyle(fontSize: 20),
         ),
-        actions: const [Icon(Icons.search)],
         leading: Builder(builder: (BuildContext context) {
           return IconButton(
             onPressed: () {
@@ -181,7 +180,7 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
                     Expanded(
                         child: AppPrimaryButton(
                             onPressed: _submitIncome,
-                            title: widget.income?.incomeId == null
+                            title: widget.income?.id == null
                                 ? "Submit"
                                 : "Update")),
                   ],

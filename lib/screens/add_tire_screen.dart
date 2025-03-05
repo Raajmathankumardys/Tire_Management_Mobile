@@ -181,7 +181,7 @@ class _AddEditTireScreenState extends State<AddEditTireScreen> {
   @override
   void initState() {
     super.initState();
-    print(widget?.tire?.toJson());
+    //print(widget.tire?.toJson());
     _brand = widget.tire?.brand ?? '';
     _model = widget.tire?.model ?? '';
     _size = widget.tire?.size ?? '';
@@ -190,21 +190,26 @@ class _AddEditTireScreenState extends State<AddEditTireScreen> {
 
   _onSubmit() async {
     if (_formKey.currentState!.validate()) {
-      var tid = (widget.tire == null) ? null : widget.tire!.tireId;
+      int? id;
+      if ((widget.tire == null)) {
+        id = null;
+      } else {
+        id = widget.tire!.id;
+      }
       _formKey.currentState!.save();
       final tire = TireModel(
-        tireId: tid,
+        id: id,
         brand: _brand,
         model: _model,
         size: _size.toString(),
         stock: _stock.toInt(),
       );
-      print(tire.toJson());
+      //print(tire.toJson());
       try {
         final response = await APIService.instance.request(
           widget.tire == null
               ? "https://yaantrac-backend.onrender.com/api/tires"
-              : "https://yaantrac-backend.onrender.com/api/tires/${tire.tireId}",
+              : "https://yaantrac-backend.onrender.com/api/tires/${tire.id}",
           widget.tire == null ? DioMethod.post : DioMethod.put,
           formData: tire.toJson(),
           contentType: "application/json",
@@ -264,7 +269,7 @@ class _AddEditTireScreenState extends State<AddEditTireScreen> {
                   label: "Size",
                   hint: "Enter size",
                   defaultValue: _size,
-                  onInputChanged: (value) => _size = value.toString() ?? '',
+                  onInputChanged: (value) => _size = value.toString(),
                   //_size = int.tryParse(value ?? '0') ?? 0),
                 ),
                 AppInputField(

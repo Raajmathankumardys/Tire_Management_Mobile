@@ -9,7 +9,7 @@ class TirePerformanceModel {
   final double temperature;
   final double wear;
   final double distanceTraveled;
-  final DateTime? localDateTime;
+  final String? localDateTime;
 
   TirePerformanceModel(
       {required this.tireId,

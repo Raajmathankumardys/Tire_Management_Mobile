@@ -2,7 +2,11 @@ import 'dart:ui';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:yaantrac_app/models/tire_performance.dart';
+import 'package:yaantrac_app/screens/add_performance_screen.dart';
+import 'package:yaantrac_app/screens/tires_list_screen.dart';
 import 'package:yaantrac_app/services/api_service.dart';
+
+import '../common/widgets/button/app_primary_button.dart';
 
 class TireStatusScreen extends StatefulWidget {
   final int tireId;
@@ -38,9 +42,9 @@ class _TireStatusScreenState extends State<TireStatusScreen> {
         List<TirePerformanceModel> fetchedData = performanceList
             .map((json) => TirePerformanceModel.fromJson(json))
             .toList();
+        tirePerformances = fetchedData;
 
         setState(() {
-          tirePerformances = fetchedData;
           isLoading = false;
         });
       } else {
@@ -59,14 +63,32 @@ class _TireStatusScreenState extends State<TireStatusScreen> {
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => TiresListScreen()),
+                (route) => false);
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
         backgroundColor: Colors.lightBlue,
-        actions: const [
-          Icon(Icons.search),
-        ],
         title: const Align(
           alignment: Alignment.centerLeft,
           child: Text("Tire Performance", style: TextStyle(fontSize: 20)),
         ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.all(8),
+        child: AppPrimaryButton(
+            onPressed: () {
+              Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                      builder: (context) => AddPerformanceScreen(
+                            tid: widget.tireId,
+                          )),
+                  (route) => false);
+            },
+            title: "Add Tire Performance"),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -89,7 +111,7 @@ class _TireStatusScreenState extends State<TireStatusScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Last updated at ${tirePerformances.first.localDateTime}',
+                                  'Recently Added ', //${tirePerformances.first.localDateTime}
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,

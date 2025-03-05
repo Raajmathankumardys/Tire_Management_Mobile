@@ -1,5 +1,5 @@
 class Vehicle {
-  final int? tripId;
+  final int? id;
   final String vehicleNumber;
   final String driverName;
   final DateTime startDate;
@@ -7,7 +7,7 @@ class Vehicle {
   final DateTime createdAt;
   final DateTime updatedAt;
   Vehicle(
-      {required this.tripId,
+      {required this.id,
       required this.vehicleNumber,
       required this.driverName,
       required this.startDate,
@@ -16,7 +16,7 @@ class Vehicle {
       required this.updatedAt});
   factory Vehicle.fromJson(Map<String, dynamic> json) {
     return Vehicle(
-      tripId: json['tripId'],
+      id: json['id'],
       vehicleNumber: json['vehicleNumber'],
       driverName: json['driverName'],
       startDate: DateTime.parse(json['startDate']),
@@ -27,7 +27,7 @@ class Vehicle {
   }
   Map<String, dynamic> toJson() {
     return {
-      'tripId': tripId,
+      'id': id,
       'vehicleNumber': vehicleNumber,
       'driverName': driverName,
       'startDate': startDate.toIso8601String(),
