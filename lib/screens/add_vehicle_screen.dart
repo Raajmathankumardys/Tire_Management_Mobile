@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:yaantrac_app/common/widgets/Toast/Toast.dart';
 import 'package:yaantrac_app/models/vehicle.dart';
 import 'package:yaantrac_app/screens/vehicles_list_screen.dart';
 import '../common/widgets/button/app_primary_button.dart';
@@ -20,6 +22,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
   DateTime enddate = DateTime.now();
   final TextEditingController _dateController1 = TextEditingController();
   final TextEditingController _dateController2 = TextEditingController();
+  bool _isLoading = false;
 
   String _formatDate(DateTime date) {
     return "${date.day.toString().padLeft(2, '0')}-"
@@ -29,14 +32,20 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
 
   _onSubmit() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true; // Disable button & show loader
+      });
+
       final vehicle = Vehicle(
-          id: null,
-          vehicleNumber: vehiclenumber.toString(),
-          driverName: drivername.toString(),
-          startDate: startdate,
-          endDate: enddate,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now());
+        id: null,
+        vehicleNumber: vehiclenumber,
+        driverName: drivername,
+        startDate: startdate,
+        endDate: enddate,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
       try {
         final response = await APIService.instance.request(
           "https://yaantrac-backend.onrender.com/api/trips",
@@ -44,29 +53,38 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
           formData: vehicle.toJson(),
           contentType: "application/json",
         );
+
         if (response.statusCode == 200) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Trip added successfully!"),
-            ),
-          );
+          ToastHelper.showCustomToast(
+              context, "Trip added successfully", Colors.green, Icons.add);
           Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => VehiclesListScreen()),
-              (route) => false);
+            MaterialPageRoute(builder: (context) => VehiclesListScreen()),
+            (route) => false,
+          );
         } else {
-          print(response.statusMessage);
+          ToastHelper.showCustomToast(
+              context, "Failed to add trip", Colors.red, Icons.error);
         }
       } catch (err) {
-        print(err);
+        ToastHelper.showCustomToast(
+            context, "Error: $err", Colors.red, Icons.error);
+      } finally {
+        ToastHelper.showCustomToast(context, "Network error! Please try again.",
+            Colors.red, Icons.error);
+        setState(() {
+          _isLoading = false; // Re-enable button after request
+        });
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(
+        child: Scaffold(
       appBar: AppBar(
-        title: Text("Add Trip"),
+        title: const Text("Add Trip"),
+        backgroundColor: Colors.blue,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back),
@@ -78,7 +96,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
           child: Form(
             key: _formKey,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 AppInputField(
                   label: "Vehicle Number",
@@ -95,39 +113,37 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                 AppInputField(
                   label: "Start Date",
                   isDatePicker: true,
-                  controller:
-                      _dateController1, // Use the controller instead of defaultValue
+                  controller: _dateController1,
                   onDateSelected: (date) {
                     setState(() {
                       startdate = date;
-                      _dateController1.text =
-                          _formatDate(date); // Update text in field
+                      _dateController1.text = _formatDate(date);
                     });
                   },
                 ),
                 AppInputField(
                   label: "End Date",
                   isDatePicker: true,
-                  controller:
-                      _dateController2, // Use the controller instead of defaultValue
+                  controller: _dateController2,
                   onDateSelected: (date) {
                     setState(() {
                       enddate = date;
-                      _dateController2.text =
-                          _formatDate(date); // Update text in field
+                      _dateController2.text = _formatDate(date);
                     });
                   },
                 ),
                 const SizedBox(height: 16),
-                AppPrimaryButton(
-                  onPressed: _onSubmit,
-                  title: "Submit",
-                ),
+                _isLoading
+                    ? const CircularProgressIndicator()
+                    : AppPrimaryButton(
+                        onPressed: _onSubmit,
+                        title: "Submit",
+                      ),
               ],
             ),
           ),
         ),
       ),
-    );
+    ));
   }
 }

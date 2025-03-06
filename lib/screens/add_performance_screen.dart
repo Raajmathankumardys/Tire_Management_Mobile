@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:yaantrac_app/models/tire_performance.dart';
 import 'package:yaantrac_app/screens/tire_status_screen.dart';
+import '../common/widgets/Toast/Toast.dart';
 import '../common/widgets/button/app_primary_button.dart';
 import '../common/widgets/input/app_input_field.dart';
 import '../services/api_service.dart';
@@ -21,15 +22,11 @@ class _AddPerformanceScreen extends State<AddPerformanceScreen> {
   double wear = 0.0;
   double distanctravelled = 0.0;
   String localdate = "2025-03-05T17:22:26.353Z";
-
-  String _formatDate(DateTime date) {
-    return "${date.day.toString().padLeft(2, '0')}-"
-        "${date.month.toString().padLeft(2, '0')}-"
-        "${date.year}";
-  }
+  bool isLoading = false;
 
   _onSubmit() async {
     if (_formKey.currentState!.validate()) {
+      setState(() => isLoading = true);
       final tirep = TirePerformanceModel(
           tireId: widget.tid,
           pressure: pressure,
@@ -37,7 +34,7 @@ class _AddPerformanceScreen extends State<AddPerformanceScreen> {
           wear: wear,
           distanceTraveled: distanctravelled,
           localDateTime: localdate);
-      print(tirep.toJson());
+      //print(tirep.toJson());
       try {
         final response = await APIService.instance.request(
           "https://yaantrac-backend.onrender.com/api/tires/${widget.tid}/add-performance",
@@ -46,20 +43,24 @@ class _AddPerformanceScreen extends State<AddPerformanceScreen> {
           contentType: "application/json",
         );
         if (response.statusCode == 200) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Tire Performance successfully!"),
-            ),
-          );
+          ToastHelper.showCustomToast(context, "Performance added successfully",
+              Colors.green, Icons.add);
+
           Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(
                   builder: (context) => TireStatusScreen(tireId: widget.tid)),
               (route) => false);
         } else {
-          print(response.statusMessage);
+          ToastHelper.showCustomToast(
+              context, "Failed to process request", Colors.green, Icons.add);
         }
       } catch (err) {
-        print(err);
+        ToastHelper.showCustomToast(
+            context, "Error: $err", Colors.red, Icons.error);
+      } finally {
+        ToastHelper.showCustomToast(context, "Network error Please try again.",
+            Colors.red, Icons.error);
+        if (mounted) setState(() => isLoading = false);
       }
     }
   }
@@ -68,7 +69,7 @@ class _AddPerformanceScreen extends State<AddPerformanceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Add Trip"),
+        title: const Text("Add Trip"),
         leading: IconButton(
           onPressed: () => {
             Navigator.of(context).pushAndRemoveUntil(
@@ -119,10 +120,14 @@ class _AddPerformanceScreen extends State<AddPerformanceScreen> {
                       distanctravelled = double.parse(value!),
                 ),
                 const SizedBox(height: 16),
-                AppPrimaryButton(
-                  onPressed: _onSubmit,
-                  title: "Submit",
-                ),
+                isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : AppPrimaryButton(
+                        onPressed: _onSubmit,
+                        title: "Submit",
+                      ),
               ],
             ),
           ),

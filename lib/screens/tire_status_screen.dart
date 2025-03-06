@@ -1,12 +1,11 @@
-import 'dart:ui';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:yaantrac_app/models/tire_performance.dart';
-import 'package:yaantrac_app/screens/add_performance_screen.dart';
 import 'package:yaantrac_app/screens/tires_list_screen.dart';
 import 'package:yaantrac_app/services/api_service.dart';
-
 import '../common/widgets/button/app_primary_button.dart';
+import 'add_performance_screen.dart';
 
 class TireStatusScreen extends StatefulWidget {
   final int tireId;
@@ -36,15 +35,13 @@ class _TireStatusScreenState extends State<TireStatusScreen> {
       );
 
       if (response.statusCode == 200) {
-        Map<String, dynamic> responseData = response.data;
-        var performanceList = responseData['data'] as List<dynamic>;
-
+        var performanceList = response.data['data'] as List<dynamic>;
         List<TirePerformanceModel> fetchedData = performanceList
             .map((json) => TirePerformanceModel.fromJson(json))
             .toList();
-        tirePerformances = fetchedData;
 
         setState(() {
+          tirePerformances = fetchedData;
           isLoading = false;
         });
       } else {
@@ -54,7 +51,6 @@ class _TireStatusScreenState extends State<TireStatusScreen> {
       setState(() {
         isLoading = false;
       });
-      print("Error fetching tires: $e");
     }
   }
 
@@ -63,190 +59,150 @@ class _TireStatusScreenState extends State<TireStatusScreen> {
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.blue.shade700,
+        title:
+            Text("Tire Performance", style: GoogleFonts.poppins(fontSize: 20)),
         leading: IconButton(
-          onPressed: () {
-            Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (context) => TiresListScreen()),
-                (route) => false);
-          },
-          icon: const Icon(Icons.arrow_back),
-        ),
-        backgroundColor: Colors.lightBlue,
-        title: const Align(
-          alignment: Alignment.centerLeft,
-          child: Text("Tire Performance", style: TextStyle(fontSize: 20)),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => TiresListScreen()),
+          ),
         ),
       ),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : tirePerformances.isEmpty
+              ? Center(
+                  child: Text(
+                    "No data available",
+                    style: GoogleFonts.poppins(fontSize: 18),
+                  ),
+                )
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+                  child: Column(
+                    children: [
+                      _buildStatCard("Average Pressure",
+                          "${_calculateAverage((e) => e.pressure)} PSI"),
+                      _buildStatCard("Average Temperature",
+                          "${_calculateAverage((e) => e.temperature)} °C"),
+                      _buildStatCard("Average Wear",
+                          "${_calculateAverage((e) => e.wear)}"),
+                      _buildStatCard("Average Distance",
+                          "${_calculateAverage((e) => e.distanceTraveled)} KM"),
+                      _buildGraph("Pressure Graph", "Pressure"),
+                      _buildGraph("Temperature Graph", "Temperature"),
+                      _buildGraph("Wear Graph", "Wear"),
+                      _buildGraph("Distance Travelled Graph", "Distance"),
+                    ],
+                  ),
+                ),
       bottomNavigationBar: Padding(
         padding: EdgeInsets.all(8),
         child: AppPrimaryButton(
-            onPressed: () {
-              Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                      builder: (context) => AddPerformanceScreen(
-                            tid: widget.tireId,
-                          )),
-                  (route) => false);
-            },
-            title: "Add Tire Performance"),
+          onPressed: () => Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+                builder: (_) => AddPerformanceScreen(tid: widget.tireId)),
+          ),
+          title: "Add Tire Performance",
+        ),
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : tirePerformances.isEmpty
-              ? const Center(
-                  child: Text(
-                  "No data available",
-                  style: TextStyle(fontSize: 18),
-                ))
-              : SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Recently Added ', //${tirePerformances.first.localDateTime}
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Card(
-                                  child: Container(
-                                    padding: const EdgeInsets.all(16),
-                                    color: Colors.grey[50],
-                                    width: double.infinity,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Pressure: ${tirePerformances.first.pressure} PSI',
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            color: Color(0xFF49719C),
-                                          ),
-                                        ),
-                                        Text(
-                                          'Temperature: ${tirePerformances.first.temperature} °C',
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            color: Color(0xFF49719C),
-                                          ),
-                                        ),
-                                        Text(
-                                          'Wear: ${tirePerformances.first.wear}',
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            color: Color(0xFF49719C),
-                                          ),
-                                        ),
-                                        Text(
-                                          'Distance Traveled: ${tirePerformances.first.distanceTraveled} KM',
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            color: Color(0xFF49719C),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              border:
-                                  Border.all(color: const Color(0xFFCEDBE8)),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Tire Performance Graph',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                const SizedBox(height: 50),
-                                SizedBox(
-                                  height: 300,
-                                  child: LineChartWidget(
-                                      tirePerformances: tirePerformances),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
     ));
+  }
+
+  Widget _buildStatCard(String title, String value) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(title, style: GoogleFonts.poppins(fontSize: 16)),
+            Text(value,
+                style: GoogleFonts.poppins(
+                    fontSize: 16, fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGraph(String title, String parameter) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(12),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black12, blurRadius: 6, offset: Offset(0, 4)),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title,
+                style: GoogleFonts.poppins(
+                    fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            SizedBox(
+                height: 300,
+                child: LineChartWidget(
+                    tirePerformances: tirePerformances, parameter: parameter)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _calculateAverage(double Function(TirePerformanceModel) selector) {
+    if (tirePerformances.isEmpty) return "0";
+    double sum = tirePerformances.map(selector).reduce((a, b) => a + b);
+    return (sum / tirePerformances.length).toStringAsFixed(2);
   }
 }
 
 class LineChartWidget extends StatelessWidget {
   final List<TirePerformanceModel> tirePerformances;
+  final String parameter;
 
-  const LineChartWidget({super.key, required this.tirePerformances});
+  const LineChartWidget(
+      {super.key, required this.tirePerformances, required this.parameter});
+
+  List<FlSpot> getSpots() {
+    return List.generate(
+      tirePerformances.length,
+      (index) => FlSpot(index.toDouble(), _getValue(tirePerformances[index])),
+    );
+  }
+
+  double _getValue(TirePerformanceModel model) {
+    switch (parameter) {
+      case 'Pressure':
+        return model.pressure;
+      case 'Temperature':
+        return model.temperature;
+      case 'Wear':
+        return model.wear;
+      case 'Distance':
+        return model.distanceTraveled;
+      default:
+        return 0;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (tirePerformances.isEmpty) {
-      return const Center(child: Text("No performance data available"));
-    }
-    return SizedBox(
-      height: 300,
-      child: LineChart(
-        LineChartData(
-          gridData: const FlGridData(show: false),
-          titlesData: FlTitlesData(show: false),
-          borderData: FlBorderData(show: false),
-          lineBarsData: [
-            LineChartBarData(
-              spots: [
-                FlSpot(
-                    0,
-                    tirePerformances.isNotEmpty
-                        ? tirePerformances[0].pressure
-                        : 0),
-                FlSpot(
-                    1,
-                    tirePerformances.isNotEmpty
-                        ? tirePerformances[0].temperature
-                        : 0),
-                FlSpot(2,
-                    tirePerformances.isNotEmpty ? tirePerformances[0].wear : 0),
-                FlSpot(
-                    3,
-                    tirePerformances.isNotEmpty
-                        ? tirePerformances[0].distanceTraveled
-                        : 0),
-              ],
-              isCurved: true,
-              dotData: const FlDotData(show: false),
-              belowBarData: BarAreaData(show: false),
-            ),
-          ],
-        ),
-      ),
-    );
+    return LineChart(LineChartData(
+      lineBarsData: [
+        LineChartBarData(
+            spots: getSpots(), isCurved: true, dotData: FlDotData(show: true))
+      ],
+    ));
   }
 }

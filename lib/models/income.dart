@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class IncomeModel {
   final int? id;
   final int tripId;

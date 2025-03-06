@@ -1,18 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:yaantrac_app/config/themes/app_theme.dart';
-import 'package:yaantrac_app/screens/add_expense_screen.dart';
-import 'package:yaantrac_app/screens/add_tire_screen.dart';
-import 'package:yaantrac_app/screens/expense_screen.dart';
-import 'package:yaantrac_app/screens/filter_expense_screen.dart';
-import 'package:yaantrac_app/screens/notification_screen.dart';
-import 'package:yaantrac_app/screens/tire_status_screen.dart';
-import 'package:yaantrac_app/screens/tires_list_screen.dart';
 import 'package:yaantrac_app/screens/vehicles_list_screen.dart';
 import "package:flutter_dotenv/flutter_dotenv.dart";
 
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
-  print("Base URL: ${dotenv.env["BASE_URL"]}");
+  //print("Base URL: ${dotenv.env["BASE_URL"]}");
   runApp(const MyApp());
 }
 

@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
@@ -7,11 +6,10 @@ import 'package:yaantrac_app/models/income.dart'; // Replace with the actual inc
 import 'package:yaantrac_app/screens/expense_list_screen.dart';
 import 'package:yaantrac_app/services/api_service.dart';
 
-import 'expense_screen.dart';
-
 class AddIncomeScreen extends StatefulWidget {
   final IncomeModel? income;
-  const AddIncomeScreen({super.key, this.income});
+  final int tripid;
+  const AddIncomeScreen({super.key, this.income, required this.tripid});
 
   @override
   State<AddIncomeScreen> createState() => _AddIncomeScreenState();
@@ -25,7 +23,6 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
   String description = "";
   late double _amount;
   late DateTime _incomeDate;
-  late int _tripId;
   late String _description;
   final TextEditingController _dateController = TextEditingController();
 
@@ -34,11 +31,11 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    print(widget.tripid);
     _amount = widget.income?.amount ?? 0.0;
     _incomeDate = widget.income?.incomeDate ?? DateTime.now();
     _dateController.text =
         "$_incomeDate.toLocal()}".split(' ')[0]; // Format the date
-    _tripId = widget.income?.tripId ?? 0;
     _description = widget.income?.description ?? "";
   }
 
@@ -57,7 +54,7 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
         id: iid,
         amount: _amount,
         incomeDate: _incomeDate,
-        tripId: tripId,
+        tripId: widget.tripid,
         description: _description,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
@@ -129,7 +126,7 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   disabled: true,
-                  defaultValue: _tripId.toString(),
+                  defaultValue: widget.tripid.toString(),
                 ),
                 const SizedBox(height: 5),
                 AppInputField(
@@ -183,34 +180,6 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
                             title: widget.income?.id == null
                                 ? "Submit"
                                 : "Update")),
-                  ],
-                ),
-                const SizedBox(height: 15),
-                const Text(
-                  "Summary",
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 25),
-                ),
-                const SizedBox(height: 10),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Total Income",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w500)),
-                    Text("1000",
-                        style: TextStyle(fontSize: 16, color: Colors.grey)),
-                    SizedBox(height: 10),
-                    Text("Total Expenses",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w500)),
-                    Text("500",
-                        style: TextStyle(fontSize: 16, color: Colors.grey)),
-                    SizedBox(height: 10),
-                    Text("Remaining Balance",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w500)),
-                    Text("500",
-                        style: TextStyle(fontSize: 16, color: Colors.grey)),
                   ],
                 ),
               ],

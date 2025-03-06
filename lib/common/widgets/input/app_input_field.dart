@@ -37,6 +37,12 @@ class AppInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    OutlineInputBorder borderStyle = OutlineInputBorder(
+      gapPadding: BorderSide.strokeAlignCenter,
+      borderRadius: BorderRadius.circular(8),
+      borderSide: const BorderSide(color: Colors.grey),
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -49,7 +55,16 @@ class AppInputField extends StatelessWidget {
           DropdownButtonFormField<String>(
             items: dropdownItems,
             onChanged: onDropdownChanged,
-            decoration: InputDecoration(hintText: hint),
+            decoration: InputDecoration(
+              hintText: hint,
+              border: borderStyle,
+              enabledBorder: borderStyle,
+              focusedBorder: borderStyle.copyWith(
+                borderSide: const BorderSide(color: Colors.blue),
+              ),
+              filled: true, // Ensures no unwanted white space
+              fillColor: Colors.white, // Adjust as per your background
+            ),
           )
         else if (isDatePicker)
           TextFormField(
@@ -66,19 +81,21 @@ class AppInputField extends StatelessWidget {
                 onDateSelected!(pickedDate);
               }
             },
-            // validator: (value){
-            //   if(value == null || value.isEmpty){
-            //      return "Please fill this field";
-            //   }
-            //   return null;
-            // },
             decoration: InputDecoration(
               hintText: hint,
               suffixIcon: const Icon(Icons.calendar_today),
+              border: borderStyle,
+              enabledBorder: borderStyle,
+              focusedBorder: borderStyle.copyWith(
+                borderSide: const BorderSide(color: Colors.blue),
+              ),
+              filled: true, // Fixes extra white space
+              fillColor: Colors.white, // Matches background color
             ),
           )
         else
           TextFormField(
+            style: const TextStyle(),
             controller: controller,
             keyboardType: keyboardType,
             inputFormatters: inputFormatters,
@@ -89,6 +106,14 @@ class AppInputField extends StatelessWidget {
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: const TextStyle(color: Colors.grey),
+              border: borderStyle,
+              enabledBorder: borderStyle,
+              contentPadding: const EdgeInsets.all(8),
+              focusedBorder: borderStyle.copyWith(
+                borderSide: const BorderSide(color: Colors.blue),
+              ),
+              filled: true, // Ensures no extra white padding
+              fillColor: Colors.white, // Matches the UI background
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {

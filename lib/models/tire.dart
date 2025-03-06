@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 class TireModel {
   final String brand;
   final String model;

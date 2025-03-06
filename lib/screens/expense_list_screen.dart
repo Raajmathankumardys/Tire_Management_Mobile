@@ -425,7 +425,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
                             ? AddExpenseScreen(
                                 trid: widget.tripId,
                               )
-                            : const AddIncomeScreen(),
+                            : AddIncomeScreen(tripid: widget.tripId),
                       ),
                     );
                   },
@@ -611,6 +611,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
                           MaterialPageRoute(
                             builder: (context) => AddIncomeScreen(
                               income: income,
+                              tripid: widget.tripId,
                             ),
                           ),
                         );

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:yaantrac_app/common/widgets/Toast/Toast.dart';
 import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
 import 'package:yaantrac_app/models/tire.dart';
 import 'package:yaantrac_app/screens/add_tire_screen.dart';
@@ -25,28 +27,68 @@ class _TiresListScreenState extends State<TiresListScreen> {
   }
 
   Future<void> _confirmDelete(int tireId) async {
-    print(tireId);
-    bool? confirm = await showDialog(
+    bool isDeleting = false;
+    await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Confirm Delete"),
-        content: const Text("Are you sure you want to delete this tire?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false), // No
-            child: const Text("No"),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true), // Yes
-            child: const Text("Yes", style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+      barrierDismissible: false, // Prevents accidental dismissals
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: Row(
+                children: [
+                  Icon(Icons.warning_amber_rounded,
+                      color: Colors.red, size: 28),
+                  SizedBox(width: 8),
+                  Text("Confirm Delete",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                ],
+              ),
+              content: isDeleting
+                  ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 10),
+                        Text("Deleting Tire... Please wait",
+                            style: TextStyle(fontSize: 14, color: Colors.grey)),
+                      ],
+                    )
+                  : Text(
+                      "Are you sure you want to delete this tire? This action cannot be undone.",
+                      style: TextStyle(fontSize: 15)),
+              actions: isDeleting
+                  ? []
+                  : [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text("Cancel",
+                            style: TextStyle(color: Colors.grey)),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onPressed: () async {
+                          setState(() => isDeleting = true);
+                          await _onDelete(tireId);
+                          if (context.mounted) Navigator.pop(context);
+                        },
+                        child: Text("Delete",
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                    ],
+            );
+          },
+        );
+      },
     );
-
-    if (confirm == true) {
-      _onDelete(tireId); // Call delete function if confirmed
-    }
   }
 
   Future<void> _onDelete(int tireId) async {
@@ -63,11 +105,8 @@ class _TiresListScreenState extends State<TiresListScreen> {
           futureTires = getTires();
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Tire to deleted successfully!"),
-          ),
-        );
+        ToastHelper.showCustomToast(
+            context, "Tire Deleted Successfully", Colors.red, Icons.delete);
       } else {
         print("Error: ${response.statusMessage}");
       }
@@ -77,7 +116,6 @@ class _TiresListScreenState extends State<TiresListScreen> {
   }
 
   Future<List<TireModel>> getTires() async {
-    print("API CAlled");
     try {
       final response = await APIService.instance.request(
         "https://yaantrac-backend.onrender.com/api/tires",
@@ -85,10 +123,7 @@ class _TiresListScreenState extends State<TiresListScreen> {
         contentType: "application/json",
       );
       if (response.statusCode == 200) {
-        print("API CAlled");
-        Map<String, dynamic> responseData = response.data;
-        List<dynamic> tireList = responseData['data'];
-        print(tireList);
+        List<dynamic> tireList = response.data['data'];
         return tireList.map((json) => TireModel.fromJson(json)).toList();
       } else {
         throw Exception("Error: ${response.statusMessage}");
@@ -100,9 +135,14 @@ class _TiresListScreenState extends State<TiresListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(
+        child: Scaffold(
       appBar: AppBar(
-        title: const Text("Tires"),
+        title:
+            const Text("Tires", style: TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: true,
+        elevation: 2,
+        backgroundColor: Colors.blue,
         leading: IconButton(
           onPressed: () {
             Navigator.of(context).pushAndRemoveUntil(
@@ -120,7 +160,7 @@ class _TiresListScreenState extends State<TiresListScreen> {
               context,
               MaterialPageRoute(builder: (context) => AddEditTireScreen()),
             ).then((value) => setState(() {
-                  futureTires = getTires(); // Refresh data after returning
+                  futureTires = getTires();
                 }));
           },
           title: "Add Tire",
@@ -143,14 +183,76 @@ class _TiresListScreenState extends State<TiresListScreen> {
                 itemCount: tires.length,
                 itemBuilder: (context, index) {
                   final tire = tires[index];
-                  return Column(
-                    children: [
-                      _buildTireListItem(
-                        tire: tire,
-                        context: context,
+                  return Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: GestureDetector(
+                      onTap: () {
+                        if (tire.id != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  TireStatusScreen(tireId: tire.id!),
+                            ),
+                          );
+                        } else {
+                          ToastHelper.showCustomToast(context, "Tire not found",
+                              Colors.yellow, Icons.warning_amber);
+                        }
+                      },
+                      child: ListTile(
+                        contentPadding: EdgeInsets.all(12),
+                        leading: SvgPicture.asset(
+                          "assets/vectors/tire.svg",
+                          width: 50,
+                          height: 50,
+                        ),
+                        title: Text(
+                          tire.brand,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Model: ${tire.model}",
+                                style: TextStyle(color: Colors.grey.shade600)),
+                            Text("Size: ${tire.size}, Stock: ${tire.stock}",
+                                style: TextStyle(color: Colors.grey.shade600)),
+                          ],
+                        ),
+                        trailing: Wrap(
+                          spacing: 8,
+                          children: [
+                            ActionButton(
+                              icon: Icons.edit,
+                              color: Colors.green,
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        AddEditTireScreen(tire: tire),
+                                  ),
+                                );
+                              },
+                            ),
+                            ActionButton(
+                              icon: Icons.delete,
+                              color: Colors.red,
+                              onPressed: () {
+                                _confirmDelete(tire.id!.toInt());
+                              },
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 10),
-                    ],
+                    ),
                   );
                 },
               );
@@ -158,101 +260,6 @@ class _TiresListScreenState extends State<TiresListScreen> {
           },
         ),
       ),
-    );
-  }
-
-  Widget _buildTireListItem(
-      {required TireModel tire, required BuildContext context}) {
-    return GestureDetector(
-      onTap: () {
-        if (tire.id != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => TireStatusScreen(tireId: tire.id!),
-            ),
-          );
-        } else {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text("Tire not found!!")));
-        }
-      },
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: SvgPicture.asset(
-                  "assets/vectors/tire.svg",
-                  width: 10,
-                  height: 10,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      tire.brand,
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Text(
-                      'Model: ${tire.model}',
-                      style: const TextStyle(
-                        color: Color(0xFF93adc8),
-                        fontSize: 14,
-                      ),
-                    ),
-                    Text(
-                      'Size: ${tire.size}, Stock: ${tire.stock}',
-                      style: const TextStyle(
-                        color: Color(0xFF93adc8),
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Row(
-                children: [
-                  ActionButton(
-                    icon: Icons.edit,
-                    color: Colors.green,
-                    onPressed: () {
-                      print(tire);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AddEditTireScreen(tire: tire),
-                        ),
-                      );
-                    },
-                  ),
-                  SizedBox(width: 8),
-                  ActionButton(
-                    icon: Icons.delete,
-                    color: Colors.red,
-                    onPressed: () {
-                      _confirmDelete(tire.id!.toInt());
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    ));
   }
 }

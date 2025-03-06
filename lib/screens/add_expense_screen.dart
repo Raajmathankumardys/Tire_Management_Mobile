@@ -1,6 +1,3 @@
-import 'dart:math';
-
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
@@ -8,8 +5,6 @@ import 'package:yaantrac_app/common/widgets/input/app_input_field.dart';
 import 'package:yaantrac_app/models/expense.dart';
 import 'package:yaantrac_app/screens/expense_list_screen.dart';
 import 'package:yaantrac_app/services/api_service.dart';
-
-import 'expense_screen.dart';
 
 class AddExpenseScreen extends StatefulWidget {
   final ExpenseModel? expense;
@@ -30,7 +25,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   late double _amount;
   late ExpenseCategory _category;
   late DateTime _expenseDate;
-  late int _tripId;
   late String _description;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _dateController = TextEditingController();
@@ -45,7 +39,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     _category = widget.expense?.category ?? ExpenseCategory.FUEL;
     _expenseDate = widget.expense?.expenseDate ?? DateTime.now();
     _dateController.text = _formatDate(_expenseDate);
-    _tripId = widget.expense?.tripId ?? 0;
     _description = widget.expense?.description ?? " ";
     selectedExpenseType = widget.expense?.category ?? ExpenseCategory.FUEL;
     switch (_category.toString().split(".")[1]) {
@@ -81,7 +74,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
           contentType: "application/json");
       if (response.statusCode == 200) {
         trip = response.data;
-        print("Get");
         print(trip);
       } else {
         print(response.statusMessage);
@@ -120,7 +112,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
           "updatedAt": DateTime.now().toIso8601String()
         };
       }
-      print("Submitted Expense Data: ${expense}");
+      //print("Submitted Expense Data: ${expense}");
 
       try {
         final response = await APIService.instance.request(
@@ -183,7 +175,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                 AppInputField(
                   label: "Trip Id",
                   hint: "Enter Trip Id",
-                  defaultValue: widget.trid.toString() ?? "null",
+                  defaultValue: widget.trid.toString(),
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   disabled: true,
@@ -207,7 +199,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                         value: "MISCELLANEOUS", child: Text("Miscellaneous")),
                   ],
                   onDropdownChanged: (value) {
-                    print(value);
+                    //print(value);
                     setState(() {
                       selectedExpenseType = ExpenseCategory.values.firstWhere(
                         (e) => e.name == value,
