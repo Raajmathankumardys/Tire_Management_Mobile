@@ -188,10 +188,12 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
                 final vehicle = vehicles[index];
                 return Card(
                   color: isDarkMode ? Colors.grey[800] : Colors.white,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                  shape:
+                      RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                   elevation: 4,
                   child: ExpansionTile(
+                    maintainState: true,
+                    tilePadding: EdgeInsets.all(1),
                     onExpansionChanged: (value) => {tid = vehicle.id},
                     title: _buildVehicleListItem(
                         vehicle: vehicle,
@@ -255,13 +257,27 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
       required BuildContext context,
       required bool isDarkMode}) {
     return ListTile(
+      leading: Icon(
+        Icons.car_crash_sharp,
+        size: 30,
+      ),
+      iconColor: Colors.blueAccent,
       title: Text(vehicle.vehicleNumber,
           style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: isDarkMode ? Colors.white : Colors.black)),
-      subtitle: Text(vehicle.driverName,
-          style: TextStyle(fontSize: 14, color: Colors.blueGrey)),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(vehicle.driverName,
+              style: TextStyle(fontSize: 14, color: Colors.blueGrey)),
+          Text('Start Date: ${_formatDate(vehicle.startDate)}',
+              style: TextStyle(fontSize: 14, color: Colors.blueGrey)),
+          Text('End Date: ${_formatDate(vehicle.endDate)}',
+              style: TextStyle(fontSize: 14, color: Colors.blueGrey))
+        ],
+      ),
     );
   }
 }
