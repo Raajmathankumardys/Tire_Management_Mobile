@@ -67,9 +67,14 @@ class _AddPerformanceScreen extends State<AddPerformanceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).brightness;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Add Trip"),
+        title: const Center(
+          child: Text("Add Tire Performance"),
+        ),
+        backgroundColor:
+            theme == Brightness.dark ? Colors.black : Colors.blueAccent,
         leading: IconButton(
           onPressed: () => {
             Navigator.of(context).pushAndRemoveUntil(
@@ -88,14 +93,20 @@ class _AddPerformanceScreen extends State<AddPerformanceScreen> {
           child: Form(
             key: _formKey,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                SizedBox(
+                  height: 20,
+                ),
                 AppInputField(
                   label: "Pressure",
                   hint: "Enter pressure",
                   keyboardType: TextInputType.number,
                   defaultValue: pressure.toString(),
                   onInputChanged: (value) => pressure = double.parse(value!),
+                ),
+                SizedBox(
+                  height: 20,
                 ),
                 AppInputField(
                   label: "Temperature",
@@ -104,12 +115,18 @@ class _AddPerformanceScreen extends State<AddPerformanceScreen> {
                   defaultValue: temperature.toString(),
                   onInputChanged: (value) => temperature = double.parse(value!),
                 ),
+                SizedBox(
+                  height: 20,
+                ),
                 AppInputField(
                   label: "Wear",
                   hint: "Enter wear",
                   keyboardType: TextInputType.number,
                   defaultValue: wear.toString(),
                   onInputChanged: (value) => wear = double.parse(value!),
+                ),
+                SizedBox(
+                  height: 20,
                 ),
                 AppInputField(
                   label: "Distance Travelled",

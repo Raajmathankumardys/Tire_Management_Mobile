@@ -80,11 +80,15 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).brightness;
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
-        title: const Text("Add Trip"),
-        backgroundColor: Colors.blue,
+        title: const Center(
+          child: Text("Add Trip"),
+        ),
+        backgroundColor:
+            theme == Brightness.dark ? Colors.black : Colors.blueAccent,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back),
@@ -98,17 +102,26 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                SizedBox(
+                  height: 20,
+                ),
                 AppInputField(
                   label: "Vehicle Number",
                   hint: "Enter vehicle number",
                   defaultValue: vehiclenumber,
                   onInputChanged: (value) => vehiclenumber = value ?? '',
                 ),
+                SizedBox(
+                  height: 20,
+                ),
                 AppInputField(
                   label: "Driver Name",
                   hint: "Enter driver name",
                   defaultValue: drivername,
                   onInputChanged: (value) => drivername = value ?? '',
+                ),
+                SizedBox(
+                  height: 20,
                 ),
                 AppInputField(
                   label: "Start Date",
@@ -120,6 +133,9 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                       _dateController1.text = _formatDate(date);
                     });
                   },
+                ),
+                SizedBox(
+                  height: 20,
                 ),
                 AppInputField(
                   label: "End Date",

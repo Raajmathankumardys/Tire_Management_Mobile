@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
 import 'package:yaantrac_app/common/widgets/input/app_input_field.dart';
+import 'package:yaantrac_app/screens/Homepage.dart';
 import 'package:yaantrac_app/screens/tires_list_screen.dart';
 import 'package:yaantrac_app/services/api_service.dart';
-import '../common/widgets/Toast/Toast.dart';
-import '../models/tire.dart';
+import 'package:yaantrac_app/common/widgets/Toast/Toast.dart';
+import 'package:yaantrac_app/models/tire.dart';
+
+import '../config/themes/ThemeProvider.dart';
+// Import ThemeProvider
 
 class AddEditTireScreen extends StatefulWidget {
   final TireModel? tire;
@@ -22,7 +27,7 @@ class _AddEditTireScreenState extends State<AddEditTireScreen> {
   late String _model;
   late String _size;
   late int _stock;
-  bool _isLoading = false; // Track form submission state
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -35,9 +40,7 @@ class _AddEditTireScreenState extends State<AddEditTireScreen> {
 
   _onSubmit() async {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true; // Disable button & show loader
-      });
+      setState(() => _isLoading = true);
 
       int? id = widget.tire?.id;
       _formKey.currentState!.save();
@@ -46,8 +49,8 @@ class _AddEditTireScreenState extends State<AddEditTireScreen> {
         id: id,
         brand: _brand,
         model: _model,
-        size: _size.toString(),
-        stock: _stock.toInt(),
+        size: _size,
+        stock: _stock,
       );
 
       try {
@@ -61,7 +64,6 @@ class _AddEditTireScreenState extends State<AddEditTireScreen> {
         );
 
         if (response.statusCode == 200) {
-          // Success toast
           ToastHelper.showCustomToast(
               context,
               widget.tire == null
@@ -70,90 +72,104 @@ class _AddEditTireScreenState extends State<AddEditTireScreen> {
               Colors.green,
               widget.tire == null ? Icons.add : Icons.edit);
 
-          // Navigate to the list screen
           Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => const TiresListScreen()),
+              MaterialPageRoute(
+                  builder: (context) => HomeScreen(
+                        currentIndex: 1,
+                      )),
               (route) => false);
         } else {
-          // Show error toast if the response is unsuccessful
           ToastHelper.showCustomToast(
               context, "Failed to process request", Colors.red, Icons.error);
         }
       } catch (err) {
-        print("Request failed: $err");
-
-        // Show error toast
-        ToastHelper.showCustomToast(context, "Network error Please try again.",
+        ToastHelper.showCustomToast(context, "Network error, please try again.",
             Colors.red, Icons.error);
       } finally {
-        setState(() {
-          _isLoading = false; // Enable button after request
-        });
+        setState(() => _isLoading = false);
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context); // Get theme
+    final theme = Theme.of(context).brightness;
     return SafeArea(
-        child: Scaffold(
-      appBar: AppBar(
-        title: Text(widget.tire == null ? "Add Tire" : "Edit Tire"),
-        backgroundColor: Colors.blue,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Center(
+            child: Text(widget.tire == null ? "Add Tire" : "Edit Tire"),
+          ),
+          backgroundColor: theme == Brightness.dark
+              ? Colors.black
+              : Colors.blueAccent, // Use dynamic theme color
+          leading: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back),
+          ),
         ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppInputField(
-                  label: "Tire Model",
-                  hint: "Enter tire model",
-                  defaultValue: _model,
-                  onInputChanged: (value) => _model = value ?? '',
-                ),
-                AppInputField(
-                  label: "Brand",
-                  hint: "Enter brand",
-                  defaultValue: _brand,
-                  onInputChanged: (value) => _brand = value ?? '',
-                ),
-                AppInputField(
-                  label: "Size",
-                  hint: "Enter size",
-                  defaultValue: _size,
-                  onInputChanged: (value) => _size = value.toString(),
-                ),
-                AppInputField(
-                  label: "Stock",
-                  hint: "Enter stock quantity",
-                  defaultValue: _stock.toString(),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  onInputChanged: (value) =>
-                      _stock = int.tryParse(value ?? '0') ?? 0,
-                ),
-                const SizedBox(height: 16),
-                _isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(),
-                      ) // Show loader when submitting
-                    : AppPrimaryButton(
-                        onPressed: _onSubmit,
-                        title: widget.tire == null ? "Add Tire" : "Update Tire",
-                      ),
-              ],
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 20,
+                  ),
+                  AppInputField(
+                    label: "Tire Model",
+                    hint: "Enter tire model",
+                    defaultValue: _model,
+                    onInputChanged: (value) => _model = value ?? '',
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  AppInputField(
+                    label: "Brand",
+                    hint: "Enter brand",
+                    defaultValue: _brand,
+                    onInputChanged: (value) => _brand = value ?? '',
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  AppInputField(
+                    label: "Size",
+                    hint: "Enter size",
+                    defaultValue: _size,
+                    onInputChanged: (value) => _size = value.toString(),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  AppInputField(
+                    label: "Stock",
+                    hint: "Enter stock quantity",
+                    defaultValue: _stock.toString(),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    onInputChanged: (value) =>
+                        _stock = int.tryParse(value ?? '0') ?? 0,
+                  ),
+                  const SizedBox(height: 16),
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : AppPrimaryButton(
+                          onPressed: _onSubmit,
+                          title:
+                              widget.tire == null ? "Add Tire" : "Update Tire",
+                        ),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ));
+    );
   }
 }

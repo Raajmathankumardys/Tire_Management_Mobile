@@ -5,7 +5,6 @@ import 'package:yaantrac_app/screens/expense_screen.dart';
 import 'package:yaantrac_app/screens/tires_list_screen.dart';
 import 'package:yaantrac_app/services/api_service.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
 import '../common/widgets/button/app_primary_button.dart';
 import '../models/vehicle.dart';
 
@@ -20,12 +19,47 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
   final List<bool> _isExpandedList = [false, false, false, false];
   late Future<List<Vehicle>> futureVehicles;
   var tid;
-  Future<void> _confirmDeletetrip(int tripId) async {
+
+  @override
+  void initState() {
+    super.initState();
+    futureVehicles = getTrips();
+  }
+
+  Future<List<Vehicle>> getTrips() async {
+    print("API");
+    try {
+      final response = await APIService.instance.request(
+        "https://yaantrac-backend.onrender.com/api/trips",
+        DioMethod.get,
+        contentType: "application/json",
+      );
+
+      if (response.statusCode == 200) {
+        if (response.data is Map<String, dynamic> &&
+            response.data.containsKey("data")) {
+          List<dynamic> vehicleList = response.data["data"];
+          return vehicleList.map((json) => Vehicle.fromJson(json)).toList();
+        } else if (response.data is List) {
+          return response.data.map((json) => Vehicle.fromJson(json)).toList();
+        } else {
+          throw Exception("Unexpected response format");
+        }
+      } else {
+        throw Exception("API Error: ${response.statusMessage}");
+      }
+    } catch (e) {
+      debugPrint("Network Error: $e");
+      return []; // Avoids crashing by returning an empty list
+    }
+  }
+
+  Future<void> _confirmDeleteTrip(int tripId) async {
     bool isDeleting = false;
 
     await showDialog(
       context: context,
-      barrierDismissible: false, // Prevents accidental dismissals
+      barrierDismissible: false,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
@@ -67,12 +101,11 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                              borderRadius: BorderRadius.circular(8)),
                         ),
                         onPressed: () async {
                           setState(() => isDeleting = true);
-                          await _onDeletetrip(tripId);
+                          await _onDeleteTrip(tripId);
                           if (context.mounted) Navigator.pop(context);
                         },
                         child: Text("Delete",
@@ -86,7 +119,7 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
     );
   }
 
-  Future<void> _onDeletetrip(int tripId) async {
+  Future<void> _onDeleteTrip(int tripId) async {
     try {
       final response = await APIService.instance.request(
         "https://yaantrac-backend.onrender.com/api/trips/$tripId",
@@ -99,47 +132,14 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
         });
         ToastHelper.showCustomToast(
             context, "Trip deleted successfully", Colors.red, Icons.delete);
-        /*Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-                builder: (context) =>
-                    ExpensesListScreen(tripId: widget.tripId)),
-            (route) => false);*/
       } else {
         ToastHelper.showCustomToast(
             context, "Failed to process request", Colors.red, Icons.error);
-        print("Error: ${response.statusMessage}");
       }
     } catch (err) {
-      print("Request failed: $err");
-      // Show error toast
+      debugPrint("Request failed: $err");
       ToastHelper.showCustomToast(
-          context, "Network error Please try again.", Colors.red, Icons.error);
-    }
-  }
-
-  Future<List<Vehicle>> getTrips() async {
-    try {
-      final response = await APIService.instance.request(
-        "https://yaantrac-backend.onrender.com/api/trips",
-        DioMethod.get,
-        contentType: "application/json",
-      );
-
-      if (response.statusCode == 200) {
-        if (response.data is Map<String, dynamic> &&
-            response.data.containsKey("data")) {
-          List<dynamic> vehicleList = response.data["data"];
-          return vehicleList.map((json) => Vehicle.fromJson(json)).toList();
-        } else if (response.data is List) {
-          return response.data.map((json) => Vehicle.fromJson(json)).toList();
-        } else {
-          throw Exception("Unexpected response format");
-        }
-      } else {
-        throw Exception("Error: ${response.statusMessage}");
-      }
-    } catch (e) {
-      throw Exception("Error fetching Vehicles: $e");
+          context, "Network error. Please try again.", Colors.red, Icons.error);
     }
   }
 
@@ -150,20 +150,15 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
   }
 
   @override
-  void initState() {
-    futureVehicles = getTrips();
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: Scaffold(
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    return Scaffold(
       appBar: AppBar(
-        title:
-            const Text("Trips", style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.blueAccent,
-        foregroundColor: Colors.white,
+        title: const Center(
+          child: Text("Trips", style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+        backgroundColor: isDarkMode ? Colors.black : Colors.blueAccent,
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -175,125 +170,98 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
           title: "Add Trip",
         ),
       ),
-      body: SafeArea(
-        child: FutureBuilder<List<Vehicle>>(
-          future: futureVehicles,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text("Error: ${snapshot.error}"));
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Center(child: Text("No Vehicles available"));
-            } else {
-              List<Vehicle> vehicles = snapshot.data!;
-              return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: vehicles.length,
-                itemBuilder: (context, index) {
-                  final vehicle = vehicles[index];
-                  return Card(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    elevation: 4,
-                    child: ExpansionTile(
-                      onExpansionChanged: (value) => {tid = vehicle.id},
-                      title: _buildVehicleListItem(
-                          vehicle: vehicle, context: context),
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const TiresListScreen()));
-                                },
-                                icon: const FaIcon(Icons.tire_repair_outlined),
-                                color: Colors.grey,
-                                iconSize: 30,
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              ExpenseScreen(tripid: tid)));
-                                },
-                                icon: const FaIcon(FontAwesomeIcons.wallet),
-                                color: Colors.green,
-                                iconSize: 25,
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  _confirmDeletetrip(tid);
-                                },
-                                icon: const FaIcon(FontAwesomeIcons.trash),
-                                color: Colors.red,
-                                iconSize: 23,
-                              ),
-                            ],
-                          ),
+      body: FutureBuilder<List<Vehicle>>(
+        future: futureVehicles,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError || snapshot.data == null) {
+            return const Center(child: Text("Error loading vehicles"));
+          } else if (snapshot.data!.isEmpty) {
+            return const Center(child: Text("No Vehicles available"));
+          } else {
+            List<Vehicle> vehicles = snapshot.data!;
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: vehicles.length,
+              itemBuilder: (context, index) {
+                final vehicle = vehicles[index];
+                return Card(
+                  color: isDarkMode ? Colors.grey[800] : Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  elevation: 4,
+                  child: ExpansionTile(
+                    onExpansionChanged: (value) => {tid = vehicle.id},
+                    title: _buildVehicleListItem(
+                        vehicle: vehicle,
+                        context: context,
+                        isDarkMode: isDarkMode),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 30),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const TiresListScreen()));
+                              },
+                              icon: const FaIcon(Icons.tire_repair_outlined),
+                              color: Colors.grey,
+                              iconSize: 30,
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            ExpenseScreen(tripid: tid)));
+                              },
+                              icon: const FaIcon(FontAwesomeIcons.wallet),
+                              color: Colors.green,
+                              iconSize: 25,
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                _confirmDeleteTrip(tid);
+                              },
+                              icon: const FaIcon(FontAwesomeIcons.trash),
+                              color: Colors.red,
+                              iconSize: 23,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  );
-                },
-              );
-            }
-          },
-        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          }
+        },
       ),
-    ));
+    );
   }
 
   Widget _buildVehicleListItem(
-      {required Vehicle vehicle, required BuildContext context}) {
-    return Row(
-      children: [
-        Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-              color: Colors.blue, borderRadius: BorderRadius.circular(8)),
-          child:
-              const Icon(Icons.directions_car, color: Colors.white, size: 24),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                vehicle.vehicleNumber,
-                style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black),
-              ),
-              Text(
-                vehicle.driverName,
-                style: const TextStyle(fontSize: 14, color: Colors.blueGrey),
-              ),
-              Text(
-                'Start Date: ${_formatDate(vehicle.startDate)}',
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-              Text(
-                'End Date: ${_formatDate(vehicle.endDate)}',
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-            ],
-          ),
-        ),
-      ],
+      {required Vehicle vehicle,
+      required BuildContext context,
+      required bool isDarkMode}) {
+    return ListTile(
+      title: Text(vehicle.vehicleNumber,
+          style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: isDarkMode ? Colors.white : Colors.black)),
+      subtitle: Text(vehicle.driverName,
+          style: TextStyle(fontSize: 14, color: Colors.blueGrey)),
     );
   }
 }

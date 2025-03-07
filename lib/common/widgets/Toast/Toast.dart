@@ -4,19 +4,22 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ToastHelper {
   static void showCustomToast(
-      BuildContext context, String message, Color bgColor, IconData icons) {
+      BuildContext context, String message, Color color, IconData icons) {
     FToast fToast = FToast();
     fToast.init(context);
 
+    final theme = Theme.of(context);
+    final textColor =
+        theme.brightness == Brightness.dark ? Colors.white : Colors.black;
+
     Widget toast = Container(
       width: 400,
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.0),
-        color: bgColor,
+        color: color,
         boxShadow: [
           BoxShadow(
-            // ignore: deprecated_member_use
             color: Colors.black.withOpacity(0.1),
             blurRadius: 6.0,
             spreadRadius: 2.0,
@@ -24,16 +27,17 @@ class ToastHelper {
         ],
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icons, color: Colors.white, size: 24),
+          Icon(icons, color: textColor, size: 24),
           const SizedBox(width: 8.0),
           Container(
             child: Text(
               message,
-              style: const TextStyle(
-                fontSize: 18.0,
-                color: Colors.white,
+              style: TextStyle(
+                fontSize: 16.0,
+                color: textColor,
                 fontWeight: FontWeight.bold,
               ),
             ),

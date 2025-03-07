@@ -30,21 +30,23 @@ class _TiresListScreenState extends State<TiresListScreen> {
     bool isDeleting = false;
     await showDialog(
       context: context,
-      barrierDismissible: false, // Prevents accidental dismissals
+      barrierDismissible: false,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
-              ),
+              ), // Dark background for contrast
               title: Row(
                 children: [
                   Icon(Icons.warning_amber_rounded,
                       color: Colors.red, size: 28),
                   SizedBox(width: 8),
-                  Text("Confirm Delete",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    "Confirm Delete",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
               content: isDeleting
@@ -53,35 +55,38 @@ class _TiresListScreenState extends State<TiresListScreen> {
                       children: [
                         CircularProgressIndicator(),
                         SizedBox(height: 10),
-                        Text("Deleting Tire... Please wait",
-                            style: TextStyle(fontSize: 14, color: Colors.grey)),
+                        Text(
+                          "Deleting Tire... Please wait",
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
                       ],
                     )
                   : Text(
                       "Are you sure you want to delete this tire? This action cannot be undone.",
-                      style: TextStyle(fontSize: 15)),
+                      style: TextStyle(
+                        fontSize: 15,
+                      ),
+                    ),
               actions: isDeleting
                   ? []
                   : [
                       TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text("Cancel",
-                            style: TextStyle(color: Colors.grey)),
-                      ),
+                          onPressed: () => Navigator.pop(context),
+                          child: Text("Cancel")),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                              borderRadius: BorderRadius.circular(8)),
                         ),
                         onPressed: () async {
                           setState(() => isDeleting = true);
                           await _onDelete(tireId);
                           if (context.mounted) Navigator.pop(context);
                         },
-                        child: Text("Delete",
-                            style: TextStyle(color: Colors.white)),
+                        child: Text("Delete"),
                       ),
                     ],
             );
@@ -97,10 +102,7 @@ class _TiresListScreenState extends State<TiresListScreen> {
           "https://yaantrac-backend.onrender.com/api/tires/$tireId",
           DioMethod.delete,
           contentType: "application/json");
-      String tid = tireId.toString();
-      print(tid);
       if (response.statusCode == 200) {
-        print("API CAlled");
         setState(() {
           futureTires = getTires();
         });
@@ -135,22 +137,14 @@ class _TiresListScreenState extends State<TiresListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: Scaffold(
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    return Scaffold(
       appBar: AppBar(
         title:
             const Text("Tires", style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
         elevation: 2,
-        backgroundColor: Colors.blue,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (context) => VehiclesListScreen()),
-                (route) => false);
-          },
-          icon: const Icon(Icons.arrow_back),
-        ),
+        backgroundColor: isDarkMode ? Colors.black : Colors.blueAccent,
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -171,11 +165,20 @@ class _TiresListScreenState extends State<TiresListScreen> {
           future: futureTires,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
+              return const Center(
+                  child: CircularProgressIndicator(color: Colors.blueAccent));
             } else if (snapshot.hasError) {
-              return Center(child: Text("Error: ${snapshot.error}"));
+              return Center(
+                  child: Text("Error: ${snapshot.error}",
+                      style: TextStyle(
+                          color:
+                              isDarkMode ? Colors.grey[900] : Colors.white)));
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Center(child: Text("No tires available"));
+              return Center(
+                  child: Text("No tires available",
+                      style: TextStyle(
+                          color:
+                              isDarkMode ? Colors.grey[900] : Colors.white)));
             } else {
               List<TireModel> tires = snapshot.data!;
               return ListView.builder(
@@ -184,10 +187,10 @@ class _TiresListScreenState extends State<TiresListScreen> {
                 itemBuilder: (context, index) {
                   final tire = tires[index];
                   return Card(
+                    color: isDarkMode ? Colors.grey[800]! : Colors.white,
                     elevation: 4,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
+                        borderRadius: BorderRadius.circular(15)),
                     child: GestureDetector(
                       onTap: () {
                         if (tire.id != null) {
@@ -213,42 +216,35 @@ class _TiresListScreenState extends State<TiresListScreen> {
                         title: Text(
                           tire.brand,
                           style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: isDarkMode ? Colors.white : Colors.black),
                         ),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text("Model: ${tire.model}",
-                                style: TextStyle(color: Colors.grey.shade600)),
+                                style: TextStyle(color: Colors.grey[400])),
                             Text("Size: ${tire.size}, Stock: ${tire.stock}",
-                                style: TextStyle(color: Colors.grey.shade600)),
+                                style: TextStyle(color: Colors.grey[400])),
                           ],
                         ),
                         trailing: Wrap(
                           spacing: 8,
                           children: [
                             ActionButton(
-                              icon: Icons.edit,
-                              color: Colors.green,
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        AddEditTireScreen(tire: tire),
-                                  ),
-                                );
-                              },
-                            ),
+                                icon: Icons.edit,
+                                color: Colors.green,
+                                onPressed: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            AddEditTireScreen(tire: tire)))),
                             ActionButton(
-                              icon: Icons.delete,
-                              color: Colors.red,
-                              onPressed: () {
-                                _confirmDelete(tire.id!.toInt());
-                              },
-                            ),
+                                icon: Icons.delete,
+                                color: Colors.red,
+                                onPressed: () =>
+                                    _confirmDelete(tire.id!.toInt())),
                           ],
                         ),
                       ),
@@ -260,6 +256,6 @@ class _TiresListScreenState extends State<TiresListScreen> {
           },
         ),
       ),
-    ));
+    );
   }
 }

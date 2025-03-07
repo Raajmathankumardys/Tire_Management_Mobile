@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
 import 'package:yaantrac_app/models/trip_summary.dart';
+import 'package:yaantrac_app/screens/Homepage.dart';
 import 'package:yaantrac_app/screens/expense_list_screen.dart';
 import 'package:yaantrac_app/screens/vehicles_list_screen.dart';
 import 'package:yaantrac_app/services/api_service.dart';
@@ -46,20 +47,30 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return SafeArea(
         child: Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("Trip View",
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.blue,
-        elevation: 2,
+        title: Center(
+          child: Text(
+            "Trip View",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        backgroundColor: theme.brightness == Brightness.dark
+            ? Colors.black
+            : Colors.blueAccent,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(
+            Icons.arrow_back,
+            color: theme.brightness == Brightness.dark
+                ? Colors.white
+                : Colors.black,
+          ),
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => VehiclesListScreen()),
+              MaterialPageRoute(builder: (context) => HomeScreen()),
             );
           },
         ),
@@ -84,79 +95,108 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                     const Text(
                       'Trip San Francisco',
                       style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black),
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
                       textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    GridView.count(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 12,
-                      crossAxisSpacing: 12,
-                      childAspectRatio: 3 / 2,
-                      children: [
-                        ExpenseCard(
-                            title: 'Fuel Cost',
-                            amount:
-                                '\$${tripProfitSummary.breakDown["FUEL"] ?? 0}'),
-                        ExpenseCard(
-                            title: 'Driver Allowances',
-                            amount:
-                                '\$${tripProfitSummary.breakDown["DRIVER_ALLOWANCE"] ?? 0}'),
-                        ExpenseCard(
-                            title: 'Tolls',
-                            amount:
-                                '\$${tripProfitSummary.breakDown["TOLL"] ?? 0}'),
-                        ExpenseCard(
-                            title: 'Maintenance',
-                            amount:
-                                '\$${tripProfitSummary.breakDown["MAINTENANCE"] ?? 0}'),
-                        ExpenseCard(
-                            title: 'Miscellaneous',
-                            amount:
-                                '\$${tripProfitSummary.breakDown["MISCELLANEOUS"] ?? 0}'),
-                      ],
                     ),
                     const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Container(
-                            child: SummaryCard(
-                                title: 'Total Expenses',
-                                amount:
-                                    '\$${tripProfitSummary.totalExpenses}')),
-                        Container(
-                            child: SummaryCard(
-                                title: 'Total Income',
-                                amount: '\$${tripProfitSummary.totalIncome}')),
-                        Container(
-                            child: SummaryCard(
-                                title: 'Profit',
-                                amount: '\$${tripProfitSummary.profit}')),
+                        SummaryCard(
+                            title: 'Total Expenses',
+                            amount: '\$${tripProfitSummary.totalExpenses}',
+                            theme: theme),
+                        SummaryCard(
+                            title: 'Total Income',
+                            amount: '\$${tripProfitSummary.totalIncome}',
+                            theme: theme),
+                        SummaryCard(
+                            title: 'Profit',
+                            amount: '\$${tripProfitSummary.profit}',
+                            theme: theme),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    BreakdownDonutChart(breakdown: {
-                      "FUEL": tripProfitSummary.breakDown["FUEL"]?.toDouble() ??
-                          0.0,
-                      "DRIVER_ALLOWANCE": tripProfitSummary
-                              .breakDown["DRIVER_ALLOWANCE"]
-                              ?.toDouble() ??
-                          0.0,
-                      "TOLL": tripProfitSummary.breakDown["TOLL"]?.toDouble() ??
-                          0.0,
-                      "MAINTENANCE": tripProfitSummary.breakDown["MAINTENANCE"]
-                              ?.toDouble() ??
-                          0.0,
-                      "MISCELLANEOUS": tripProfitSummary
-                              .breakDown["MISCELLANEOUS"]
-                              ?.toDouble() ??
-                          0.0,
-                    }),
+                    Card(
+                      color: theme.brightness == Brightness.dark
+                          ? Colors.grey[900]
+                          : Colors.white,
+                      child: Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Column(
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment
+                                    .start, // Align title to the left
+                                children: [
+                                  Text(
+                                    "Expense Breakdown",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                      height:
+                                          8), // Spacing between title and table
+                                ],
+                              ),
+                              Container(
+                                child: ExpenseTable(
+                                    breakDown: tripProfitSummary.breakDown),
+                              )
+                            ],
+                          )),
+                    ),
+                    const SizedBox(height: 30),
+                    Card(
+                      color: theme.brightness == Brightness.dark
+                          ? Colors.grey[900]
+                          : Colors.white,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            "Expense Distribution",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Container(
+                            padding: EdgeInsets.all(8),
+                            child: BreakdownDonutChart(breakdown: {
+                              "FUEL": tripProfitSummary.breakDown["FUEL"]
+                                      ?.toDouble() ??
+                                  0.0,
+                              "DRIVER_ALLOWANCE": tripProfitSummary
+                                      .breakDown["DRIVER_ALLOWANCE"]
+                                      ?.toDouble() ??
+                                  0.0,
+                              "TOLL": tripProfitSummary.breakDown["TOLL"]
+                                      ?.toDouble() ??
+                                  0.0,
+                              "MAINTENANCE": tripProfitSummary
+                                      .breakDown["MAINTENANCE"]
+                                      ?.toDouble() ??
+                                  0.0,
+                              "MISCELLANEOUS": tripProfitSummary
+                                      .breakDown["MISCELLANEOUS"]
+                                      ?.toDouble() ??
+                                  0.0,
+                            }),
+                          )
+                        ],
+                      ),
+                    )
                   ],
                 );
               }
@@ -201,34 +241,30 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   }
 }
 
-class ExpenseCard extends StatelessWidget {
-  final String title;
-  final String amount;
+class ExpenseTable extends StatelessWidget {
+  final Map<String, dynamic> breakDown;
 
-  const ExpenseCard({super.key, required this.title, required this.amount});
+  ExpenseTable({required this.breakDown});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(title,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-            const SizedBox(height: 8),
-            Text(amount,
-                style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blueAccent)),
-          ],
-        ),
-      ),
+    double total = breakDown.values.fold(0, (sum, value) => sum + value);
+
+    return DataTable(
+      columnSpacing: 20.0,
+      columns: [
+        DataColumn(label: Text('Category')),
+        DataColumn(label: Text('Amount')),
+        DataColumn(label: Text('Percentage')),
+      ],
+      rows: breakDown.entries.map((entry) {
+        double percentage = total > 0 ? (entry.value / total) * 100 : 0;
+        return DataRow(cells: [
+          DataCell(Text(entry.key.replaceAll('_', ' '))), // Formatting names
+          DataCell(Text('\$${entry.value.toStringAsFixed(2)}')),
+          DataCell(Text('${percentage.toStringAsFixed(2)}%')),
+        ]);
+      }).toList(),
     );
   }
 }
@@ -236,31 +272,35 @@ class ExpenseCard extends StatelessWidget {
 class SummaryCard extends StatelessWidget {
   final String title;
   final String amount;
+  final ThemeData theme;
 
-  const SummaryCard({super.key, required this.title, required this.amount});
+  const SummaryCard(
+      {super.key,
+      required this.title,
+      required this.amount,
+      required this.theme});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: Colors.white,
-      child: Padding(
+      color:
+          theme.brightness == Brightness.dark ? Colors.grey[900] : Colors.white,
+      child: Container(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(title,
-                style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black54)),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                )),
             const SizedBox(height: 4),
             Text(amount,
                 style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blueAccent)),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                )),
           ],
         ),
       ),
@@ -330,17 +370,17 @@ class BreakdownDonutChart extends StatelessWidget {
                       Text(
                         entry.key.toUpperCase(),
                         style: const TextStyle(
-                            fontSize: 10, fontWeight: FontWeight.bold),
+                            fontSize: 8, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(width: 8),
                       CustomPaint(
                         painter: ArrowPainter(),
-                        child: const SizedBox(width: 15),
+                        child: const SizedBox(width: 13),
                       ),
                       Text(
                         entry.value.toInt().toString(), // Displays value
                         style: const TextStyle(
-                            fontSize: 10, fontWeight: FontWeight.bold),
+                            fontSize: 8, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -359,7 +399,7 @@ class ArrowPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.black
+      ..color = Colors.grey
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
