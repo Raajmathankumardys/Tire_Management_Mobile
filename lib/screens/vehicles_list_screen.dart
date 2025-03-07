@@ -27,7 +27,6 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
   }
 
   Future<List<Vehicle>> getTrips() async {
-    print("API");
     try {
       final response = await APIService.instance.request(
         "https://yaantrac-backend.onrender.com/api/trips",
@@ -39,6 +38,7 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
         if (response.data is Map<String, dynamic> &&
             response.data.containsKey("data")) {
           List<dynamic> vehicleList = response.data["data"];
+          print(vehicleList);
           return vehicleList.map((json) => Vehicle.fromJson(json)).toList();
         } else if (response.data is List) {
           return response.data.map((json) => Vehicle.fromJson(json)).toList();
@@ -221,8 +221,8 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) =>
-                                            ExpenseScreen(tripid: tid)));
+                                        builder: (context) => ExpenseScreen(
+                                            tripid: tid, ve: vehicle)));
                               },
                               icon: const FaIcon(FontAwesomeIcons.wallet),
                               color: Colors.green,

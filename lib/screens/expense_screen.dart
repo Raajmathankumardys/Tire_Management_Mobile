@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
 import 'package:yaantrac_app/models/trip_summary.dart';
+import 'package:yaantrac_app/models/vehicle.dart';
 import 'package:yaantrac_app/screens/Homepage.dart';
 import 'package:yaantrac_app/screens/expense_list_screen.dart';
 import 'package:yaantrac_app/screens/vehicles_list_screen.dart';
@@ -12,7 +13,8 @@ var _tripid;
 
 class ExpenseScreen extends StatefulWidget {
   final int tripid;
-  const ExpenseScreen({super.key, required this.tripid});
+  final Vehicle? ve;
+  const ExpenseScreen({super.key, required this.tripid, this.ve});
 
   @override
   State<ExpenseScreen> createState() => _ExpenseScreenState();
@@ -20,6 +22,11 @@ class ExpenseScreen extends StatefulWidget {
 
 class _ExpenseScreenState extends State<ExpenseScreen> {
   late Future<TripProfitSummaryModel> tripProfitSummary;
+  String _formatDate(DateTime date) {
+    return "${date.day.toString().padLeft(2, '0')}-"
+        "${date.month.toString().padLeft(2, '0')}-"
+        "${date.year}";
+  }
 
   Future<TripProfitSummaryModel> getTripProfit() async {
     try {
@@ -92,14 +99,48 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text(
-                      'Trip San Francisco',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
+                    widget.ve != null
+                        ? Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            color: theme.brightness == Brightness.dark
+                                ? Colors.grey[900]
+                                : Colors.white,
+                            margin: EdgeInsets.all(10),
+                            child: Padding(
+                              padding: EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Center(
+                                    child: Text(
+                                      "Trip Details",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18),
+                                    ),
+                                  ),
+                                  SizedBox(height: 6),
+                                  Text(
+                                      'Vehicle Number: ${widget.ve!.vehicleNumber}',
+                                      style: TextStyle(fontSize: 18)),
+                                  SizedBox(height: 6),
+                                  Text('Driver Name: ${widget.ve!.driverName}',
+                                      style: TextStyle(fontSize: 18)),
+                                  SizedBox(height: 6),
+                                  Text(
+                                      'Start Date: ${_formatDate(widget.ve!.startDate)}',
+                                      style: TextStyle(fontSize: 18)),
+                                  Text(
+                                      'End Date: ${_formatDate(widget.ve!.endDate)}',
+                                      style: TextStyle(fontSize: 18)),
+                                  SizedBox(height: 6),
+                                ],
+                              ),
+                            ),
+                          )
+                        : Container(),
                     const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,

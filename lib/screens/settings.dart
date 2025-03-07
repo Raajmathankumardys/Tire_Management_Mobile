@@ -77,6 +77,14 @@ class _SettingsPageState extends State<SettingsPage> {
               title: Text("Help & Support"),
               onTap: () => _showHelpSupportBottomSheet(context),
             ),
+          ),
+          SizedBox(height: 20),
+          Card(
+            child: ListTile(
+              leading: Icon(Icons.live_help_outlined),
+              title: Text("FAQs"),
+              onTap: () => _showHelpSupportBottomSheet(context),
+            ),
           )
         ],
       ),
