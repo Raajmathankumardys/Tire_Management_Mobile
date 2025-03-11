@@ -201,8 +201,8 @@ import 'package:flutter/material.dart';
 import 'package:yaantrac_app/common/widgets/button/action_button.dart';
 import 'package:yaantrac_app/models/expense.dart';
 import 'package:yaantrac_app/models/income.dart';
-import 'package:yaantrac_app/screens/add_expense_screen.dart';
-import 'package:yaantrac_app/screens/add_income_screen.dart';
+import 'package:yaantrac_app/trash/add_expense_screen.dart';
+import 'package:yaantrac_app/trash/add_income_screen.dart';
 import 'package:yaantrac_app/screens/expense_screen.dart';
 import 'package:yaantrac_app/services/api_service.dart';
 import '../common/widgets/button/app_primary_button.dart';
@@ -400,13 +400,14 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
           ),
           leading: IconButton(
             onPressed: () {
-              Navigator.push(
+              /*Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => ExpenseScreen(
                           tripid: widget.tripId,
                         )),
               );
+               */
             },
             icon: const Icon(Icons.arrow_back),
           ),

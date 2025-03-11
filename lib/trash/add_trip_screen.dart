@@ -2,26 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:yaantrac_app/common/widgets/Toast/Toast.dart';
 import 'package:yaantrac_app/models/vehicle.dart';
+import 'package:yaantrac_app/screens/trip_list_page.dart';
 import 'package:yaantrac_app/screens/vehicles_list_screen.dart';
 import '../common/widgets/button/app_primary_button.dart';
 import '../common/widgets/input/app_input_field.dart';
+import '../models/trip.dart';
 import '../services/api_service.dart';
 
-class AddVehicleScreen extends StatefulWidget {
-  const AddVehicleScreen({super.key});
+class AddTripScreen extends StatefulWidget {
+  final Trip? trip;
+  final int vehicleid;
+  const AddTripScreen({super.key, this.trip, required this.vehicleid});
 
   @override
-  State<AddVehicleScreen> createState() => _AddVehicleScreenState();
+  State<AddTripScreen> createState() => _AddTripScreenState();
 }
 
-class _AddVehicleScreenState extends State<AddVehicleScreen> {
+class _AddTripScreenState extends State<AddTripScreen> {
   final _formKey = GlobalKey<FormState>();
-  String vehiclenumber = "";
-  String drivername = "";
-  DateTime startdate = DateTime.now();
-  DateTime enddate = DateTime.now();
-  final TextEditingController _dateController1 = TextEditingController();
-  final TextEditingController _dateController2 = TextEditingController();
+  late String source;
+  late String destination;
+  late DateTime startdate = DateTime.now();
+  late DateTime enddate = DateTime.now();
+  late TextEditingController _dateController1 = TextEditingController();
+  late TextEditingController _dateController2 = TextEditingController();
   bool _isLoading = false;
 
   String _formatDate(DateTime date) {
@@ -30,16 +34,26 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
         "${date.year}";
   }
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    source = widget.trip?.source ?? "";
+    destination = widget.trip?.destination ?? '';
+    startdate = widget.trip?.startDate ?? DateTime.now();
+    enddate = widget.trip?.endDate ?? DateTime.now();
+  }
+
   _onSubmit() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true; // Disable button & show loader
       });
 
-      final vehicle = Vehicle(
-        id: null,
-        vehicleNumber: vehiclenumber,
-        driverName: drivername,
+      final vehicle = Trip(
+        id: widget.trip?.id,
+        source: source,
+        destination: destination,
         startDate: startdate,
         endDate: enddate,
         createdAt: DateTime.now(),
@@ -48,7 +62,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
 
       try {
         final response = await APIService.instance.request(
-          "https://yaantrac-backend.onrender.com/api/trips",
+          "https://yaantrac-backend.onrender.com/api/trips?vehicleId=${widget.vehicleid}",
           DioMethod.post,
           formData: vehicle.toJson(),
           contentType: "application/json",
@@ -58,7 +72,9 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
           ToastHelper.showCustomToast(
               context, "Trip added successfully", Colors.green, Icons.add);
           Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => VehiclesListScreen()),
+            MaterialPageRoute(
+                builder: (context) =>
+                    TripListScreen(vehicleid: widget.vehicleid)),
             (route) => false,
           );
         } else {
@@ -106,19 +122,19 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                   height: 20,
                 ),
                 AppInputField(
-                  label: "Vehicle Number",
-                  hint: "Enter vehicle number",
-                  defaultValue: vehiclenumber,
-                  onInputChanged: (value) => vehiclenumber = value ?? '',
+                  label: "Source",
+                  hint: "Enter Source",
+                  defaultValue: source,
+                  onInputChanged: (value) => source = value ?? '',
                 ),
                 SizedBox(
                   height: 20,
                 ),
                 AppInputField(
-                  label: "Driver Name",
-                  hint: "Enter driver name",
-                  defaultValue: drivername,
-                  onInputChanged: (value) => drivername = value ?? '',
+                  label: "Destination",
+                  hint: "Enter Destination",
+                  defaultValue: destination,
+                  onInputChanged: (value) => destination = value ?? '',
                 ),
                 SizedBox(
                   height: 20,

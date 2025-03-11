@@ -4,6 +4,7 @@ import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
 import 'package:yaantrac_app/common/widgets/input/app_input_field.dart';
 import 'package:yaantrac_app/models/income.dart'; // Replace with the actual income model
 import 'package:yaantrac_app/screens/expense_list_screen.dart';
+import 'package:yaantrac_app/screens/expense_screen.dart';
 import 'package:yaantrac_app/services/api_service.dart';
 
 class AddIncomeScreen extends StatefulWidget {
@@ -77,10 +78,10 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
                     : "Income updated successfully!")),
           );
           _formKey.currentState?.reset();
-          Navigator.of(context).pushAndRemoveUntil(
+          /*Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(
-                  builder: (context) => ExpensesListScreen(tripId: tripId)),
-              (route) => false);
+                  builder: (context) => TripViewPage(tripId: tripId)),
+              (route) => false);*/
         } else {
           print(response.statusMessage);
         }

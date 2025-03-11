@@ -1,39 +1,31 @@
 class Vehicle {
   final int? id;
-  final String vehicleNumber;
-  final String driverName;
-  final DateTime startDate;
-  final DateTime endDate;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  Vehicle(
-      {required this.id,
-      required this.vehicleNumber,
-      required this.driverName,
-      required this.startDate,
-      required this.endDate,
-      required this.createdAt,
-      required this.updatedAt});
+  final String name;
+  final String type;
+  final String licensePlate;
+  final int manufactureYear;
+  Vehicle({
+    required this.id,
+    required this.name,
+    required this.type,
+    required this.licensePlate,
+    required this.manufactureYear,
+  });
   factory Vehicle.fromJson(Map<String, dynamic> json) {
     return Vehicle(
-      id: json['id'],
-      vehicleNumber: json['vehicleNumber'],
-      driverName: json['driverName'],
-      startDate: DateTime.parse(json['startDate']),
-      endDate: DateTime.parse(json['endDate']),
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-    );
+        id: int.tryParse(json["id"].toString()) ?? 0,
+        name: json['name'],
+        type: json['type'],
+        licensePlate: json['licensePlate'],
+        manufactureYear: json['manufactureYear']);
   }
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'vehicleNumber': vehicleNumber,
-      'driverName': driverName,
-      'startDate': startDate.toIso8601String(),
-      'endDate': endDate.toIso8601String(),
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
+      'name': name,
+      'type': type,
+      'licensePlate': licensePlate,
+      'manufactureYear': manufactureYear
     };
   }
 }
