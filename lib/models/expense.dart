@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
-
-enum ExpenseCategory { FUEL,
+enum ExpenseCategory {
+  FUEL,
   DRIVER_ALLOWANCE,
   TOLL,
   MAINTENANCE,
-  MISCELLANEOUS }
+  MISCELLANEOUS
+}
 
 class ExpenseModel {
-  final int? expenseId;
+  final int? id;
   final int tripId;
   final ExpenseCategory category;
   final double amount;
@@ -16,11 +16,10 @@ class ExpenseModel {
   final String? attachmentUrl;
   final DateTime createdAt;
 
-
   final DateTime updatedAt;
 
   ExpenseModel({
-    this.expenseId,
+    this.id,
     required this.tripId,
     required this.category,
     required this.amount,
@@ -33,10 +32,10 @@ class ExpenseModel {
 
   factory ExpenseModel.fromJson(Map<String, dynamic> json) {
     return ExpenseModel(
-      expenseId: json['expenseId'],
+      id: json['id'],
       tripId: json['tripId'],
       category: ExpenseCategory.values.firstWhere(
-            (e) => e.toString().split('.').last == json['category'],
+        (e) => e.toString().split('.').last == json['category'],
         orElse: () => ExpenseCategory.MISCELLANEOUS,
       ),
       amount: (json['amount'] as num).toDouble(),
@@ -50,6 +49,7 @@ class ExpenseModel {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'tripId': tripId,
       'category': category.toString().split('.').last,
       'amount': amount,

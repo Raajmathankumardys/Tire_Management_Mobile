@@ -1,0 +1,2 @@
+C:/Users/harsa/AndroidStudioProjects/Tire_Management_Mobile/android/app/.cxx/Debug/53304b2f/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/harsa/AndroidStudioProjects/Tire_Management_Mobile/android/app/.cxx/Debug/53304b2f/x86_64/CMakeFiles/rebuild_cache.dir

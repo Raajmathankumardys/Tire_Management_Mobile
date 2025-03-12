@@ -1,11 +1,9 @@
-import 'package:yaantrac_app/models/expense.dart';
-
 class TripProfitSummaryModel {
   final int tripId;
   final double totalIncome;
   final double totalExpenses;
   final double profit;
-  final Map<String,dynamic> breakDown;
+  final Map<String, dynamic> breakDown;
 
   TripProfitSummaryModel({
     required this.tripId,
@@ -21,7 +19,7 @@ class TripProfitSummaryModel {
       totalIncome: (json['totalIncome'] as num).toDouble(),
       totalExpenses: (json['totalExpenses'] as num).toDouble(),
       profit: (json['profit'] as num).toDouble(),
-      breakDown:json['breakDown'],
+      breakDown: json['breakDown'],
     );
   }
 
@@ -31,7 +29,7 @@ class TripProfitSummaryModel {
       'totalIncome': totalIncome,
       'totalExpenses': totalExpenses,
       'profit': profit,
-      'breakDown':breakDown,
+      'breakDown': breakDown,
     };
   }
 

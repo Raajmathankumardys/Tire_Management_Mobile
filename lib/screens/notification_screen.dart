@@ -5,41 +5,65 @@ class NotificationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Alerts & Notifications"),
-        leading: IconButton(onPressed: (){}, icon: const Icon(Icons.arrow_back)),
-        actions: [
-          IconButton(onPressed: (){}, icon: const Icon(Icons.clear_all_sharp)),
-        ],
+        backgroundColor: theme.brightness == Brightness.dark
+            ? Colors.black
+            : Colors.blueAccent,
+        title: const Center(
+          child: Text(
+            "Alerts & Notifications",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             GestureDetector(
-              child: const Card(
+              child: Card(
+                color: isDarkMode ? Colors.grey[800] : Colors.white,
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Padding(
-                  padding: EdgeInsets.all(20.0),
+                  padding: const EdgeInsets.all(20.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Tire Pressure Low",style: TextStyle(fontWeight:FontWeight.bold,fontSize: 20),),
-                          Text("Tire pressure is low in 3rd",style: TextStyle(fontSize: 15),),                  ],
+                          Text(
+                            "Tire Pressure Low",
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "Tire pressure is low in 3rd",
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                        ],
                       ),
-                      Text("5m ago",style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold,
-                      ),),
+                      Text(
+                        "5m ago",
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.hintColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

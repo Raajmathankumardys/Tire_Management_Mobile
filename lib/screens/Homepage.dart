@@ -1,0 +1,66 @@
+import 'package:flutter/material.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:yaantrac_app/screens/settings.dart';
+import 'package:yaantrac_app/screens/tiremapping.dart';
+import 'vehicles_list_screen.dart';
+import 'tires_list_screen.dart';
+import 'notification_screen.dart';
+
+class HomeScreen extends StatefulWidget {
+  final int currentIndex;
+
+  const HomeScreen({Key? key, this.currentIndex = 0}) : super(key: key);
+
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late int _currentIndex;
+  GlobalKey<CurvedNavigationBarState> _bottomNavigationKey = GlobalKey();
+
+  final List<Widget> _pages = [
+    VehiclesListScreen(),
+    TiresListScreen(),
+    NotificationScreen(),
+    SettingsPage(),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.currentIndex;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+        child: Scaffold(
+      body: _pages[_currentIndex],
+      bottomNavigationBar: CurvedNavigationBar(
+        key: _bottomNavigationKey, // Added key to force update
+        backgroundColor: Theme.of(context).brightness == Brightness.dark
+            ? Colors.black
+            : Colors.grey[800]!,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.grey[800]!
+            : Colors.white,
+        animationDuration: Duration(milliseconds: 300),
+        height: 60,
+        index: _currentIndex, // Ensuring correct tab selection
+        items: [
+          Icon(Icons.directions_car, size: 30, color: Colors.blueAccent),
+          Icon(Icons.tire_repair, size: 30, color: Colors.blueAccent),
+          Icon(Icons.notifications, size: 30, color: Colors.blueAccent),
+          Icon(Icons.settings, size: 30, color: Colors.blueAccent),
+        ],
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+            _bottomNavigationKey = GlobalKey(); // Forces widget to rebuild
+          });
+        },
+      ),
+    ));
+  }
+}

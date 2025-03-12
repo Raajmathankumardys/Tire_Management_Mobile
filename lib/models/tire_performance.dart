@@ -1,4 +1,4 @@
-class TirePerformanceModel{
+class TirePerformanceModel {
   // private Long tireId;
   // private double pressure;
   // private double temperature;
@@ -9,28 +9,33 @@ class TirePerformanceModel{
   final double temperature;
   final double wear;
   final double distanceTraveled;
+  final String? localDateTime;
 
   TirePerformanceModel(
-      {required this.tireId, required this.pressure, required this.temperature, required this.wear, required this.distanceTraveled}
-      );
+      {required this.tireId,
+      required this.pressure,
+      required this.temperature,
+      required this.wear,
+      required this.distanceTraveled,
+      this.localDateTime});
 
-  factory TirePerformanceModel.fromJson(Map<String,dynamic> json){
+  factory TirePerformanceModel.fromJson(Map<String, dynamic> json) {
     return TirePerformanceModel(
-        tireId:json["tireId"] ?? 0,
-        pressure:json["pressure"] ?? 0,
-        temperature:json["temperature"] ?? 0,
-        wear:json["wear"] ?? 0,
-        distanceTraveled: json["distanceTraveled"] ?? 0
-    );
+        tireId: json["tireId"],
+        pressure: json["pressure"],
+        temperature: json["temperature"],
+        wear: json["wear"],
+        distanceTraveled: json["distanceTraveled"],
+        localDateTime: json['localDateTime']);
   }
-  Map<String, dynamic> toJSON(){
+  Map<String, dynamic> toJson() {
     return {
       "tireId": tireId,
       "pressure": pressure,
-      "wear":wear,
-      "distanceTraveled":distanceTraveled,
-      "temperature":temperature,
+      "wear": wear,
+      "distanceTraveled": distanceTraveled,
+      "temperature": temperature,
+      "localDateTime": localDateTime
     };
   }
-
 }

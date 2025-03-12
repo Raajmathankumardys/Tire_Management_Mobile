@@ -1,14 +1,12 @@
-import 'dart:ffi';
-
 class TireModel {
   final String brand;
   final String model;
   final String size;
   final int stock;
-  final int? tireId;
+  final int? id;
 
   TireModel({
-    this.tireId,
+    this.id,
     required this.brand,
     required this.model,
     required this.size,
@@ -18,10 +16,10 @@ class TireModel {
   // Tire model from JSON
   factory TireModel.fromJson(Map<String, dynamic> json) {
     return TireModel(
-      tireId: json['tireId'] ?? 0,
+      id: json['id'] ?? 0,
       brand: json['brand'] ?? '',
       model: json['model'] ?? '',
-      size: json['size'] ?? '',
+      size: json['size'] ?? 0,
       stock: json['stock'] ?? 0,
     );
   }
@@ -29,7 +27,7 @@ class TireModel {
   // TireModel to JSON
   Map<String, dynamic> toJson() {
     return {
-      'tireId':tireId,
+      'id': id,
       'brand': brand,
       'model': model,
       'size': size,

@@ -197,12 +197,13 @@
 //
 // }
 
-
 import 'package:flutter/material.dart';
+import 'package:yaantrac_app/common/widgets/button/action_button.dart';
 import 'package:yaantrac_app/models/expense.dart';
 import 'package:yaantrac_app/models/income.dart';
-import 'package:yaantrac_app/screens/add_expense_screen.dart';
-import 'package:yaantrac_app/screens/add_income_screen.dart';
+import 'package:yaantrac_app/trash/add_expense_screen.dart';
+import 'package:yaantrac_app/trash/add_income_screen.dart';
+import 'package:yaantrac_app/screens/expense_screen.dart';
 import 'package:yaantrac_app/services/api_service.dart';
 import '../common/widgets/button/app_primary_button.dart';
 
@@ -226,15 +227,127 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
     futureIncomes = getIncomes();
   }
 
+  String _formatDate(DateTime date) {
+    return "${date.day.toString().padLeft(2, '0')}-"
+        "${date.month.toString().padLeft(2, '0')}-"
+        "${date.year}";
+  }
+
+  Future<void> _confirmDeleteexpense(int expenseId) async {
+    print(expenseId);
+    bool? confirm = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Confirm Delete"),
+        content: const Text("Are you sure you want to delete this Expense?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false), // No
+            child: const Text("No"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true), // Yes
+            child: const Text("Yes", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      _onDeleteexpense(expenseId); // Call delete function if confirmed
+    }
+  }
+
+  Future<void> _onDeleteexpense(int expenseId) async {
+    try {
+      final response = await APIService.instance.request(
+        "https://yaantrac-backend.onrender.com/api/expenses/$expenseId",
+        DioMethod.delete,
+        contentType: "application/json",
+      );
+      if (response.statusCode == 204) {
+        setState(() {
+          futureExpenses = getExpenses();
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Expense deleted successfully!"),
+          ),
+        );
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+                builder: (context) =>
+                    ExpensesListScreen(tripId: widget.tripId)),
+            (route) => false);
+      } else {
+        print("Error: ${response.statusMessage}");
+      }
+    } catch (err) {
+      print("Delete Error: $err");
+    }
+  }
+
+  Future<void> _confirmDeleteincome(int incomeId) async {
+    print(incomeId);
+    bool? confirm = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Confirm Delete"),
+        content: const Text("Are you sure you want to delete this income?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false), // No
+            child: const Text("No"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true), // Yes
+            child: const Text("Yes", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      _onDeleteincome(incomeId); // Call delete function if confirmed
+    }
+  }
+
+  Future<void> _onDeleteincome(int incomeId) async {
+    try {
+      print(incomeId);
+      final response = await APIService.instance.request(
+          "https://yaantrac-backend.onrender.com/api/income/$incomeId",
+          DioMethod.delete,
+          contentType: "application/json");
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Income deleted successfully!"),
+          ),
+        );
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+                builder: (context) =>
+                    ExpensesListScreen(tripId: widget.tripId)),
+            (route) => false);
+      } else {
+        print("Error: ${response.statusMessage}");
+      }
+    } catch (err) {
+      print("Delete Error: $err");
+    }
+  }
+
   Future<List<ExpenseModel>> getExpenses() async {
     try {
       final response = await APIService.instance.request(
-        "/expenses/trip/${widget.tripId}",
+        "https://yaantrac-backend.onrender.com/api/expenses/trip/${widget.tripId}",
         DioMethod.get,
         contentType: "application/json",
       );
       if (response.statusCode == 200) {
         List<dynamic> expenseList = response.data['data'];
+        //print(response.data['data']);
         return expenseList.map((json) => ExpenseModel.fromJson(json)).toList();
       } else {
         throw Exception("Error: ${response.statusMessage}");
@@ -246,13 +359,15 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
 
   Future<List<IncomeModel>> getIncomes() async {
     try {
+      print(widget.tripId);
       final response = await APIService.instance.request(
-        "/income?tripId=${widget.tripId}",
+        "https://yaantrac-backend.onrender.com/api/income/?tripId=${widget.tripId}",
         DioMethod.get,
         contentType: "application/json",
       );
       if (response.statusCode == 200) {
         List<dynamic> incomeList = response.data['data'];
+        print(incomeList);
         return incomeList.map((json) => IncomeModel.fromJson(json)).toList();
       } else {
         throw Exception("Error: ${response.statusMessage}");
@@ -268,6 +383,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.lightBlue,
           title: const Text("Expenses & Income"),
           bottom: TabBar(
             onTap: (index) {
@@ -276,12 +392,23 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
               });
             },
             tabs: const [
-              Tab(child: Text("Expense", style: TextStyle(color: Colors.white))),
+              Tab(
+                  child:
+                      Text("Expense", style: TextStyle(color: Colors.white))),
               Tab(child: Text("Income", style: TextStyle(color: Colors.white))),
             ],
           ),
           leading: IconButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              /*Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ExpenseScreen(
+                          tripid: widget.tripId,
+                        )),
+              );
+               */
+            },
             icon: const Icon(Icons.arrow_back),
           ),
         ),
@@ -296,8 +423,10 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => _selectedIndex == 0
-                            ? const AddExpenseScreen()
-                            : const AddIncomeScreen(),
+                            ? AddExpenseScreen(
+                                trid: widget.tripId,
+                              )
+                            : AddIncomeScreen(tripid: widget.tripId),
                       ),
                     );
                   },
@@ -362,6 +491,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
       },
     );
   }
+
   Widget _buildExpenseListItem({required ExpenseModel expense}) {
     return Card(
       child: Padding(
@@ -390,7 +520,7 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
                     ),
                   ),
                   Text(
-                    'Date: ${expense.expenseDate.toLocal()}'.split(' ')[0],
+                    'Date: ${_formatDate(expense.expenseDate)}',
                     style: const TextStyle(
                       color: Color(0xFF93adc8),
                       fontSize: 14,
@@ -406,26 +536,29 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
                 ],
               ),
             ),
-            MenuAnchor(
-              builder: (BuildContext context, MenuController controller, Widget? child) {
-                return IconButton(
-                  icon: const Icon(Icons.more_vert),
-                  onPressed: () => controller.open(),
-                );
-              },
-              menuChildren: [
-                MenuItemButton(
-                  child: const Text('Update'),
-                  onPressed: () {
-                    // Handle update logic
-                  },
-                ),
-                MenuItemButton(
-                  child: const Text('Delete'),
-                  onPressed: () {
-                    // Handle delete logic
-                  },
-                ),
+            Row(
+              children: [
+                ActionButton(
+                    icon: Icons.edit,
+                    color: Colors.green,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddExpenseScreen(
+                            expense: expense,
+                            trid: widget.tripId,
+                          ),
+                        ),
+                      );
+                    }),
+                SizedBox(width: 10),
+                ActionButton(
+                    icon: Icons.delete,
+                    color: Colors.red,
+                    onPressed: () {
+                      _confirmDeleteexpense(expense.id!.toInt());
+                    }),
               ],
             ),
           ],
@@ -434,10 +567,9 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
     );
   }
 
-
-
   Widget _buildIncomeListItem({required IncomeModel income}) {
     return _buildListItem(
+      income: income,
       title: "Income",
       amount: income.amount,
       date: income.incomeDate,
@@ -445,20 +577,57 @@ class _ExpensesListScreenState extends State<ExpensesListScreen> {
     );
   }
 
-  Widget _buildListItem({required String title, required double amount, required DateTime date, required String description}) {
+  Widget _buildListItem(
+      {required IncomeModel income,
+      required String title,
+      required double amount,
+      required DateTime date,
+      required String description}) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-            Text('Amount: ₹${amount.toStringAsFixed(2)}'),
-            Text('Date: ${date.toLocal()}'.split(' ')[0]),
-            Text('Description: $description'),
-          ],
-        ),
-      ),
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title,
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w500)),
+                    Text('Amount: ₹${amount.toStringAsFixed(2)}'),
+                    Text('Date: ${_formatDate(income.incomeDate)}'),
+                    Text('Description: $description'),
+                  ],
+                ),
+              ),
+              Row(
+                children: [
+                  ActionButton(
+                      icon: Icons.edit,
+                      color: Colors.green,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddIncomeScreen(
+                              income: income,
+                              tripid: widget.tripId,
+                            ),
+                          ),
+                        );
+                      }),
+                  SizedBox(width: 10),
+                  ActionButton(
+                      icon: Icons.delete,
+                      color: Colors.red,
+                      onPressed: () {
+                        _confirmDeleteincome(income.id!.toInt());
+                      }),
+                ],
+              ),
+            ],
+          )),
     );
   }
 }

@@ -1,13 +1,16 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
 import 'package:yaantrac_app/common/widgets/input/app_input_field.dart';
 import 'package:yaantrac_app/models/income.dart'; // Replace with the actual income model
+import 'package:yaantrac_app/screens/expense_list_screen.dart';
+import 'package:yaantrac_app/screens/expense_screen.dart';
 import 'package:yaantrac_app/services/api_service.dart';
 
 class AddIncomeScreen extends StatefulWidget {
-  const AddIncomeScreen({super.key});
+  final IncomeModel? income;
+  final int tripid;
+  const AddIncomeScreen({super.key, this.income, required this.tripid});
 
   @override
   State<AddIncomeScreen> createState() => _AddIncomeScreenState();
@@ -19,32 +22,66 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
   DateTime selectedDate = DateTime.now();
   double amount = 0.0;
   String description = "";
+  late double _amount;
+  late DateTime _incomeDate;
+  late String _description;
+  final TextEditingController _dateController = TextEditingController();
+
+  @override
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    print(widget.tripid);
+    _amount = widget.income?.amount ?? 0.0;
+    _incomeDate = widget.income?.incomeDate ?? DateTime.now();
+    _dateController.text =
+        "$_incomeDate.toLocal()}".split(' ')[0]; // Format the date
+    _description = widget.income?.description ?? "";
+  }
+
+  String _formatDate(DateTime date) {
+    return "${date.day.toString().padLeft(2, '0')}-"
+        "${date.month.toString().padLeft(2, '0')}-"
+        "${date.year}";
+  }
+
   final _formKey = GlobalKey<FormState>();
 
   void _submitIncome() async {
+    var iid = (widget.income == null) ? null : widget.income!.id;
     if (_formKey.currentState!.validate()) {
       IncomeModel income = IncomeModel(
-        amount: amount,
-        incomeDate: selectedDate,
-        tripId: tripId,
-        description: description,
+        id: iid,
+        amount: _amount,
+        incomeDate: _incomeDate,
+        tripId: widget.tripid,
+        description: _description,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
-
+      print(income.toJson());
       try {
         final response = await APIService.instance.request(
-          "/income/$tripId",
-          DioMethod.post,
+          widget.income == null
+              ? "https://yaantrac-backend.onrender.com/api/income/${income.tripId}"
+              : "https://yaantrac-backend.onrender.com/api/income/${income.id}",
+          widget.income == null ? DioMethod.post : DioMethod.put,
           formData: income.toJson(),
           contentType: "application/json",
         );
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Income added successfully!")),
+            SnackBar(
+                content: Text(widget.income == null
+                    ? "Income added successfully!"
+                    : "Income updated successfully!")),
           );
           _formKey.currentState?.reset();
-          Navigator.pop(context);
+          /*Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                  builder: (context) => TripViewPage(tripId: tripId)),
+              (route) => false);*/
         } else {
           print(response.statusMessage);
         }
@@ -62,7 +99,6 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
           "Income",
           style: TextStyle(fontSize: 20),
         ),
-        actions: const [Icon(Icons.search)],
         leading: Builder(builder: (BuildContext context) {
           return IconButton(
             onPressed: () {
@@ -91,17 +127,18 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   disabled: true,
-                  defaultValue: tripId.toString(),
+                  defaultValue: widget.tripid.toString(),
                 ),
                 const SizedBox(height: 5),
                 AppInputField(
                   label: "Amount",
                   hint: "Enter Amount",
                   keyboardType: TextInputType.number,
+                  defaultValue: _amount.toString(),
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   onInputChanged: (value) {
                     setState(() {
-                      amount = double.parse(value!);
+                      _amount = double.parse(value!);
                     });
                   },
                 ),
@@ -109,10 +146,13 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
                 AppInputField(
                   label: "Date",
                   isDatePicker: true,
+                  controller:
+                      _dateController, // Use the controller instead of defaultValue
                   onDateSelected: (date) {
-                    print(date);
                     setState(() {
-                      selectedDate = date;
+                      _incomeDate = date;
+                      _dateController.text =
+                          _formatDate(date); // Update text in field
                     });
                   },
                 ),
@@ -121,37 +161,26 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
                   label: "Description",
                   hint: "Enter Description",
                   keyboardType: TextInputType.multiline,
+                  defaultValue: _description.toString(),
                   onInputChanged: (value) {
                     setState(() {
-                      description = value!;
+                      _description = value!;
                     });
                   },
                 ),
                 const SizedBox(height: 5),
                 Row(
                   children: [
-                    Expanded(child: AppPrimaryButton(onPressed: () {}, title: "Attach Receipt")),
+                    Expanded(
+                        child: AppPrimaryButton(
+                            onPressed: () {}, title: "Attach Receipt")),
                     const SizedBox(width: 10),
-                    Expanded(child: AppPrimaryButton(onPressed: _submitIncome, title: "Submit")),
-                  ],
-                ),
-                const SizedBox(height: 15),
-                const Text(
-                  "Summary",
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 25),
-                ),
-                const SizedBox(height: 10),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Total Income", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-                    Text("1000", style: TextStyle(fontSize: 16, color: Colors.grey)),
-                    SizedBox(height: 10),
-                    Text("Total Expenses", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-                    Text("500", style: TextStyle(fontSize: 16, color: Colors.grey)),
-                    SizedBox(height: 10),
-                    Text("Remaining Balance", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-                    Text("500", style: TextStyle(fontSize: 16, color: Colors.grey)),
+                    Expanded(
+                        child: AppPrimaryButton(
+                            onPressed: _submitIncome,
+                            title: widget.income?.id == null
+                                ? "Submit"
+                                : "Update")),
                   ],
                 ),
               ],

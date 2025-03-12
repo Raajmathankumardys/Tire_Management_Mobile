@@ -1,8 +1,12 @@
-import 'dart:ui';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:yaantrac_app/models/tire_performance.dart';
+import 'package:yaantrac_app/screens/Homepage.dart';
+import 'package:yaantrac_app/screens/tires_list_screen.dart';
 import 'package:yaantrac_app/services/api_service.dart';
+import '../common/widgets/button/app_primary_button.dart';
+import 'add_performance_screen.dart';
 
 class TireStatusScreen extends StatefulWidget {
   final int tireId;
@@ -14,266 +18,209 @@ class TireStatusScreen extends StatefulWidget {
 }
 
 class _TireStatusScreenState extends State<TireStatusScreen> {
-  List<TirePerformanceModel> tirePerformances=[];
-  bool isLoading=true;
+  bool isLoading = true;
+  List<TirePerformanceModel> tirePerformances = [];
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     fetchTireStatus();
-
   }
-  Future<void> fetchTireStatus()async{
+
+  Future<void> fetchTireStatus() async {
     try {
-      final response=await APIService.instance.request("/tires/${widget.tireId}/performances",DioMethod.get);
-      if(response.statusCode==200)
-      {
-        Map<String, dynamic> responseData = response.data;
-        List<dynamic> performanceList = responseData['data'];
+      final response = await APIService.instance.request(
+        "https://yaantrac-backend.onrender.com/api/tires/${widget.tireId}/performances",
+        DioMethod.get,
+        contentType: "application/json",
+      );
+
+      if (response.statusCode == 200) {
+        var performanceList = response.data['data'] as List<dynamic>;
+        List<TirePerformanceModel> fetchedData = performanceList
+            .map((json) => TirePerformanceModel.fromJson(json))
+            .toList();
+
         setState(() {
-          tirePerformances=performanceList.map((json)=>TirePerformanceModel.fromJson(json)).toList();
-          isLoading=false;
+          tirePerformances = fetchedData;
+          isLoading = false;
         });
-        print(tirePerformances);
-
+      } else {
+        throw Exception("Error: ${response.statusMessage}");
       }
-      else{
-        print(response.statusMessage);
-      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
     }
-    catch(err){
-      print(err);
-    }
-
   }
+
   @override
   Widget build(BuildContext context) {
-
-    return Scaffold(
-      appBar: AppBar(
-        actions: const [
-          Icon(Icons.search),
-        ],
-        title: const Align(
-          alignment: Alignment.centerLeft,
-          child: Text("Tires", style: TextStyle(fontSize: 20)),
+    final theme = Theme.of(context);
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Center(
+            child: Text("Tire Performance"),
+          ),
+          backgroundColor: theme.brightness == Brightness.dark
+              ? Colors.black
+              : Colors.blueAccent,
+          leading: IconButton(
+              icon: Icon(Icons.arrow_back,
+                  color: theme.brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black),
+              onPressed: () => Navigator.pop(context)),
         ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              // Tabs section
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.only(bottom: 13, top: 16),
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: Color(0xFF0D7CF2),
-                                  width: 3,
-                                ),
-                              ),
-                            ),
-                            child: const Text(
-                              'All',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+        body: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : tirePerformances.isEmpty
+                ? Center(
+                    child: Text(
+                      "No data available",
                     ),
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.only(bottom: 13, top: 16),
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: Colors.transparent,
-                                  width: 3,
-                                ),
-                              ),
-                            ),
-                            child: const Text(
-                              'Low Pressure',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF49719C),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                  )
+                : SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        _buildStatCard(
+                            "Average Pressure",
+                            "${_calculateAverage((e) => e.pressure)} PSI",
+                            theme),
+                        _buildStatCard(
+                            "Average Temperature",
+                            "${_calculateAverage((e) => e.temperature)} °C",
+                            theme),
+                        _buildStatCard("Average Wear",
+                            "${_calculateAverage((e) => e.wear)}", theme),
+                        _buildStatCard(
+                            "Average Distance",
+                            "${_calculateAverage((e) => e.distanceTraveled)} KM",
+                            theme),
+                        _buildGraph("Pressure Graph", "Pressure", theme),
+                        _buildGraph("Temperature Graph", "Temperature", theme),
+                        _buildGraph("Wear Graph", "Wear", theme),
+                        _buildGraph(
+                            "Distance Travelled Graph", "Distance", theme),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-              // Recently Added Section
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Recently added',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Card(
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          color: Colors.grey[50],
-                          width: double.infinity,
-                          child: const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Fleet 3, Vehicle 1',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              Text(
-                                'Status: In Service',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.normal,
-                                  color: Color(0xFF49719C),
-                                ),
-                              ),
-                              Text(
-                                '235/45ZR18',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.normal,
-                                  color: Color(0xFF49719C),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
-                ),
-              ),
-              // Pressure Card Section
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFFCEDBE8)),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Pressure',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black,
-                        ),
-                      ),
-                      Text(
-                        '30PSI',
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            'Today',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.normal,
-                              color: Color(0xFF49719C),
-                            ),
-                          ),
-                          SizedBox(width: 4),
-                          Text(
-                            '+2%',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF078838),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 16),
-                      SizedBox(
-                        height: 148,
-                        child: LineChartWidget()
-                      ),
-                      SizedBox(height: 16),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.all(8),
+          child: AppPrimaryButton(
+            onPressed: () => Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                  builder: (_) => AddPerformanceScreen(tid: widget.tireId)),
+            ),
+            title: "Add Tire Performance",
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildStatCard(String title, String value, ThemeData theme) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color:
+          theme.brightness == Brightness.dark ? Colors.grey[600] : Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+            ),
+            Text(
+              value,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGraph(String title, String parameter, ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: theme.dividerColor),
+          borderRadius: BorderRadius.circular(12),
+          color: theme.cardColor,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 6,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 300,
+              child: LineChartWidget(
+                  tirePerformances: tirePerformances, parameter: parameter),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _calculateAverage(double Function(TirePerformanceModel) selector) {
+    if (tirePerformances.isEmpty) return "0";
+    double sum = tirePerformances.map(selector).reduce((a, b) => a + b);
+    return (sum / tirePerformances.length).toStringAsFixed(2);
   }
 }
 
 class LineChartWidget extends StatelessWidget {
-  const LineChartWidget({super.key});
+  final List<TirePerformanceModel> tirePerformances;
+  final String parameter;
+
+  const LineChartWidget(
+      {super.key, required this.tirePerformances, required this.parameter});
+
+  List<FlSpot> getSpots() {
+    return List.generate(
+      tirePerformances.length,
+      (index) => FlSpot(index.toDouble(), _getValue(tirePerformances[index])),
+    );
+  }
+
+  double _getValue(TirePerformanceModel model) {
+    switch (parameter) {
+      case 'Pressure':
+        return model.pressure;
+      case 'Temperature':
+        return model.temperature;
+      case 'Wear':
+        return model.wear;
+      case 'Distance':
+        return model.distanceTraveled;
+      default:
+        return 0;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return LineChart(
-      LineChartData(
-        gridData: const FlGridData(show: false),
-        titlesData: const FlTitlesData(show: false),
-        borderData: FlBorderData(show: false),
-        lineBarsData: [
-          LineChartBarData(
-            spots: const [
-              FlSpot(0, 30),
-              FlSpot(1, 32),
-              FlSpot(2, 28),
-              FlSpot(3, 34),
-              FlSpot(4, 30),
-              FlSpot(5, 33),
-              FlSpot(6, 31),
-            ],
-            isCurved: true,
-            dotData: const FlDotData(show: false),
-            belowBarData: BarAreaData(show: false),
-          ),
-        ],
-      ),
-    );
+    return LineChart(LineChartData(lineBarsData: [
+      LineChartBarData(
+          spots: getSpots(), isCurved: true, dotData: FlDotData(show: true))
+    ]));
   }
 }

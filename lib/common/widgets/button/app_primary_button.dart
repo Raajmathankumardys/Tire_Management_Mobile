@@ -1,25 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:yaantrac_app/config/themes/app_colors.dart';
 
 class AppPrimaryButton extends StatelessWidget {
   final VoidCallback onPressed;
   final String title;
-  final double ? height; // optional
-  final double ? width;
+  final double? height;
+  final double? width;
 
-  const AppPrimaryButton({super.key, required this.onPressed, required this.title, this.height, this.width});
+  const AppPrimaryButton({
+    super.key,
+    required this.onPressed,
+    required this.title,
+    this.height,
+    this.width,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
+    final theme = Theme.of(context);
+    final primaryColor = theme.colorScheme.primary;
+    final textColor = theme.colorScheme.onPrimary;
+
+    return SizedBox(
+      height: height ?? 50,
+      width: width,
+      child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          minimumSize: Size.fromHeight(height ?? 50),
-          backgroundColor: AppColors.primaryColor,
+          backgroundColor: primaryColor,
+          foregroundColor: textColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
         ),
-        child:Text(title,style: const TextStyle(
-          color: Colors.white
-        ),),
+        child: Text(
+          title,
+          style: theme.textTheme.labelLarge?.copyWith(color: textColor),
+        ),
+      ),
     );
   }
 }
