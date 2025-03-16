@@ -351,7 +351,9 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) =>
-                                              TruckAxleApp()));
+                                              AxleAnimationPage(
+                                                vehicleid: vehicle.id!,
+                                              )));
                                 },
                                 icon: Icon(
                                   Icons.tire_repair_outlined,

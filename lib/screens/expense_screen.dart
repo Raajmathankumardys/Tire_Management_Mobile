@@ -47,7 +47,7 @@ class _TripViewPageState extends State<TripViewPage> {
     futureIncomes = getIncomes();
   }
 
-  void _showAddEditExpenseModal({ExpenseModel? expense, required Trip trip}) {
+  void _showAddEditExpenseModal({ExpenseModel? expense}) {
     final _formKey = GlobalKey<FormState>();
     ExpenseCategory selectedExpenseType = ExpenseCategory.MISCELLANEOUS;
 
@@ -258,7 +258,7 @@ class _TripViewPageState extends State<TripViewPage> {
                                                                           tripId:
                                                                               widget.tripId,
                                                                           trip:
-                                                                              trip,
+                                                                              widget.trip,
                                                                           index:
                                                                               1,
                                                                           vehicleId:
@@ -839,7 +839,7 @@ class _TripViewPageState extends State<TripViewPage> {
           padding: const EdgeInsets.all(16.0),
           child: ElevatedButton(
             onPressed: () {
-              _showAddEditExpenseModal(trip: widget.trip);
+              _showAddEditExpenseModal();
             },
             child: const Text("Add Expense"),
           ),
@@ -939,8 +939,7 @@ class _TripViewPageState extends State<TripViewPage> {
                     icon: Icons.edit,
                     color: Colors.green,
                     onPressed: () {
-                      _showAddEditExpenseModal(
-                          expense: expense, trip: widget.trip);
+                      _showAddEditExpenseModal(expense: expense);
                     }),
                 SizedBox(width: 10),
                 ActionButton(
