@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../config/themes/app_colors.dart';
+
 class AppPrimaryButton extends StatelessWidget {
   final VoidCallback onPressed;
   final String title;
@@ -26,7 +28,7 @@ class AppPrimaryButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: primaryColor,
+          backgroundColor: AppColors.primaryColor,
           foregroundColor: textColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
