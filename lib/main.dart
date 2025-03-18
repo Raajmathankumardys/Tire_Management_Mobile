@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:provider/provider.dart';
-import 'package:yaantrac_app/screens/Homepage.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'config/themes/ThemeProvider.dart';
+import 'bloc/Theme/theme_bloc.dart';
+import 'bloc/vehicle/vehicle_bloc.dart';
+import 'screens/Homepage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
+
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => ThemeProvider()..loadTheme(),
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => ThemeBloc()..add(LoadThemeEvent())),
+        BlocProvider(create: (context) => VehicleBloc()),
+      ],
       child: MyApp(),
     ),
   );
@@ -19,28 +24,30 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    return BlocBuilder<ThemeBloc, ThemeState>(
+      builder: (context, state) {
+        if (state is ThemeLoadingState) {
+          return const MaterialApp(
+            home: Scaffold(
+              body: Center(
+                  child: CircularProgressIndicator()), // Show loading spinner
+            ),
+          );
+        }
 
-    // Wait until the theme is fully loaded before building the app
-    if (!themeProvider.isLoaded) {
-      return MaterialApp(
-        home: Scaffold(
-          body: Center(
-              child: CircularProgressIndicator()), // Show loading spinner
-        ),
-      );
-    }
-
-    return ScreenUtilInit(
-      designSize: Size(360, 690), // Base design size
-      minTextAdapt: true,
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        themeMode: themeProvider.themeMode,
-        theme: ThemeData.light(),
-        darkTheme: ThemeData.dark(),
-        home: HomeScreen(),
-      ),
+        return ScreenUtilInit(
+          designSize: const Size(360, 690),
+          minTextAdapt: true,
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            themeMode:
+                (state is ThemeLoadedState) ? state.themeMode : ThemeMode.light,
+            theme: ThemeData.light(),
+            darkTheme: ThemeData.dark(),
+            home: const HomeScreen(),
+          ),
+        );
+      },
     );
   }
 }

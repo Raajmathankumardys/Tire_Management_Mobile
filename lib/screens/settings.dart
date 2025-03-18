@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import '../config/themes/ThemeProvider.dart';
+
+import '../bloc/Theme/theme_bloc.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -47,16 +48,13 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    bool isDarkMode = themeProvider.themeMode == ThemeMode.dark;
-
     return Scaffold(
       appBar: AppBar(
         title: const Center(
           child:
               Text("Settings", style: TextStyle(fontWeight: FontWeight.bold)),
         ),
-        backgroundColor: isDarkMode ? Colors.black : Colors.blueAccent,
+        backgroundColor: Colors.blueAccent,
         leading: IconButton(onPressed: () {}, icon: Icon(Icons.arrow_back_ios)),
       ),
       body: ListView(
@@ -66,9 +64,11 @@ class _SettingsPageState extends State<SettingsPage> {
             child: ListTile(
               leading: const Icon(Icons.brightness_6),
               title: const Text("Dark Mode"),
-              trailing: Switch(
-                value: isDarkMode,
-                onChanged: (value) => themeProvider.toggleTheme(value),
+              trailing: ElevatedButton(
+                onPressed: () {
+                  context.read<ThemeBloc>().add(ToggleThemeEvent());
+                },
+                child: Text("Toggle Theme"),
               ),
             ),
           ),
