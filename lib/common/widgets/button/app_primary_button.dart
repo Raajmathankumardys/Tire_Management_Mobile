@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:yaantrac_app/config/themes/app_colors.dart';
 
 class AppPrimaryButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -27,7 +26,7 @@ class AppPrimaryButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryColor,
+          backgroundColor: primaryColor,
           foregroundColor: textColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
