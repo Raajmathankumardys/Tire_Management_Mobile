@@ -1,7 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:yaantrac_app/config/themes/app_colors.dart';
 import 'package:yaantrac_app/models/expense.dart';
 import 'package:yaantrac_app/models/income.dart';
 import 'package:yaantrac_app/trash/add_expense_screen.dart';
@@ -15,7 +17,7 @@ import '../common/widgets/button/app_primary_button.dart';
 import '../common/widgets/input/app_input_field.dart';
 import '../models/trip.dart';
 import '../models/trip_summary.dart';
-import 'expense_list_screen.dart';
+import '../trash/expense_list_screen.dart';
 
 class TripViewPage extends StatefulWidget {
   final int tripId;
@@ -88,224 +90,303 @@ class _TripViewPageState extends State<TripViewPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return Padding(
-              padding: EdgeInsets.only(
-                top: 20,
-                left: 16,
-                right: 16,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-              ),
-              child: SingleChildScrollView(
-                child: Form(
-                  key: _formKey,
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "Add a new expense",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w800, fontSize: 25),
-                          ),
-                          const SizedBox(height: 10),
-                          AppInputField(
-                            label: "Expense Type",
-                            isDropdown: true, hint: cat,
-                            defaultValue: selectedExpenseType
-                                .toString(), // Correct default value
-                            dropdownItems: const [
-                              DropdownMenuItem(
-                                  value: "FUEL", child: Text("Fuel Costs")),
-                              DropdownMenuItem(
-                                  value: "DRIVER_ALLOWANCE",
-                                  child: Text("Driver Allowances")),
-                              DropdownMenuItem(
-                                  value: "TOLL", child: Text("Toll Charges")),
-                              DropdownMenuItem(
-                                  value: "MAINTENANCE",
-                                  child: Text("Maintenance")),
-                              DropdownMenuItem(
-                                  value: "MISCELLANEOUS",
-                                  child: Text("Miscellaneous")),
-                            ],
-                            onDropdownChanged: (value) {
-                              //print(value);
-                              setState(() {
-                                selectedExpenseType =
-                                    ExpenseCategory.values.firstWhere(
-                                  (e) => e.name == value,
-                                  orElse: () => ExpenseCategory.MISCELLANEOUS,
-                                );
-                                print(
-                                    "Selected Expense Type: $selectedExpenseType");
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 5),
-                          AppInputField(
-                            label: "Amount",
-                            hint: "Enter Amount",
-                            defaultValue: _amount.toString(),
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly
-                            ],
-                            onInputChanged: (value) {
-                              setState(() {
-                                _amount = double.parse(value!);
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 5),
-                          AppInputField(
-                            label: "Date",
-                            isDatePicker: true,
-                            controller: _dateController, // Show only date
-                            onDateSelected: (date) {
-                              setState(() {
-                                _expenseDate = date;
-                                _dateController.text =
-                                    _formatDate(date); // Update text in field
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 5),
-                          AppInputField(
-                            label: "Description",
-                            hint: "Enter Description",
-                            defaultValue: _description,
-                            keyboardType: TextInputType.multiline,
-                            onInputChanged: (value) {
-                              setState(() {
-                                _description = value!;
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 5),
-                          _isLoading
-                              ? const Center(child: CircularProgressIndicator())
-                              : Row(
-                                  children: [
-                                    Expanded(
-                                        child: AppPrimaryButton(
-                                            onPressed: () {},
-                                            title: "Attach Receipt")),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                        child: AppPrimaryButton(
-                                            onPressed: () async {
-                                              if (_formKey.currentState!
-                                                  .validate()) {
-                                                //print("Submitted Expense Data: ${expense}");
-                                                setState(() {
-                                                  _isLoading =
-                                                      true; // Disable button & show loader
-                                                });
-                                                var f = {
-                                                  "id": expense?.id,
-                                                  "tripId": widget.tripId,
-                                                  "amount": _amount,
-                                                  "category":
-                                                      selectedExpenseType
-                                                          .toString()
-                                                          .split('.')[1],
-                                                  "expenseDate": _expenseDate
-                                                      .toIso8601String(),
-                                                  "description": _description,
-                                                  "attachmentUrl": "",
-                                                  "createdAt": DateTime.now()
-                                                      .toIso8601String(),
-                                                  "updatedAt": DateTime.now()
-                                                      .toIso8601String()
-                                                };
-                                                try {
-                                                  final response = await APIService
-                                                      .instance
-                                                      .request(
-                                                          expense == null
-                                                              ? "https://yaantrac-backend.onrender.com/api/expenses/${widget.tripId}"
-                                                              : "https://yaantrac-backend.onrender.com/api/expenses/${expense.id}",
-                                                          expense == null
-                                                              ? DioMethod.post
-                                                              : DioMethod.put,
-                                                          formData: f,
-                                                          contentType:
-                                                              "application/json");
-                                                  if (response.statusCode ==
-                                                      200) {
-                                                    ToastHelper.showCustomToast(
-                                                        context,
-                                                        (expense == null)
-                                                            ? "Expense Added Sucessfully"
-                                                            : "Expense Updated Sucessfully",
-                                                        Colors.green,
-                                                        expense == null
-                                                            ? Icons.add
-                                                            : Icons.edit);
+        return DraggableScrollableSheet(
+            initialChildSize: 0.3.h, // Starts at of screen height
+            minChildSize: 0.2.h, // Minimum height
+            maxChildSize: 0.40.h,
+            expand: false,
+            builder: (context, scrollController) {
+              return StatefulBuilder(
+                builder: (context, setState) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(35.r)),
+                    ),
+                    child: SingleChildScrollView(
+                      controller: scrollController,
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          bottom:
+                              MediaQuery.of(context).viewInsets.bottom + 12.h,
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              height: 50.h,
+                              decoration: BoxDecoration(
+                                color: AppColors
+                                    .secondaryColor, // Adjust color as needed
+                                borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(15.r)),
+                              ),
+                              child: Column(
+                                children: [
+                                  SizedBox(height: 5.h),
+                                  Container(
+                                    width: 80.w,
+                                    height: 5.h,
+                                    padding: EdgeInsets.all(12.h),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(20.h),
+                                    ),
+                                  ),
+                                  SizedBox(height: 8.h),
+                                  Text(
+                                    expense == null
+                                        ? "Add Expense"
+                                        : "Edit Expense",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16.h,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Form(
+                              key: _formKey,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                      top: 20.h,
+                                      left: 16.h,
+                                      right: 16.h,
+                                      bottom: MediaQuery.of(context)
+                                              .viewInsets
+                                              .bottom +
+                                          16.h,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        AppInputField(
+                                          label: "Expense Type",
+                                          isDropdown: true, hint: cat,
+                                          defaultValue: selectedExpenseType
+                                              .toString(), // Correct default value
+                                          dropdownItems: const [
+                                            DropdownMenuItem(
+                                                value: "FUEL",
+                                                child: Text("Fuel Costs")),
+                                            DropdownMenuItem(
+                                                value: "DRIVER_ALLOWANCE",
+                                                child:
+                                                    Text("Driver Allowances")),
+                                            DropdownMenuItem(
+                                                value: "TOLL",
+                                                child: Text("Toll Charges")),
+                                            DropdownMenuItem(
+                                                value: "MAINTENANCE",
+                                                child: Text("Maintenance")),
+                                            DropdownMenuItem(
+                                                value: "MISCELLANEOUS",
+                                                child: Text("Miscellaneous")),
+                                          ],
+                                          onDropdownChanged: (value) {
+                                            //print(value);
+                                            setState(() {
+                                              selectedExpenseType =
+                                                  ExpenseCategory.values
+                                                      .firstWhere(
+                                                (e) => e.name == value,
+                                                orElse: () => ExpenseCategory
+                                                    .MISCELLANEOUS,
+                                              );
+                                              print(
+                                                  "Selected Expense Type: $selectedExpenseType");
+                                            });
+                                          },
+                                        ),
+                                        AppInputField(
+                                          label: "Amount",
+                                          hint: "Enter Amount",
+                                          defaultValue: _amount.toString(),
+                                          keyboardType: TextInputType.number,
+                                          inputFormatters: [
+                                            FilteringTextInputFormatter
+                                                .digitsOnly
+                                          ],
+                                          onInputChanged: (value) {
+                                            setState(() {
+                                              _amount = double.parse(value!);
+                                            });
+                                          },
+                                        ),
+                                        AppInputField(
+                                          label: "Date",
+                                          isDatePicker: true,
+                                          controller:
+                                              _dateController, // Show only date
+                                          onDateSelected: (date) {
+                                            setState(() {
+                                              _expenseDate = date;
+                                              _dateController.text = _formatDate(
+                                                  date); // Update text in field
+                                            });
+                                          },
+                                        ),
+                                        AppInputField(
+                                          label: "Description",
+                                          hint: "Enter Description",
+                                          defaultValue: _description,
+                                          keyboardType: TextInputType.multiline,
+                                          onInputChanged: (value) {
+                                            setState(() {
+                                              _description = value!;
+                                            });
+                                          },
+                                        ),
+                                        _isLoading
+                                            ? const Center(
+                                                child:
+                                                    CircularProgressIndicator())
+                                            : Row(
+                                                children: [
+                                                  Expanded(
+                                                      child: AppPrimaryButton(
+                                                          onPressed: () {},
+                                                          title:
+                                                              "Attach Receipt")),
+                                                  const SizedBox(width: 10),
+                                                  Expanded(
+                                                      child: AppPrimaryButton(
+                                                          onPressed: () async {
+                                                            if (_formKey
+                                                                .currentState!
+                                                                .validate()) {
+                                                              //print("Submitted Expense Data: ${expense}");
+                                                              setState(() {
+                                                                _isLoading =
+                                                                    true; // Disable button & show loader
+                                                              });
+                                                              var f = {
+                                                                "id":
+                                                                    expense?.id,
+                                                                "tripId": widget
+                                                                    .tripId,
+                                                                "amount":
+                                                                    _amount,
+                                                                "category":
+                                                                    selectedExpenseType
+                                                                        .toString()
+                                                                        .split(
+                                                                            '.')[1],
+                                                                "expenseDate":
+                                                                    _expenseDate
+                                                                        .toIso8601String(),
+                                                                "description":
+                                                                    _description,
+                                                                "attachmentUrl":
+                                                                    "",
+                                                                "createdAt": DateTime
+                                                                        .now()
+                                                                    .toIso8601String(),
+                                                                "updatedAt": DateTime
+                                                                        .now()
+                                                                    .toIso8601String()
+                                                              };
+                                                              try {
+                                                                final response = await APIService.instance.request(
+                                                                    expense ==
+                                                                            null
+                                                                        ? "https://yaantrac-backend.onrender.com/api/expenses/${widget.tripId}"
+                                                                        : "https://yaantrac-backend.onrender.com/api/expenses/${expense.id}",
+                                                                    expense ==
+                                                                            null
+                                                                        ? DioMethod
+                                                                            .post
+                                                                        : DioMethod
+                                                                            .put,
+                                                                    formData: f,
+                                                                    contentType:
+                                                                        "application/json");
+                                                                if (response
+                                                                        .statusCode ==
+                                                                    200) {
+                                                                  ToastHelper.showCustomToast(
+                                                                      context,
+                                                                      (expense ==
+                                                                              null)
+                                                                          ? "Expense Added Sucessfully"
+                                                                          : "Expense Updated Sucessfully",
+                                                                      Colors
+                                                                          .green,
+                                                                      expense ==
+                                                                              null
+                                                                          ? Icons
+                                                                              .add
+                                                                          : Icons
+                                                                              .edit);
 
-                                                    _formKey.currentState
-                                                        ?.reset();
-                                                    Navigator.of(context)
-                                                        .pushAndRemoveUntil(
-                                                            MaterialPageRoute(
-                                                                builder:
-                                                                    (context) =>
-                                                                        TripViewPage(
-                                                                          tripId:
-                                                                              widget.tripId,
-                                                                          trip:
-                                                                              widget.trip,
-                                                                          index:
-                                                                              1,
-                                                                          vehicleId:
-                                                                              widget.vehicleId,
-                                                                        )),
-                                                            (route) => false);
-                                                  } else {
-                                                    print(
-                                                        response.statusMessage);
-                                                  }
-                                                } catch (e) {
-                                                  throw Exception(
-                                                      "Error Posting Income: $e");
-                                                } finally {
-                                                  ToastHelper.showCustomToast(
-                                                      context,
-                                                      "Network error! Please try again.",
-                                                      Colors.red,
-                                                      Icons.error);
-                                                  setState(() {
-                                                    _isLoading =
-                                                        false; // Re-enable button after request
-                                                  });
-                                                }
-                                              }
-                                            },
-                                            title: expense == null
-                                                ? "Add"
-                                                : "Update")),
-                                  ],
-                                ),
-                        ],
+                                                                  _formKey
+                                                                      .currentState
+                                                                      ?.reset();
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pushAndRemoveUntil(
+                                                                          MaterialPageRoute(
+                                                                              builder: (context) =>
+                                                                                  TripViewPage(
+                                                                                    tripId: widget.tripId,
+                                                                                    trip: widget.trip,
+                                                                                    index: 1,
+                                                                                    vehicleId: widget.vehicleId,
+                                                                                  )),
+                                                                          (route) =>
+                                                                              false);
+                                                                } else {
+                                                                  print(response
+                                                                      .statusMessage);
+                                                                }
+                                                              } catch (e) {
+                                                                throw Exception(
+                                                                    "Error Posting Income: $e");
+                                                              } finally {
+                                                                ToastHelper.showCustomToast(
+                                                                    context,
+                                                                    "Network error! Please try again.",
+                                                                    Colors.red,
+                                                                    Icons
+                                                                        .error);
+                                                                setState(() {
+                                                                  _isLoading =
+                                                                      false; // Re-enable button after request
+                                                                });
+                                                              }
+                                                            }
+                                                          },
+                                                          title: expense == null
+                                                              ? "Add"
+                                                              : "Update")),
+                                                ],
+                                              ),
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              ),
-            );
-          },
-        );
+                  );
+                },
+              );
+            });
       },
     );
   }
 
-  void _showAddEditIncomeModal({
-    IncomeModel? income,
-  }) {
+  void _showAddEditIncomeModal({IncomeModel? income}) {
     final _formKey = GlobalKey<FormState>();
     bool isLoading = false;
     late double _amount;
@@ -324,176 +405,262 @@ class _TripViewPageState extends State<TripViewPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return Padding(
-              padding: EdgeInsets.only(
-                top: 20,
-                left: 16,
-                right: 16,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-              ),
-              child: SingleChildScrollView(
-                child: Form(
-                  key: _formKey,
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "Add a new income",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w800, fontSize: 25),
-                          ),
-                          const SizedBox(height: 5),
-                          AppInputField(
-                            label: "Amount",
-                            hint: "Enter Amount",
-                            keyboardType: TextInputType.number,
-                            defaultValue: _amount.toString(),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly
-                            ],
-                            onInputChanged: (value) {
-                              setState(() {
-                                _amount = double.parse(value!);
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 5),
-                          AppInputField(
-                            label: "Date",
-                            isDatePicker: true,
-                            controller:
-                                _dateController, // Use the controller instead of defaultValue
-                            onDateSelected: (date) {
-                              setState(() {
-                                _incomeDate = date;
-                                _dateController.text =
-                                    _formatDate(date); // Update text in field
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 5),
-                          AppInputField(
-                            label: "Description",
-                            hint: "Enter Description",
-                            keyboardType: TextInputType.multiline,
-                            defaultValue: _description.toString(),
-                            onInputChanged: (value) {
-                              setState(() {
-                                _description = value!;
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 5),
-                          isLoading
-                              ? const Center(child: CircularProgressIndicator())
-                              : Row(
-                                  children: [
-                                    Expanded(
-                                        child: AppPrimaryButton(
-                                            onPressed: () {},
-                                            title: "Attach Receipt")),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                        child: AppPrimaryButton(
-                                            onPressed: () async {
-                                              if (_formKey.currentState!
-                                                  .validate()) {
-                                                setState(() {
-                                                  isLoading =
-                                                      true; // Disable button & show loader
-                                                });
-                                                IncomeModel inc = IncomeModel(
-                                                  id: income?.id,
-                                                  amount: _amount,
-                                                  incomeDate: _incomeDate,
-                                                  tripId: widget.tripId,
-                                                  description: _description,
-                                                  createdAt: DateTime.now(),
-                                                  updatedAt: DateTime.now(),
-                                                );
-                                                print(inc.toJson());
-                                                try {
-                                                  final response =
-                                                      await APIService.instance
-                                                          .request(
-                                                    income == null
-                                                        ? "https://yaantrac-backend.onrender.com/api/income/${widget.tripId}"
-                                                        : "https://yaantrac-backend.onrender.com/api/income/${income.id}",
-                                                    income == null
-                                                        ? DioMethod.post
-                                                        : DioMethod.put,
-                                                    formData: inc.toJson(),
-                                                    contentType:
-                                                        "application/json",
-                                                  );
-                                                  if (response.statusCode ==
-                                                      200) {
-                                                    ToastHelper.showCustomToast(
-                                                        context,
-                                                        income == null
-                                                            ? "Income added successfully!"
-                                                            : "Income updated successfully!",
-                                                        Colors.green,
-                                                        income == null
-                                                            ? Icons.add
-                                                            : Icons.edit);
-                                                    _formKey.currentState
-                                                        ?.reset();
-                                                    Navigator.of(context)
-                                                        .pushAndRemoveUntil(
-                                                            MaterialPageRoute(
-                                                                builder:
-                                                                    (context) =>
-                                                                        TripViewPage(
-                                                                          tripId:
-                                                                              widget.tripId,
-                                                                          trip:
-                                                                              widget.trip,
-                                                                          index:
-                                                                              2,
-                                                                          vehicleId:
-                                                                              widget.vehicleId,
-                                                                        )),
-                                                            (route) => false);
-                                                  } else {
-                                                    print(
-                                                        response.statusMessage);
-                                                  }
-                                                } catch (e) {
-                                                  throw Exception(
-                                                      "Error Posting Income: $e");
-                                                } finally {
-                                                  ToastHelper.showCustomToast(
-                                                      context,
-                                                      "Network error! Please try again.",
-                                                      Colors.red,
-                                                      Icons.error);
-                                                  setState(() {
-                                                    isLoading =
-                                                        false; // Re-enable button after request
-                                                  });
-                                                }
-                                              }
+        return DraggableScrollableSheet(
+            initialChildSize: 0.3.h, // Starts at of screen height
+            minChildSize: 0.2.h, // Minimum height
+            maxChildSize: 0.4.h,
+            expand: false,
+            builder: (context, scrollController) {
+              return StatefulBuilder(
+                builder: (context, setState) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(35.r)),
+                    ),
+                    child: SingleChildScrollView(
+                      controller: scrollController,
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          bottom:
+                              MediaQuery.of(context).viewInsets.bottom + 12.h,
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              height: 50.h,
+                              decoration: BoxDecoration(
+                                color: AppColors
+                                    .secondaryColor, // Adjust color as needed
+                                borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(15.r)),
+                              ),
+                              child: Column(
+                                children: [
+                                  SizedBox(height: 5.h),
+                                  Container(
+                                    width: 80.w,
+                                    height: 5.h,
+                                    padding: EdgeInsets.all(12.h),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(20.h),
+                                    ),
+                                  ),
+                                  SizedBox(height: 8.h),
+                                  Text(
+                                    income == null
+                                        ? "Add Income"
+                                        : "Edit Income",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16.h,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Form(
+                              key: _formKey,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SingleChildScrollView(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(
+                                        top: 18.h,
+                                        left: 12.h,
+                                        right: 12.h,
+                                        bottom: MediaQuery.of(context)
+                                                .viewInsets
+                                                .bottom +
+                                            12.h,
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          AppInputField(
+                                            label: "Amount",
+                                            hint: "Enter Amount",
+                                            keyboardType: TextInputType.number,
+                                            defaultValue: _amount.toString(),
+                                            inputFormatters: [
+                                              FilteringTextInputFormatter
+                                                  .digitsOnly
+                                            ],
+                                            onInputChanged: (value) {
+                                              setState(() {
+                                                _amount = double.parse(value!);
+                                              });
                                             },
-                                            title: income?.id == null
-                                                ? "Add"
-                                                : "Update")),
-                                  ],
-                                ),
-                        ],
+                                          ),
+                                          SizedBox(height: 5.h),
+                                          AppInputField(
+                                            label: "Date",
+                                            isDatePicker: true,
+                                            controller:
+                                                _dateController, // Use the controller instead of defaultValue
+                                            onDateSelected: (date) {
+                                              setState(() {
+                                                _incomeDate = date;
+                                                _dateController.text = _formatDate(
+                                                    date); // Update text in field
+                                              });
+                                            },
+                                          ),
+                                          SizedBox(height: 5.h),
+                                          AppInputField(
+                                            label: "Description",
+                                            hint: "Enter Description",
+                                            keyboardType:
+                                                TextInputType.multiline,
+                                            defaultValue:
+                                                _description.toString(),
+                                            onInputChanged: (value) {
+                                              setState(() {
+                                                _description = value!;
+                                              });
+                                            },
+                                          ),
+                                          SizedBox(height: 5.h),
+                                          isLoading
+                                              ? const Center(
+                                                  child:
+                                                      CircularProgressIndicator())
+                                              : Row(
+                                                  children: [
+                                                    Expanded(
+                                                        child: AppPrimaryButton(
+                                                            onPressed: () {},
+                                                            title:
+                                                                "Attach Receipt")),
+                                                    SizedBox(width: 10.h),
+                                                    Expanded(
+                                                        child: AppPrimaryButton(
+                                                            onPressed:
+                                                                () async {
+                                                              if (_formKey
+                                                                  .currentState!
+                                                                  .validate()) {
+                                                                setState(() {
+                                                                  isLoading =
+                                                                      true; // Disable button & show loader
+                                                                });
+                                                                IncomeModel
+                                                                    inc =
+                                                                    IncomeModel(
+                                                                  id: income
+                                                                      ?.id,
+                                                                  amount:
+                                                                      _amount,
+                                                                  incomeDate:
+                                                                      _incomeDate,
+                                                                  tripId: widget
+                                                                      .tripId,
+                                                                  description:
+                                                                      _description,
+                                                                  createdAt:
+                                                                      DateTime
+                                                                          .now(),
+                                                                  updatedAt:
+                                                                      DateTime
+                                                                          .now(),
+                                                                );
+                                                                print(inc
+                                                                    .toJson());
+                                                                try {
+                                                                  final response =
+                                                                      await APIService
+                                                                          .instance
+                                                                          .request(
+                                                                    income ==
+                                                                            null
+                                                                        ? "https://yaantrac-backend.onrender.com/api/income/${widget.tripId}"
+                                                                        : "https://yaantrac-backend.onrender.com/api/income/${income.id}",
+                                                                    income ==
+                                                                            null
+                                                                        ? DioMethod
+                                                                            .post
+                                                                        : DioMethod
+                                                                            .put,
+                                                                    formData: inc
+                                                                        .toJson(),
+                                                                    contentType:
+                                                                        "application/json",
+                                                                  );
+                                                                  if (response
+                                                                          .statusCode ==
+                                                                      200) {
+                                                                    ToastHelper.showCustomToast(
+                                                                        context,
+                                                                        income ==
+                                                                                null
+                                                                            ? "Income added successfully!"
+                                                                            : "Income updated successfully!",
+                                                                        Colors
+                                                                            .green,
+                                                                        income ==
+                                                                                null
+                                                                            ? Icons.add
+                                                                            : Icons.edit);
+                                                                    _formKey
+                                                                        .currentState
+                                                                        ?.reset();
+                                                                    Navigator.of(context).pushAndRemoveUntil(
+                                                                        MaterialPageRoute(
+                                                                            builder: (context) => TripViewPage(
+                                                                                  tripId: widget.tripId,
+                                                                                  trip: widget.trip,
+                                                                                  index: 2,
+                                                                                  vehicleId: widget.vehicleId,
+                                                                                )),
+                                                                        (route) => false);
+                                                                  } else {
+                                                                    print(response
+                                                                        .statusMessage);
+                                                                  }
+                                                                } catch (e) {
+                                                                  throw Exception(
+                                                                      "Error Posting Income: $e");
+                                                                } finally {
+                                                                  ToastHelper.showCustomToast(
+                                                                      context,
+                                                                      "Network error! Please try again.",
+                                                                      Colors
+                                                                          .red,
+                                                                      Icons
+                                                                          .error);
+                                                                  setState(() {
+                                                                    isLoading =
+                                                                        false; // Re-enable button after request
+                                                                  });
+                                                                }
+                                                              }
+                                                            },
+                                                            title: income?.id ==
+                                                                    null
+                                                                ? "Add"
+                                                                : "Update")),
+                                                  ],
+                                                ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              ),
-            );
-          },
-        );
+                  );
+                },
+              );
+            });
       },
     );
   }
@@ -554,40 +721,47 @@ class _TripViewPageState extends State<TripViewPage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      initialIndex: widget.index ?? 0,
-      length: 3, // Three sections: Trip Details, Expenses, Income
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text("Trip Overview"),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => TripListScreen(
-                          vehicleid: widget.vehicleId ??
-                              0))); // Go back to the previous page
-            },
+        initialIndex: widget.index ?? 0,
+        length: 3, // Three sections: Trip Details, Expenses, Income
+        child: SafeArea(
+            child: Scaffold(
+          appBar: AppBar(
+            title: const Center(
+              child: Text("Trip Overview"),
+            ),
+            backgroundColor: AppColors.secondaryColor,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => TripListScreen(
+                            vehicleid: widget.vehicleId ??
+                                0))); // Go back to the previous page
+              },
+            ),
+            bottom: const TabBar(
+              labelColor: Colors.black,
+              indicatorColor: Colors.white,
+              dividerColor: Colors.white,
+              unselectedLabelColor: Colors.white,
+              tabs: [
+                Tab(text: "Trip View"),
+                Tab(text: "Expenses"),
+                Tab(text: "Income"),
+              ],
+            ),
           ),
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: "Trip View"),
-              Tab(text: "Expenses"),
-              Tab(text: "Income"),
+          body: TabBarView(
+            children: [
+              _buildTripDetails(
+                  context, widget.trip), // First tab for trip details
+              _buildExpenseTab(), // Second tab for expenses
+              _buildIncomeTab(), // Third tab for income
             ],
           ),
-        ),
-        body: TabBarView(
-          children: [
-            _buildTripDetails(
-                context, widget.trip), // First tab for trip details
-            _buildExpenseTab(), // Second tab for expenses
-            _buildIncomeTab(), // Third tab for income
-          ],
-        ),
-      ),
-    );
+        )));
   }
 
   Widget _buildShimmerEffect() {
@@ -633,15 +807,15 @@ class _TripViewPageState extends State<TripViewPage> {
               children: [
                 Card(
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10.h),
                   ),
                   color: theme.brightness == Brightness.dark
                       ? Colors.grey[900]
                       : Colors.white,
-                  elevation: 4, // Adds a subtle shadow for depth
-                  margin: const EdgeInsets.all(20),
+                  elevation: 2.h, // Adds a subtle shadow for depth
+                  margin: EdgeInsets.fromLTRB(18.h, 10.h, 18.h, 8.h),
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(8.h),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -650,73 +824,71 @@ class _TripViewPageState extends State<TripViewPage> {
                             "Trip Details",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 20,
+                              fontSize: 18.h,
                               color: theme.brightness == Brightness.dark
                                   ? Colors.white
                                   : Colors.black,
                             ),
                           ),
                         ),
-                        const Divider(thickness: 1, height: 20),
+                        Divider(thickness: 1.h, height: 20.h),
                         Row(
                           children: [
                             const Icon(Icons.location_on,
                                 color: Colors.blueAccent),
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8.w),
                             Expanded(
                               child: Text(
                                 'Source: ${trip.source}',
-                                style: const TextStyle(fontSize: 16),
+                                style: TextStyle(fontSize: 12.h),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10.h),
                         Row(
                           children: [
                             const Icon(Icons.flag, color: Colors.redAccent),
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8.h),
                             Expanded(
                               child: Text(
                                 'Destination: ${trip.destination}',
-                                style: const TextStyle(fontSize: 16),
+                                style: TextStyle(fontSize: 12.h),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10.h),
                         Row(
                           children: [
                             const Icon(Icons.calendar_today,
                                 color: Colors.green),
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8.h),
                             Expanded(
                               child: Text(
                                 'Start Date: ${_formatDate(trip.startDate)}',
-                                style: const TextStyle(fontSize: 16),
+                                style: TextStyle(fontSize: 12.h),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10.h),
                         Row(
                           children: [
                             const Icon(Icons.event, color: Colors.orange),
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8.w),
                             Expanded(
                               child: Text(
                                 'End Date: ${_formatDate(trip.endDate)}',
-                                style: const TextStyle(fontSize: 16),
+                                style: TextStyle(fontSize: 12.h),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -734,44 +906,46 @@ class _TripViewPageState extends State<TripViewPage> {
                         theme: theme),
                   ],
                 ),
-                const SizedBox(height: 16),
                 Card(
-                  elevation: 4,
+                  margin: EdgeInsets.fromLTRB(18.h, 10.h, 18.h, 10.h),
+                  elevation: 2.h,
                   color: theme.brightness == Brightness.dark
                       ? Colors.grey[900]
                       : Colors.white,
                   child: Padding(
-                      padding: EdgeInsets.all(16),
+                      padding: EdgeInsets.all(8.h),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            "Expense Breakdown",
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
+                          Center(
+                            child: Text(
+                              "Expense Breakdown",
+                              style: TextStyle(
+                                  fontSize: 16.sp, fontWeight: FontWeight.bold),
+                            ),
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8.h),
                           ExpenseTable(breakDown: tripProfitSummary.breakDown),
                         ],
                       )),
                 ),
-                const SizedBox(height: 30),
                 Card(
+                  margin: EdgeInsets.fromLTRB(18.h, 2.h, 18.h, 2.h),
                   color: theme.brightness == Brightness.dark
                       ? Colors.grey[900]
                       : Colors.white,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 20),
+                      SizedBox(height: 15.h),
                       Text(
                         "Expense Distribution",
                         style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                            fontSize: 18.h, fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(height: 20),
                       Container(
-                        padding: EdgeInsets.all(4),
+                        margin: EdgeInsets.all(6.h),
+                        padding: EdgeInsets.all(2.h),
                         child: BreakdownDonutChart(breakdown: {
                           "FUEL":
                               tripProfitSummary.breakDown["FUEL"]?.toDouble() ??
@@ -821,7 +995,7 @@ class _TripViewPageState extends State<TripViewPage> {
                 return const Center(child: Text("No expenses available"));
               } else {
                 return ListView.builder(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(12.h),
                   itemCount: snapshot.data!.length,
                   itemBuilder: (context, index) {
                     return SingleChildScrollView(
@@ -836,14 +1010,9 @@ class _TripViewPageState extends State<TripViewPage> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ElevatedButton(
-            onPressed: () {
-              _showAddEditExpenseModal();
-            },
-            child: const Text("Add Expense"),
-          ),
-        ),
+            padding: EdgeInsets.all(12.h),
+            child: AppPrimaryButton(
+                onPressed: _showAddEditExpenseModal, title: "Add Expense")),
       ],
     );
   }
@@ -877,15 +1046,11 @@ class _TripViewPageState extends State<TripViewPage> {
             },
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ElevatedButton(
-            onPressed: () {
-              _showAddEditIncomeModal();
-            },
-            child: const Text("Add Income"),
-          ),
-        ),
+        AppPrimaryButton(
+            onPressed: _showAddEditIncomeModal, title: "Add Income"),
+        SizedBox(
+          height: 10.h,
+        )
       ],
     );
   }
@@ -893,41 +1058,41 @@ class _TripViewPageState extends State<TripViewPage> {
   Widget _buildExpenseListItem({required ExpenseModel expense}) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: EdgeInsets.all(6.h),
         child: Row(
           children: [
-            const Icon(Icons.receipt_long, size: 48, color: Colors.blueGrey),
-            const SizedBox(width: 16),
+            Icon(Icons.receipt_long, size: 40.h, color: Colors.blueGrey),
+            SizedBox(width: 10.h),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     expense.category.toString().split('.').last,
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style: TextStyle(
+                      fontSize: 10.h,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   Text(
                     'Amount: ₹${expense.amount.toStringAsFixed(2)}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Color(0xFF93adc8),
-                      fontSize: 14,
+                      fontSize: 10.h,
                     ),
                   ),
                   Text(
                     'Date: ${_formatDate(expense.expenseDate)}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Color(0xFF93adc8),
-                      fontSize: 14,
+                      fontSize: 10.h,
                     ),
                   ),
                   Text(
                     'Description: ${expense.description}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Color(0xFF93adc8),
-                      fontSize: 14,
+                      fontSize: 10.h,
                     ),
                   ),
                 ],
@@ -941,7 +1106,7 @@ class _TripViewPageState extends State<TripViewPage> {
                     onPressed: () {
                       _showAddEditExpenseModal(expense: expense);
                     }),
-                SizedBox(width: 10),
+                SizedBox(width: 8.h),
                 ActionButton(
                     icon: Icons.delete,
                     color: Colors.red,
@@ -973,13 +1138,13 @@ class _TripViewPageState extends State<TripViewPage> {
       required DateTime date,
       required String description}) {
     return Card(
-      elevation: 4,
+      elevation: 2.h,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
       ),
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.all(8.h),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -989,32 +1154,31 @@ class _TripViewPageState extends State<TripViewPage> {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      fontSize: 18,
+                    style: TextStyle(
+                      fontSize: 12.h,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 3.h),
                   Text(
                     'Amount: ₹${amount.toStringAsFixed(2)}',
-                    style: TextStyle(fontSize: 14, color: Colors.green[700]),
+                    style: TextStyle(fontSize: 10.h, color: Colors.green[700]),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 2.h),
                   Text(
                     'Date: ${_formatDate(income.incomeDate)}',
-                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    style: TextStyle(fontSize: 10.h, color: Colors.grey),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 2.h),
                   Text(
                     'Description: $description',
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 14),
+                    style: TextStyle(fontSize: 10.sp),
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 10),
             Row(
               children: [
                 ActionButton(
@@ -1023,7 +1187,7 @@ class _TripViewPageState extends State<TripViewPage> {
                     onPressed: () {
                       _showAddEditIncomeModal(income: income);
                     }),
-                const SizedBox(width: 8),
+                SizedBox(width: 8.w),
                 ActionButton(
                     icon: Icons.delete,
                     color: Colors.red,
@@ -1048,13 +1212,13 @@ class _TripViewPageState extends State<TripViewPage> {
           builder: (context, setState) {
             return AlertDialog(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(20.r),
               ),
               title: Row(
                 children: [
                   Icon(Icons.warning_amber_rounded,
-                      color: Colors.red, size: 28),
-                  SizedBox(width: 8),
+                      color: Colors.red, size: 28.sp),
+                  SizedBox(width: 8.w),
                   Text("Confirm Delete",
                       style: TextStyle(fontWeight: FontWeight.bold)),
                 ],
@@ -1064,14 +1228,15 @@ class _TripViewPageState extends State<TripViewPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         CircularProgressIndicator(),
-                        SizedBox(height: 10),
+                        SizedBox(height: 10.h),
                         Text("Deleting Trip... Please wait",
-                            style: TextStyle(fontSize: 14, color: Colors.grey)),
+                            style:
+                                TextStyle(fontSize: 14.sp, color: Colors.grey)),
                       ],
                     )
                   : Text(
                       "Are you sure you want to delete this expense? This action cannot be undone.",
-                      style: TextStyle(fontSize: 15)),
+                      style: TextStyle(fontSize: 14.sp)),
               actions: isDeleting
                   ? []
                   : [
@@ -1084,7 +1249,7 @@ class _TripViewPageState extends State<TripViewPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)),
+                              borderRadius: BorderRadius.circular(8.r)),
                         ),
                         onPressed: () async {
                           setState(() => isDeleting = true);
@@ -1147,13 +1312,13 @@ class _TripViewPageState extends State<TripViewPage> {
           builder: (context, setState) {
             return AlertDialog(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(20.r),
               ),
               title: Row(
                 children: [
                   Icon(Icons.warning_amber_rounded,
-                      color: Colors.red, size: 28),
-                  SizedBox(width: 8),
+                      color: Colors.red, size: 28.sp),
+                  SizedBox(width: 8.w),
                   Text("Confirm Delete",
                       style: TextStyle(fontWeight: FontWeight.bold)),
                 ],
@@ -1163,14 +1328,15 @@ class _TripViewPageState extends State<TripViewPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         CircularProgressIndicator(),
-                        SizedBox(height: 10),
+                        SizedBox(height: 10.h),
                         Text("Deleting Trip... Please wait",
-                            style: TextStyle(fontSize: 14, color: Colors.grey)),
+                            style:
+                                TextStyle(fontSize: 14.sp, color: Colors.grey)),
                       ],
                     )
                   : Text(
                       "Are you sure you want to delete this income? This action cannot be undone.",
-                      style: TextStyle(fontSize: 15)),
+                      style: TextStyle(fontSize: 14.sp)),
               actions: isDeleting
                   ? []
                   : [
@@ -1183,7 +1349,7 @@ class _TripViewPageState extends State<TripViewPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)),
+                              borderRadius: BorderRadius.circular(8.r)),
                         ),
                         onPressed: () async {
                           setState(() => isDeleting = true);
@@ -1255,15 +1421,17 @@ class SummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10), // Increased for a softer look
+        borderRadius:
+            BorderRadius.circular(10.r), // Increased for a softer look
       ),
       color:
           theme.brightness == Brightness.dark ? Colors.grey[850] : Colors.white,
-      elevation: 5, // Adds a shadow for depth
+      elevation: 2.h, // Adds a shadow for depth
       shadowColor: Colors.black26, // Softer shadow effect
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
-        height: 90, // Slightly increased for better spacing
+        padding: EdgeInsets.all(12.h),
+        height: 80.h, // Slightly increased for better spacing
+        width: 100.w,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -1271,7 +1439,7 @@ class SummaryCard extends StatelessWidget {
             Text(
               title,
               style: TextStyle(
-                fontSize: 14, // Increased for better readability
+                fontSize: 10.h, // Increased for better readability
                 fontWeight: FontWeight.bold, // Stronger emphasis
                 color: theme.brightness == Brightness.dark
                     ? Colors.white
@@ -1279,11 +1447,11 @@ class SummaryCard extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 4.h),
             Text(
               amount,
               style: TextStyle(
-                fontSize: 14, // Slightly larger for better visibility
+                fontSize: 12.h, // Slightly larger for better visibility
                 fontWeight: FontWeight.w600,
                 color: theme.brightness == Brightness.dark
                     ? Colors.blueAccent
@@ -1307,41 +1475,44 @@ class ExpenseTable extends StatelessWidget {
   Widget build(BuildContext context) {
     double total = breakDown.values.fold(0, (sum, value) => sum + value);
 
-    return DataTable(
-      columnSpacing: 20.0,
-      columns: [
-        DataColumn(
-            label: Text('Category',
-                style: TextStyle(fontWeight: FontWeight.bold))),
-        DataColumn(
-            label:
-                Text('Amount', style: TextStyle(fontWeight: FontWeight.bold))),
-        DataColumn(
-            label: Text('Percentage',
-                style: TextStyle(fontWeight: FontWeight.bold))),
-      ],
-      rows: [
-        ...breakDown.entries.map((entry) {
-          double percentage = total > 0 ? (entry.value / total) * 100 : 0;
-          return DataRow(cells: [
-            DataCell(Text(entry.key.replaceAll('_', ' '))), // Formatting names
-            DataCell(Text('\$${entry.value.toStringAsFixed(2)}')),
-            DataCell(Text('${percentage.toStringAsFixed(2)}%')),
-          ]);
-        }).toList(),
-        // Adding the Total row
-        DataRow(
-          cells: [
-            DataCell(Text(
-              'TOTAL',
-            )),
-            DataCell(Text('\$${total.toStringAsFixed(2)}')),
-            DataCell(Text(
-              '100%',
-            )),
-          ], // Optional: Background color for the total row
-        ),
-      ],
+    return Center(
+      child: DataTable(
+        columnSpacing: 20.0.h,
+        columns: [
+          DataColumn(
+              label: Text('Category',
+                  style: TextStyle(fontWeight: FontWeight.bold))),
+          DataColumn(
+              label: Text('Amount',
+                  style: TextStyle(fontWeight: FontWeight.bold))),
+          DataColumn(
+              label: Text('Percentage',
+                  style: TextStyle(fontWeight: FontWeight.bold))),
+        ],
+        rows: [
+          ...breakDown.entries.map((entry) {
+            double percentage = total > 0 ? (entry.value / total) * 100 : 0;
+            return DataRow(cells: [
+              DataCell(
+                  Text(entry.key.replaceAll('_', ' '))), // Formatting names
+              DataCell(Text('\$${entry.value.toStringAsFixed(2)}')),
+              DataCell(Text('${percentage.toStringAsFixed(2)}%')),
+            ]);
+          }).toList(),
+          // Adding the Total row
+          DataRow(
+            cells: [
+              DataCell(Text(
+                'TOTAL',
+              )),
+              DataCell(Text('\$${total.toStringAsFixed(2)}')),
+              DataCell(Text(
+                '100%',
+              )),
+            ], // Optional: Background color for the total row
+          ),
+        ],
+      ),
     );
   }
 }
@@ -1367,58 +1538,58 @@ class BreakdownDonutChart extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 175, // Adjust width for responsiveness
-          height: 200,
-          padding: EdgeInsets.all(16),
+          width: 140.w, // Adjust width for responsiveness
+          height: 190.h,
+          padding: EdgeInsets.all(12.h),
           child: PieChart(
             PieChartData(
               sections: breakdown.entries.map((entry) {
                 return PieChartSectionData(
                   value: entry.value,
                   color: _getColor(entry.key),
-                  radius: 45, // Adjusts segment size
+                  radius: 40.r, // Adjusts segment size
                   showTitle: false, // Removes text inside pie chart
                 );
               }).toList(),
-              sectionsSpace: 2,
-              centerSpaceRadius: 30,
+              sectionsSpace: 2.r,
+              centerSpaceRadius: 30.r,
             ),
           ),
         ),
-        const SizedBox(
-          width: 20,
+        SizedBox(
+          width: 15.w,
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: breakdown.entries.map((entry) {
             return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
+              padding: EdgeInsets.symmetric(vertical: 4.h),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 12,
-                    height: 12,
+                    width: 12.w,
+                    height: 12.h,
                     decoration: BoxDecoration(
                       color: _getColor(entry.key),
                       shape: BoxShape.circle,
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8.w),
                   Text(
                     entry.key.toUpperCase(),
-                    style: const TextStyle(
-                        fontSize: 8, fontWeight: FontWeight.bold),
+                    style:
+                        TextStyle(fontSize: 8.sp, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8.w),
                   CustomPaint(
                     painter: ArrowPainter(),
-                    child: const SizedBox(width: 13),
+                    child: SizedBox(width: 13.w),
                   ),
                   Text(
                     entry.value.toInt().toString(), // Displays value
-                    style: const TextStyle(
-                        fontSize: 8, fontWeight: FontWeight.bold),
+                    style:
+                        TextStyle(fontSize: 8.sp, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),

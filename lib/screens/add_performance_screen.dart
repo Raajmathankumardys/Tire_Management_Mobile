@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:yaantrac_app/models/tire.dart';
 import 'package:yaantrac_app/models/tire_performance.dart';
 import 'package:yaantrac_app/screens/tire_status_screen.dart';
 import '../common/widgets/Toast/Toast.dart';
@@ -8,8 +9,8 @@ import '../common/widgets/input/app_input_field.dart';
 import '../services/api_service.dart';
 
 class AddPerformanceScreen extends StatefulWidget {
-  final int tid;
-  const AddPerformanceScreen({super.key, required this.tid});
+  final TireModel tire;
+  const AddPerformanceScreen({super.key, required this.tire});
 
   @override
   State<AddPerformanceScreen> createState() => _AddPerformanceScreen();
@@ -21,23 +22,24 @@ class _AddPerformanceScreen extends State<AddPerformanceScreen> {
   double temperature = 0.0;
   double wear = 0.0;
   double distanctravelled = 0.0;
-  String localdate = "2025-03-05T17:22:26.353Z";
+  double treadDepth = 0.0;
   bool isLoading = false;
 
   _onSubmit() async {
     if (_formKey.currentState!.validate()) {
       setState(() => isLoading = true);
       final tirep = TirePerformanceModel(
-          tireId: widget.tid,
+          id: null,
+          tire: widget.tire,
           pressure: pressure,
           temperature: temperature,
           wear: wear,
           distanceTraveled: distanctravelled,
-          localDateTime: localdate);
-      //print(tirep.toJson());
+          treadDepth: treadDepth);
+      print(tirep.toJson());
       try {
         final response = await APIService.instance.request(
-          "https://yaantrac-backend.onrender.com/api/tires/${widget.tid}/add-performance",
+          "https://yaantrac-backend.onrender.com/api/tires/${widget.tire.id}/add-performance",
           DioMethod.post,
           formData: tirep.toJson(),
           contentType: "application/json",
@@ -48,7 +50,9 @@ class _AddPerformanceScreen extends State<AddPerformanceScreen> {
 
           Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(
-                  builder: (context) => TireStatusScreen(tireId: widget.tid)),
+                  builder: (context) => TireStatusScreen(
+                        tire: widget.tire,
+                      )),
               (route) => false);
         } else {
           ToastHelper.showCustomToast(
@@ -80,7 +84,7 @@ class _AddPerformanceScreen extends State<AddPerformanceScreen> {
             Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(
                     builder: (context) => TireStatusScreen(
-                          tireId: widget.tid,
+                          tire: widget.tire,
                         )),
                 (route) => false)
           },
@@ -135,6 +139,16 @@ class _AddPerformanceScreen extends State<AddPerformanceScreen> {
                   defaultValue: distanctravelled.toString(),
                   onInputChanged: (value) =>
                       distanctravelled = double.parse(value!),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                AppInputField(
+                  label: "Tread Depth",
+                  hint: "Enter tread depth",
+                  keyboardType: TextInputType.number,
+                  defaultValue: treadDepth.toString(),
+                  onInputChanged: (value) => treadDepth = double.parse(value!),
                 ),
                 const SizedBox(height: 16),
                 isLoading

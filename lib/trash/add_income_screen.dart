@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
 import 'package:yaantrac_app/common/widgets/input/app_input_field.dart';
 import 'package:yaantrac_app/models/income.dart'; // Replace with the actual income model
-import 'package:yaantrac_app/screens/expense_list_screen.dart';
+import 'package:yaantrac_app/trash/expense_list_screen.dart';
 import 'package:yaantrac_app/screens/expense_screen.dart';
 import 'package:yaantrac_app/services/api_service.dart';
 

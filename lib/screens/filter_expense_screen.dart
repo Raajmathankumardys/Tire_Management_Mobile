@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
+import 'package:yaantrac_app/config/themes/app_colors.dart';
 
 class FilterExpenseScreen extends StatelessWidget {
   const FilterExpenseScreen({super.key});
@@ -8,23 +10,24 @@ class FilterExpenseScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Filter"),
-        leading: Builder(builder: (BuildContext context) {
-          return IconButton(
-              onPressed: () {}, icon: const Icon(Icons.arrow_back));
-        }),
-      ),
+          title: const Center(
+            child:
+                Text("Filters", style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          backgroundColor: AppColors.secondaryColor,
+          leading: IconButton(
+              onPressed: () {}, icon: const Icon(Icons.arrow_back_ios))),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(12.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               "Date Range",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              style: TextStyle(fontSize: 16.h, fontWeight: FontWeight.w700),
             ),
-            const Wrap(
-              spacing: 5,
+            Wrap(
+              spacing: 5.h,
               children: [
                 Chip(label: Text("Day Before Yesterday")),
                 Chip(label: Text("Yesterday")),
@@ -32,19 +35,19 @@ class FilterExpenseScreen extends StatelessWidget {
                 Chip(label: Text("Tommorow")),
               ],
             ),
-            const SizedBox(
-              height: 10,
+            SizedBox(
+              height: 10.h,
             ),
-            const Column(
+            Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   "Trip Id",
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15.h),
                 ),
                 SizedBox(
-                  height: 3,
+                  height: 3.h,
                 ),
                 TextField(
                   decoration: InputDecoration(
@@ -54,19 +57,19 @@ class FilterExpenseScreen extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(
-              height: 5,
+            SizedBox(
+              height: 5.h,
             ),
-            const Column(
+            Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   "Vehicle Number",
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15.h),
                 ),
                 SizedBox(
-                  height: 3,
+                  height: 3.h,
                 ),
                 TextField(
                   decoration: InputDecoration(
@@ -76,19 +79,19 @@ class FilterExpenseScreen extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(
-              height: 5,
+            SizedBox(
+              height: 5.h,
             ),
-            const Column(
+            Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   "Driver Name",
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15.h),
                 ),
                 SizedBox(
-                  height: 3,
+                  height: 3.h,
                 ),
                 TextField(
                   decoration: InputDecoration(
@@ -98,10 +101,12 @@ class FilterExpenseScreen extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(
-              height: 15,
+            SizedBox(
+              height: 20.h,
             ),
-            AppPrimaryButton(onPressed: () {}, title: "Apply Filters")
+            Center(
+              child: AppPrimaryButton(onPressed: () {}, title: "Apply Filters"),
+            )
           ],
         ),
       ),

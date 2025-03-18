@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:yaantrac_app/models/tire_performance.dart';
 import 'package:yaantrac_app/screens/Homepage.dart';
 import 'package:yaantrac_app/screens/tires_list_screen.dart';
 import 'package:yaantrac_app/services/api_service.dart';
+import '../common/widgets/Toast/Toast.dart';
 import '../common/widgets/button/app_primary_button.dart';
+import '../common/widgets/input/app_input_field.dart';
+import '../config/themes/app_colors.dart';
+import '../models/tire.dart';
 import 'add_performance_screen.dart';
 
 class TireStatusScreen extends StatefulWidget {
-  final int tireId;
+  final TireModel tire;
 
-  const TireStatusScreen({super.key, required this.tireId});
+  const TireStatusScreen({super.key, required this.tire});
 
   @override
   State<TireStatusScreen> createState() => _TireStatusScreenState();
@@ -23,32 +28,307 @@ class _TireStatusScreenState extends State<TireStatusScreen> {
 
   @override
   void initState() {
-    super.initState();
     fetchTireStatus();
+    super.initState();
+  }
+
+  void _showAddModal() {
+    final _formKey = GlobalKey<FormState>();
+    double pressure = 0.0;
+    double temperature = 0.0;
+    double wear = 0.0;
+    double distanctravelled = 0.0;
+    double treadDepth = 0.0;
+    bool isLoading = false;
+
+    showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+        ),
+        builder: (
+          context,
+        ) {
+          return DraggableScrollableSheet(
+            initialChildSize: 0.40.h, // Starts at of screen height
+            minChildSize: 0.3.h, // Minimum height
+            maxChildSize: 0.50.h, // Maximum height
+            expand: false,
+            builder: (context, scrollController) {
+              return StatefulBuilder(builder: (context, setState) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(35.r)),
+                  ),
+                  child: Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom + 12.h,
+                      ),
+                      child: SingleChildScrollView(
+                        controller:
+                            scrollController, // Attach the scroll controller
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: double.infinity,
+                                height: 50.h,
+                                decoration: BoxDecoration(
+                                  color: AppColors
+                                      .secondaryColor, // Adjust color as needed
+                                  borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(15.r)),
+                                ),
+                                child: Column(
+                                  children: [
+                                    SizedBox(height: 5.h),
+                                    Container(
+                                      width: 80.w,
+                                      height: 5.h,
+                                      padding: EdgeInsets.all(12.h),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius:
+                                            BorderRadius.circular(20.h),
+                                      ),
+                                    ),
+                                    SizedBox(height: 8.h),
+                                    Text(
+                                      "Add Tire Performance",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16.h,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                  padding: EdgeInsets.only(
+                                    left: 12.w,
+                                    right: 12.w,
+                                    bottom: MediaQuery.of(context)
+                                            .viewInsets
+                                            .bottom +
+                                        12.h,
+                                    top: 12.h,
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      AppInputField(
+                                        label: "Pressure",
+                                        hint: "Enter pressure",
+                                        keyboardType: TextInputType.number,
+                                        defaultValue: pressure.toString(),
+                                        onInputChanged: (value) =>
+                                            pressure = double.parse(value!),
+                                      ),
+                                      AppInputField(
+                                        label: "Temperature",
+                                        hint: "Enter temperature",
+                                        keyboardType: TextInputType.number,
+                                        defaultValue: temperature.toString(),
+                                        onInputChanged: (value) =>
+                                            temperature = double.parse(value!),
+                                      ),
+                                      AppInputField(
+                                        label: "Wear",
+                                        hint: "Enter wear",
+                                        keyboardType: TextInputType.number,
+                                        defaultValue: wear.toString(),
+                                        onInputChanged: (value) =>
+                                            wear = double.parse(value!),
+                                      ),
+                                      AppInputField(
+                                        label: "Distance Travelled",
+                                        hint: "Enter distance travelled",
+                                        keyboardType: TextInputType.number,
+                                        defaultValue:
+                                            distanctravelled.toString(),
+                                        onInputChanged: (value) =>
+                                            distanctravelled =
+                                                double.parse(value!),
+                                      ),
+                                      AppInputField(
+                                        label: "Tread Depth",
+                                        hint: "Enter tread depth",
+                                        keyboardType: TextInputType.number,
+                                        defaultValue: treadDepth.toString(),
+                                        onInputChanged: (value) =>
+                                            treadDepth = double.parse(value!),
+                                      ),
+                                      isLoading
+                                          ? const CircularProgressIndicator()
+                                          : Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                Expanded(
+                                                    child: AppPrimaryButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(
+                                                              context);
+                                                        },
+                                                        title: "Cancel")),
+                                                SizedBox(
+                                                  width: 10.h,
+                                                ),
+                                                Expanded(
+                                                    child: AppPrimaryButton(
+                                                        width: 130.h,
+                                                        onPressed: () async {
+                                                          if (_formKey
+                                                              .currentState!
+                                                              .validate()) {
+                                                            setState(() =>
+                                                                isLoading =
+                                                                    true);
+                                                            final tirep = TirePerformanceModel(
+                                                                id: null,
+                                                                tire:
+                                                                    widget.tire,
+                                                                pressure:
+                                                                    pressure,
+                                                                temperature:
+                                                                    temperature,
+                                                                wear: wear,
+                                                                distanceTraveled:
+                                                                    distanctravelled,
+                                                                treadDepth:
+                                                                    treadDepth);
+                                                            try {
+                                                              final response =
+                                                                  await APIService
+                                                                      .instance
+                                                                      .request(
+                                                                "https://yaantrac-backend.onrender.com/api/tires/${widget.tire.id}/add-performance",
+                                                                DioMethod.post,
+                                                                formData: tirep
+                                                                    .toJson(),
+                                                                contentType:
+                                                                    "application/json",
+                                                              );
+                                                              if (response
+                                                                      .statusCode ==
+                                                                  200) {
+                                                                ToastHelper.showCustomToast(
+                                                                    context,
+                                                                    "Performance added successfully",
+                                                                    Colors
+                                                                        .green,
+                                                                    Icons.add);
+
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pushAndRemoveUntil(
+                                                                        MaterialPageRoute(
+                                                                            builder: (context) =>
+                                                                                TireStatusScreen(
+                                                                                  tire: widget.tire,
+                                                                                )),
+                                                                        (route) =>
+                                                                            false);
+                                                              } else {
+                                                                ToastHelper.showCustomToast(
+                                                                    context,
+                                                                    "Failed to process request",
+                                                                    Colors
+                                                                        .green,
+                                                                    Icons.add);
+                                                              }
+                                                            } catch (err) {
+                                                              ToastHelper
+                                                                  .showCustomToast(
+                                                                      context,
+                                                                      "Error: $err",
+                                                                      Colors
+                                                                          .red,
+                                                                      Icons
+                                                                          .error);
+                                                            } finally {
+                                                              ToastHelper
+                                                                  .showCustomToast(
+                                                                      context,
+                                                                      "Network error Please try again.",
+                                                                      Colors
+                                                                          .red,
+                                                                      Icons
+                                                                          .error);
+                                                              if (mounted)
+                                                                setState(() =>
+                                                                    isLoading =
+                                                                        false);
+                                                            }
+                                                          }
+                                                        },
+                                                        title: "Add"))
+                                              ],
+                                            ),
+                                    ],
+                                  ))
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              });
+            },
+          );
+        });
   }
 
   Future<void> fetchTireStatus() async {
     try {
       final response = await APIService.instance.request(
-        "https://yaantrac-backend.onrender.com/api/tires/${widget.tireId}/performances",
+        "https://yaantrac-backend.onrender.com/api/tires/${widget.tire.id}/performances",
         DioMethod.get,
         contentType: "application/json",
       );
 
       if (response.statusCode == 200) {
-        var performanceList = response.data['data'] as List<dynamic>;
-        List<TirePerformanceModel> fetchedData = performanceList
-            .map((json) => TirePerformanceModel.fromJson(json))
-            .toList();
+        if (response.data is Map<String, dynamic>) {
+          if (response.data.containsKey("data") &&
+              response.data["data"] is List) {
+            List<dynamic> performanceList = response.data["data"];
+            List<TirePerformanceModel> fetchedData = performanceList
+                .map((json) =>
+                    TirePerformanceModel.fromJson(json as Map<String, dynamic>))
+                .toList();
 
-        setState(() {
-          tirePerformances = fetchedData;
-          isLoading = false;
-        });
+            setState(() {
+              tirePerformances = fetchedData;
+              isLoading = false;
+            });
+          } else {
+            throw Exception("Unexpected 'data' format in response");
+          }
+        } else if (response.data is List) {
+          List<TirePerformanceModel> fetchedData = (response.data as List)
+              .map((json) =>
+                  TirePerformanceModel.fromJson(json as Map<String, dynamic>))
+              .toList();
+
+          setState(() {
+            tirePerformances = fetchedData;
+            isLoading = false;
+          });
+        } else {
+          throw Exception("Unexpected response format");
+        }
       } else {
-        throw Exception("Error: ${response.statusMessage}");
+        throw Exception("API Error: ${response.statusMessage}");
       }
     } catch (e) {
+      debugPrint("Network Error: $e");
       setState(() {
         isLoading = false;
       });
@@ -68,11 +348,25 @@ class _TireStatusScreenState extends State<TireStatusScreen> {
               ? Colors.black
               : Colors.blueAccent,
           leading: IconButton(
-              icon: Icon(Icons.arrow_back,
+              icon: Icon(Icons.arrow_back_ios,
                   color: theme.brightness == Brightness.dark
                       ? Colors.white
                       : Colors.black),
-              onPressed: () => Navigator.pop(context)),
+              onPressed: () => Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (context) => HomeScreen(
+                              currentIndex: 1,
+                            )),
+                    (route) => false,
+                  )),
+          actions: [
+            IconButton(
+                onPressed: _showAddModal,
+                icon: Icon(
+                  Icons.add_circle,
+                  color: Colors.black,
+                ))
+          ],
         ),
         body: isLoading
             ? Center(child: CircularProgressIndicator())
@@ -83,7 +377,7 @@ class _TireStatusScreenState extends State<TireStatusScreen> {
                     ),
                   )
                 : SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(16.h),
                     child: Column(
                       children: [
                         _buildStatCard(
@@ -100,36 +394,31 @@ class _TireStatusScreenState extends State<TireStatusScreen> {
                             "Average Distance",
                             "${_calculateAverage((e) => e.distanceTraveled)} KM",
                             theme),
+                        _buildStatCard(
+                            "Average Tread Depth",
+                            "${_calculateAverage((e) => e.distanceTraveled)} KM",
+                            theme),
                         _buildGraph("Pressure Graph", "Pressure", theme),
                         _buildGraph("Temperature Graph", "Temperature", theme),
                         _buildGraph("Wear Graph", "Wear", theme),
                         _buildGraph(
                             "Distance Travelled Graph", "Distance", theme),
+                        _buildGraph("Tread Depth Graph", "Treaddepth", theme),
                       ],
                     ),
                   ),
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.all(8),
-          child: AppPrimaryButton(
-            onPressed: () => Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                  builder: (_) => AddPerformanceScreen(tid: widget.tireId)),
-            ),
-            title: "Add Tire Performance",
-          ),
-        ),
       ),
     );
   }
 
   Widget _buildStatCard(String title, String value, ThemeData theme) {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 2.h,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       color:
           theme.brightness == Brightness.dark ? Colors.grey[600] : Colors.white,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(12.h),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -147,17 +436,17 @@ class _TireStatusScreenState extends State<TireStatusScreen> {
 
   Widget _buildGraph(String title, String parameter, ThemeData theme) {
     return Padding(
-      padding: const EdgeInsets.only(top: 16),
+      padding: EdgeInsets.only(top: 12.h),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(12.h),
         decoration: BoxDecoration(
           border: Border.all(color: theme.dividerColor),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12.r),
           color: theme.cardColor,
           boxShadow: [
             BoxShadow(
               color: Colors.black12,
-              blurRadius: 6,
+              blurRadius: 6.r,
               offset: Offset(0, 4),
             ),
           ],
@@ -168,9 +457,9 @@ class _TireStatusScreenState extends State<TireStatusScreen> {
             Text(
               title,
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10.h),
             SizedBox(
-              height: 300,
+              height: 220.h,
               child: LineChartWidget(
                   tirePerformances: tirePerformances, parameter: parameter),
             ),
@@ -211,6 +500,8 @@ class LineChartWidget extends StatelessWidget {
         return model.wear;
       case 'Distance':
         return model.distanceTraveled;
+      case 'Treaddepth':
+        return model.treadDepth;
       default:
         return 0;
     }
@@ -220,7 +511,11 @@ class LineChartWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return LineChart(LineChartData(lineBarsData: [
       LineChartBarData(
-          spots: getSpots(), isCurved: true, dotData: FlDotData(show: true))
+        spots: getSpots(),
+        isCurved: true,
+        barWidth: 1.h,
+        dotData: FlDotData(show: true),
+      )
     ]));
   }
 }

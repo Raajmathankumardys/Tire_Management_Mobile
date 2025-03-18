@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:yaantrac_app/common/widgets/Toast/Toast.dart';
-import 'package:yaantrac_app/trash/add_vehicle_screen.dart';
-import 'package:yaantrac_app/screens/expense_screen.dart';
+import 'package:yaantrac_app/config/themes/app_colors.dart';
 import 'package:yaantrac_app/screens/tiremapping.dart';
-import 'package:yaantrac_app/screens/tires_list_screen.dart';
 import 'package:yaantrac_app/screens/trip_list_page.dart';
 import 'package:yaantrac_app/services/api_service.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -39,135 +38,231 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
     bool isLoading = false;
 
     showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return StatefulBuilder(builder: (context, setState) {
-          return Padding(
-            padding: EdgeInsets.only(
-              left: 16,
-              right: 16,
-              bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-              top: 16,
-            ),
-            child: SingleChildScrollView(
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(vehicle == null ? "Add Vehicle" : "Edit Vehicle",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 16),
-                    AppInputField(
-                      label: "Name",
-                      hint: "Enter vehicle name",
-                      defaultValue: name,
-                      onInputChanged: (value) => name = value ?? '',
-                    ),
-                    SizedBox(height: 16),
-                    AppInputField(
-                      label: "Type",
-                      hint: "Enter vehicle type",
-                      defaultValue: type,
-                      onInputChanged: (value) => type = value ?? '',
-                    ),
-                    SizedBox(height: 16),
-                    AppInputField(
-                      label: "License Plate",
-                      hint: "Enter license plate",
-                      defaultValue: licensePlate,
-                      onInputChanged: (value) => licensePlate = value ?? '',
-                    ),
-                    SizedBox(height: 16),
-                    AppInputField(
-                      label: "Manufacture Year",
-                      hint: "Enter year",
-                      keyboardType: TextInputType.number,
-                      defaultValue: year.toString(),
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      onInputChanged: (value) =>
-                          year = int.tryParse(value!) ?? 0,
-                    ),
-                    SizedBox(height: 20),
-                    isLoading
-                        ? CircularProgressIndicator()
-                        : AppPrimaryButton(
-                            onPressed: () async {
-                              if (_formKey.currentState!.validate()) {
-                                setState(() => isLoading = true);
-
-                                final newVehicle = Vehicle(
-                                  id: vehicle?.id,
-                                  name: name,
-                                  type: type,
-                                  licensePlate: licensePlate,
-                                  manufactureYear: year,
-                                );
-
-                                try {
-                                  final response =
-                                      await APIService.instance.request(
-                                    vehicle == null
-                                        ? "https://yaantrac-backend.onrender.com/api/vehicles"
-                                        : "https://yaantrac-backend.onrender.com/api/vehicles/${vehicle.id}",
-                                    vehicle == null
-                                        ? DioMethod.post
-                                        : DioMethod.put,
-                                    formData: newVehicle.toJson(),
-                                    contentType: "application/json",
-                                  );
-
-                                  if (response.statusCode == 200) {
-                                    ToastHelper.showCustomToast(
-                                      context,
+        context: context,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (
+          context,
+        ) {
+          return DraggableScrollableSheet(
+            initialChildSize: 0.45.h, // Starts at of screen height
+            minChildSize: 0.2.h, // Minimum height
+            maxChildSize: 0.55.h, // Maximum height
+            expand: false,
+            builder: (context, scrollController) {
+              return StatefulBuilder(builder: (context, setState) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(35.r)),
+                  ),
+                  child: Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom + 12.h,
+                      ),
+                      child: SingleChildScrollView(
+                        controller:
+                            scrollController, // Attach the scroll controller
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: double.infinity,
+                                height: 50.h,
+                                decoration: BoxDecoration(
+                                  color: AppColors
+                                      .secondaryColor, // Adjust color as needed
+                                  borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(15.r)),
+                                ),
+                                child: Column(
+                                  children: [
+                                    SizedBox(height: 5.h),
+                                    Container(
+                                      width: 80.w,
+                                      height: 5.h,
+                                      padding: EdgeInsets.all(12.h),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius:
+                                            BorderRadius.circular(20.h),
+                                      ),
+                                    ),
+                                    SizedBox(height: 8.h),
+                                    Text(
                                       vehicle == null
-                                          ? "Vehicle added successfully"
-                                          : "Vehicle updated successfully",
-                                      Colors.green,
-                                      Icons.check,
-                                    );
-                                    Navigator.pop(context);
-                                    Navigator.of(context).pushAndRemoveUntil(
-                                        MaterialPageRoute(
-                                            builder: (context) => HomeScreen()),
-                                        (route) => false);
-                                  } else {
-                                    ToastHelper.showCustomToast(
-                                      context,
-                                      "Failed to process request",
-                                      Colors.red,
-                                      Icons.error,
-                                    );
-                                  }
-                                } catch (err) {
-                                  ToastHelper.showCustomToast(
-                                    context,
-                                    "Error: $err",
-                                    Colors.red,
-                                    Icons.error,
-                                  );
-                                } finally {
-                                  setState(() => isLoading = false);
-                                }
-                              }
-                            },
-                            title: vehicle == null
-                                ? "Add Vehicle"
-                                : "Update Vehicle",
+                                          ? "Add Vehicle"
+                                          : "Edit Vehicle",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16.h,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                  padding: EdgeInsets.only(
+                                    left: 12.w,
+                                    right: 12.w,
+                                    bottom: MediaQuery.of(context)
+                                            .viewInsets
+                                            .bottom +
+                                        12.h,
+                                    top: 12.h,
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      AppInputField(
+                                        label: "Name",
+                                        hint: "Enter vehicle name",
+                                        defaultValue: name,
+                                        onInputChanged: (value) =>
+                                            name = value ?? '',
+                                      ),
+                                      AppInputField(
+                                        label: "Type",
+                                        hint: "Enter vehicle type",
+                                        defaultValue: type,
+                                        onInputChanged: (value) =>
+                                            type = value ?? '',
+                                      ),
+                                      AppInputField(
+                                        label: "License Plate",
+                                        hint: "Enter license plate",
+                                        defaultValue: licensePlate,
+                                        onInputChanged: (value) =>
+                                            licensePlate = value ?? '',
+                                      ),
+                                      AppInputField(
+                                        label: "Manufacture Year",
+                                        hint: "Enter year",
+                                        keyboardType: TextInputType.number,
+                                        defaultValue: year.toString(),
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter.digitsOnly
+                                        ],
+                                        onInputChanged: (value) =>
+                                            year = int.tryParse(value!) ?? 0,
+                                      ),
+                                      isLoading
+                                          ? const CircularProgressIndicator()
+                                          : Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                AppPrimaryButton(
+                                                    width: 130.h,
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                    title: "Cancel"),
+                                                AppPrimaryButton(
+                                                  width: 130.h,
+                                                  onPressed: () async {
+                                                    if (_formKey.currentState!
+                                                        .validate()) {
+                                                      setState(() =>
+                                                          isLoading = true);
+
+                                                      final newVehicle =
+                                                          Vehicle(
+                                                        id: vehicle?.id,
+                                                        name: name,
+                                                        type: type,
+                                                        licensePlate:
+                                                            licensePlate,
+                                                        manufactureYear: year,
+                                                      );
+
+                                                      try {
+                                                        final response =
+                                                            await APIService
+                                                                .instance
+                                                                .request(
+                                                          vehicle == null
+                                                              ? "https://yaantrac-backend.onrender.com/api/vehicles"
+                                                              : "https://yaantrac-backend.onrender.com/api/vehicles/${vehicle.id}",
+                                                          vehicle == null
+                                                              ? DioMethod.post
+                                                              : DioMethod.put,
+                                                          formData: newVehicle
+                                                              .toJson(),
+                                                          contentType:
+                                                              "application/json",
+                                                        );
+
+                                                        if (response
+                                                                .statusCode ==
+                                                            200) {
+                                                          ToastHelper
+                                                              .showCustomToast(
+                                                            context,
+                                                            vehicle == null
+                                                                ? "Vehicle added successfully"
+                                                                : "Vehicle updated successfully",
+                                                            Colors.green,
+                                                            Icons.check,
+                                                          );
+                                                          Navigator.pop(
+                                                              context);
+                                                          Navigator.of(context)
+                                                              .pushAndRemoveUntil(
+                                                            MaterialPageRoute(
+                                                                builder:
+                                                                    (context) =>
+                                                                        HomeScreen()),
+                                                            (route) => false,
+                                                          );
+                                                        } else {
+                                                          ToastHelper
+                                                              .showCustomToast(
+                                                            context,
+                                                            "Failed to process request",
+                                                            Colors.red,
+                                                            Icons.error,
+                                                          );
+                                                        }
+                                                      } catch (err) {
+                                                        ToastHelper
+                                                            .showCustomToast(
+                                                          context,
+                                                          "Error: $err",
+                                                          Colors.red,
+                                                          Icons.error,
+                                                        );
+                                                      } finally {
+                                                        setState(() =>
+                                                            isLoading = false);
+                                                      }
+                                                    }
+                                                  },
+                                                  title: vehicle == null
+                                                      ? "Save"
+                                                      : "Update",
+                                                )
+                                              ],
+                                            ),
+                                    ],
+                                  ))
+                            ],
                           ),
-                  ],
-                ),
-              ),
-            ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              });
+            },
           );
         });
-      },
-    );
   }
 
   Future<List<Vehicle>> getTrips() async {
@@ -211,13 +306,13 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
           builder: (context, setState) {
             return AlertDialog(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(20.h),
               ),
               title: Row(
                 children: [
                   Icon(Icons.warning_amber_rounded,
-                      color: Colors.red, size: 28),
-                  SizedBox(width: 8),
+                      color: Colors.red, size: 25.h),
+                  SizedBox(width: 8.h),
                   Text("Confirm Delete",
                       style: TextStyle(fontWeight: FontWeight.bold)),
                 ],
@@ -227,14 +322,15 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         CircularProgressIndicator(),
-                        SizedBox(height: 10),
+                        SizedBox(height: 10.h),
                         Text("Deleting... Please wait",
-                            style: TextStyle(fontSize: 14, color: Colors.grey)),
+                            style:
+                                TextStyle(fontSize: 10.h, color: Colors.grey)),
                       ],
                     )
                   : Text(
                       "Are you sure you want to delete this vehicle? This action cannot be undone.",
-                      style: TextStyle(fontSize: 15)),
+                      style: TextStyle(fontSize: 12.sp)),
               actions: isDeleting
                   ? []
                   : [
@@ -247,7 +343,7 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)),
+                              borderRadius: BorderRadius.circular(10.r)),
                         ),
                         onPressed: () async {
                           setState(() => isDeleting = true);
@@ -294,22 +390,38 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
+    return SafeArea(
+        child: Scaffold(
       appBar: AppBar(
         title: const Center(
           child:
               Text("Vehicles", style: TextStyle(fontWeight: FontWeight.bold)),
         ),
         leading: Container(
-          padding: const EdgeInsets.all(16.0),
-          alignment: Alignment.topRight,
+          padding: EdgeInsets.all(4.w),
+          alignment: Alignment.center,
           child: IconButton(
-              onPressed: () {
-                _showAddEditModal();
-              },
-              icon: Icon(Icons.add)),
+              onPressed: () {},
+              icon: Icon(
+                Icons.arrow_back_ios,
+              )),
         ),
-        backgroundColor: isDarkMode ? Colors.black : Colors.blueAccent,
+        actions: [
+          Container(
+            padding: EdgeInsets.all(4.w),
+            alignment: Alignment.center,
+            child: IconButton(
+                onPressed: () {
+                  _showAddEditModal();
+                },
+                icon: Icon(
+                  Icons.add_circle_sharp,
+                  color: isDarkMode ? Colors.white : Colors.black,
+                  size: 25.h,
+                )),
+          )
+        ],
+        backgroundColor: AppColors.secondaryColor,
       ),
       body: FutureBuilder<List<Vehicle>>(
         future: futureVehicles,
@@ -329,9 +441,9 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
                 final vehicle = vehicles[index];
                 return Card(
                   color: isDarkMode ? Colors.grey[800] : Colors.white,
-                  elevation: 4,
+                  elevation: 2.h,
                   child: ExpansionTile(
-                    tilePadding: EdgeInsets.all(8),
+                    tilePadding: EdgeInsets.all(2.h),
                     onExpansionChanged: (value) {
                       setState(() {
                         vid = vehicle.id;
@@ -340,8 +452,8 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
                     title: _buildVehicleListItem(vehicle, context, isDarkMode),
                     children: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 30),
+                        padding: EdgeInsets.symmetric(
+                            vertical: 10.h, horizontal: 20.w),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -358,6 +470,7 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
                                 icon: Icon(
                                   Icons.tire_repair_outlined,
                                   color: Colors.grey,
+                                  size: 20.h,
                                 )),
                             IconButton(
                               onPressed: () {
@@ -370,7 +483,7 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
                               },
                               icon: Icon(Icons.tour),
                               color: Colors.cyanAccent,
-                              iconSize: 25,
+                              iconSize: 20.h,
                             ),
                             IconButton(
                               onPressed: () {
@@ -378,16 +491,15 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
                               },
                               icon: const FaIcon(Icons.edit),
                               color: Colors.green,
-                              iconSize: 30,
+                              iconSize: 20.h,
                             ),
                             IconButton(
-                              onPressed: () {
-                                _confirmDeleteVehicle(vehicle.id!);
-                              },
-                              icon: const FaIcon(FontAwesomeIcons.trash),
-                              color: Colors.red,
-                              iconSize: 23,
-                            ),
+                                onPressed: () {
+                                  _confirmDeleteVehicle(vehicle.id!);
+                                },
+                                icon: const FaIcon(FontAwesomeIcons.trash),
+                                color: Colors.red,
+                                iconSize: 15.h),
                           ],
                         ),
                       ),
@@ -399,21 +511,21 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
           }
         },
       ),
-    );
+    ));
   }
 
   Widget _buildVehicleListItem(
       Vehicle vehicle, BuildContext context, bool isDarkMode) {
     return ListTile(
-      leading: Icon(Icons.directions_car, size: 30, color: Colors.blueAccent),
+      leading: Icon(Icons.directions_car, size: 30.h, color: Colors.blueAccent),
       title: Text("${vehicle.name + " " + vehicle.type}",
           style: TextStyle(
-              fontSize: 16,
+              fontSize: 12.w,
               fontWeight: FontWeight.bold,
               color: isDarkMode ? Colors.white : Colors.black)),
       subtitle: Text(
           'License: ${vehicle.licensePlate}  Year: ${vehicle.manufactureYear}',
-          style: TextStyle(fontSize: 12, color: Colors.blueGrey)),
+          style: TextStyle(fontSize: 10.h, color: Colors.blueGrey)),
     );
   }
 }

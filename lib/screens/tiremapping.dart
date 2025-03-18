@@ -1,8 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:math';
 
 import 'package:yaantrac_app/common/widgets/Toast/Toast.dart';
+import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
+import 'package:yaantrac_app/config/themes/app_colors.dart';
 
 import '../services/api_service.dart';
 
@@ -48,7 +51,7 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
   @override
   void initState() {
     super.initState();
-    List.generate(1, (_) => _addAxle());
+
     // Front Axle
     // _addAxle(); // Rear Axle
     populate();
@@ -68,9 +71,29 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
         tireList = response.data['data'];
         print(tireList);
         if (tireList.isNotEmpty) {
+          List<String> p =
+              tireList.map((tire) => tire["position"] as String).toList();
+          Map<String, int> countMap = {};
+
+          for (String input in p) {
+            RegExp regExp = RegExp(r'(\d+|F|R)'); // Match 'F', 'R', or numbers
+            var match = regExp.firstMatch(input);
+
+            if (match != null) {
+              String key = match.group(1)!; // Extract matched part
+              countMap[key] = (countMap[key] ?? 0) + 1; // Update count
+            }
+          }
+          countMap.forEach((k, v) => {
+                _addAxle(),
+                for (int i = 2; i < v; i += 2) {_addTire(axles.last)}
+              });
           for (var tireData in tireList) {
             _assignTireToAxle(tireData);
           }
+        } else {
+          List.generate(2, (_) => _addAxle());
+          //_addAxle();
         }
         //return tireList.map((json) => TireModel.fromJson(json)).toList();
       } else {
@@ -88,23 +111,37 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
       // Ensure position is not null
       String position = tireData['position'] ?? 'Unknown';
       int axleIndex;
-      // Check if position is valid
+
       if (position == 'Unknown') {
         print(
             "Warning: Tire position is unknown for tire ID ${tireData['id']}");
         return;
       }
-      RegExp regExp = RegExp(r'(\d+)([A-Za-z]+)(\d+)');
+
+      // Extract axle number from position using regex
+      RegExp regExp = RegExp(r'(\d+)?([A-Za-z]+)(\d+)?');
       var match = regExp.firstMatch(position);
 
-      // Determine axle index explicitly
+      if (match == null) {
+        print("Error: Unable to parse position format: $position");
+        return;
+      }
+
+      // Determine axle index properly
       if (position.startsWith("F")) {
         axleIndex = 0; // Front Axle
       } else if (position.startsWith("R")) {
-        axleIndex = (assignTireCount / 2).toInt();
+        axleIndex = 1; // Default rear axle index
+
+        // Try extracting the axle number from position (e.g., R2L1 -> axle 2)
+        if (match.group(1) != null) {
+          axleIndex = int.parse(match.group(1)!) - 1;
+        }
       } else {
-        axleIndex = int.parse(match!.group(1)!) - 1; // Rear Axle
+        print("Warning: Unrecognized axle position format: $position");
+        return;
       }
+
       assignTireCount++;
 
       print("Axles length before: ${axles.length}");
@@ -120,8 +157,12 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
       Tire tire = Tire(
         tireData["id"] ?? -1, // Default ID if missing
       );
-      t = Tire(tireData['tire']['id'],
-          brand: tireData['tire']['brand'], model: tireData['tire']['model']);
+
+      t = Tire(
+        tireData['tire']['id'],
+        brand: tireData['tire']['brand'],
+        model: tireData['tire']['model'],
+      );
 
       print("Assigning tire ID: ${tireData['id']} to position: $position");
 
@@ -131,23 +172,18 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
           axle.tires1.add(tire);
         } else {
           axle.tires1[0] = tire;
-          _pBrand(axle.tires1[axleIndex], position, axleIndex, t!);
         }
+        _pBrand(axle.tires1[0], position, axleIndex, t!);
       } else {
         if (axle.tires2.isEmpty) {
           axle.tires2.add(tire);
         } else {
           axle.tires2[0] = tire;
-
-          _pBrand(axle.tires2[axleIndex], position, axleIndex, t!);
         }
+        _pBrand(axle.tires2[0], position, axleIndex, t!);
       }
 
-      // Populate brand details
-
-      // Add to selected tires list
-
-      print("Tire successfully assigned!");
+      print("Tire successfully assigned to axle ${axleIndex + 1}!");
     } catch (e) {
       print("Error in _assignTireToAxle: $e");
     }
@@ -159,7 +195,7 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
       tire.brand = item.brand;
       tire.model = item.model;
     });
-
+    print(position);
     // Remove previous selection and update
     selectedTires.removeWhere(
         (item) => item["id"] == tire.id && item["position"] == position);
@@ -182,10 +218,12 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text("Select Tire"),
+              title: Center(
+                child: Text("Select Tire"),
+              ),
               content: SizedBox(
                 width: double.maxFinite,
-                height: 300, // Adjust modal height
+                height: 300.h, // Adjust modal height
                 child: ListView.builder(
                   itemCount: tireData.length,
                   itemBuilder: (context, index) {
@@ -193,7 +231,7 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
                     return ListTile(
                       title: Text("Brand: ${item['brand']}"),
                       subtitle: Text(
-                          "Model: ${item['model']} | Stock: ${item['stock']}"),
+                          "Model: ${item['model']} | Size: ${item['size']}"),
                       onTap: () {
                         setState(() {
                           tire.id = item['id'];
@@ -201,9 +239,9 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
                           tire.model = item["model"];
 
                           // Remove previous selection and update
-                          selectedTires.removeWhere((item) =>
-                              item["id"] == tire.id &&
-                              item["position"] == position);
+                          selectedTires.removeWhere(
+                              (existing) => existing["position"] == position);
+
                           selectedTires.add({
                             "tireId": tire.id,
                             "position": position,
@@ -352,10 +390,10 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
     return SizeTransition(
       sizeFactor: animation,
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 5),
-        padding: EdgeInsets.all(10),
+        margin: EdgeInsets.symmetric(vertical: 5.h),
+        padding: EdgeInsets.all(8.h),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8.h),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -368,7 +406,7 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
                     : axle.id == axles.length - 1
                         ? "Rear Axle"
                         : "Axle ${axle.id + 1}",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 14.h, fontWeight: FontWeight.bold),
               ),
             ),
             SingleChildScrollView(
@@ -380,13 +418,13 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
                 children: [
                   // Left side tires
                   Transform.translate(
-                    offset: Offset(leftOffset, 0),
+                    offset: Offset(leftOffset, 0.h),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: List.generate(
                         axle.tires1.length,
                         (index) => Transform.translate(
-                          offset: Offset(index * -10.0, 0),
+                          offset: Offset(index * -8.h, 0),
                           child: _buildWheel(axle.tires1[index], axle.id, "L",
                               index + 1, axles.length),
                         ),
@@ -396,20 +434,20 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
 
                   // Axle Line
                   Container(
-                    width: 60,
-                    height: 2,
+                    width: 60.h,
+                    height: 2.h,
                     color: Colors.grey,
                   ),
 
                   // Right side tires
                   Transform.translate(
-                    offset: Offset(-10, 0),
+                    offset: Offset(-8.h, 0),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: List.generate(
                         axle.tires2.length,
                         (index) => Transform.translate(
-                          offset: Offset(index * -10.0, 0),
+                          offset: Offset(index * -8.h, 0),
                           child: _buildWheel(axle.tires2[index], axle.id, "R",
                               index + 1, axles.length),
                         ),
@@ -461,16 +499,16 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
         GestureDetector(
           onTap: () => _selectBrand(tire, pos, axleId),
           child: Container(
-            padding: EdgeInsets.all(30),
+            padding: EdgeInsets.all(28.h),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: tire.brand.isEmpty ? Colors.grey : Colors.blue,
-              border: Border.all(color: Colors.white, width: 3),
+              border: Border.all(color: Colors.black, width: 3.h),
             ),
             child: Center(
               child: Text(
                 pos,
-                style: TextStyle(color: Colors.black, fontSize: 10),
+                style: TextStyle(color: Colors.black, fontSize: 10.h),
               ),
             ),
           ),
@@ -480,7 +518,7 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
             tire.brand.isNotEmpty ? tire.brand : "Select Brand",
             style: TextStyle(
               color: tire.brand.isEmpty ? Colors.red : Colors.grey,
-              fontSize: 10,
+              fontSize: 10.h,
             ),
           ),
         )
@@ -490,13 +528,24 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Truck Axle & Tire Animation")),
+    return SafeArea(
+        child: Scaffold(
+      appBar: AppBar(
+        title: Center(
+          child: Text("Tire Mapping"),
+        ),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.arrow_back_ios)),
+        backgroundColor: AppColors.secondaryColor,
+      ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(
-            height: 150,
+            height: 120.h,
           ),
           Expanded(
             child: AnimatedList(
@@ -522,16 +571,13 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
           ),*/
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton(
-                onPressed: _submit,
-                child: Text("Submit"),
-              ),
-            ],
+            children: [AppPrimaryButton(onPressed: _submit, title: "Submit")],
           ),
-          SizedBox(height: 20),
+          SizedBox(
+            height: 20.h,
+          )
         ],
       ),
-    );
+    ));
   }
 }

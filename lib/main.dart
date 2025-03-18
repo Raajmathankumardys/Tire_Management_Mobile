@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:yaantrac_app/screens/Homepage.dart';
-
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'config/themes/ThemeProvider.dart';
 
 void main() async {
@@ -31,12 +31,16 @@ class MyApp extends StatelessWidget {
       );
     }
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      themeMode: themeProvider.themeMode,
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
-      home: HomeScreen(),
+    return ScreenUtilInit(
+      designSize: Size(360, 690), // Base design size
+      minTextAdapt: true,
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        themeMode: themeProvider.themeMode,
+        theme: ThemeData.light(),
+        darkTheme: ThemeData.dark(),
+        home: HomeScreen(),
+      ),
     );
   }
 }

@@ -52,6 +52,7 @@ dependencies:
   model_viewer_plus: ^1.9.1
   webview_flutter: ^4.10.0
   flutter_riverpod: ^2.6.1
+  flutter_screenutil: ^5.9.3
 
 
 dev_dependencies:

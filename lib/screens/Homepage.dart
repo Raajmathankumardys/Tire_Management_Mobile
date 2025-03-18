@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:yaantrac_app/screens/filter_expense_screen.dart';
 import 'package:yaantrac_app/screens/settings.dart';
 import 'package:yaantrac_app/screens/tiremapping.dart';
@@ -49,13 +50,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ? Colors.grey[800]!
             : Colors.white,
         animationDuration: Duration(milliseconds: 300),
-        height: 60,
+        height: 45.h,
         index: _currentIndex, // Ensuring correct tab selection
         items: [
-          Icon(Icons.directions_car, size: 30, color: Colors.blueAccent),
-          Icon(Icons.tire_repair, size: 30, color: Colors.blueAccent),
-          Icon(Icons.notifications, size: 30, color: Colors.blueAccent),
-          Icon(Icons.settings, size: 30, color: Colors.blueAccent),
+          Icon(Icons.directions_car, size: 30.sp, color: Colors.blueAccent),
+          Icon(Icons.tire_repair, size: 30.sp, color: Colors.blueAccent),
+          Icon(Icons.notifications, size: 30.sp, color: Colors.blueAccent),
+          Icon(Icons.settings, size: 30.sp, color: Colors.blueAccent),
         ],
         onTap: (index) {
           setState(() {

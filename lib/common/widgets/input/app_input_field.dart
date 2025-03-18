@@ -50,12 +50,12 @@ class AppInputField extends StatelessWidget {
     );
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
           label,
-          style:
-              theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+          /*style:
+              theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),*/
         ),
         const SizedBox(height: 3),
         if (isDropdown && dropdownItems != null)
