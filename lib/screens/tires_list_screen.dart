@@ -6,6 +6,7 @@ import 'package:yaantrac_app/common/widgets/Toast/Toast.dart';
 import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
 import 'package:yaantrac_app/config/themes/app_colors.dart';
 import 'package:yaantrac_app/models/tire.dart';
+import 'package:yaantrac_app/screens/tire_expense_screen.dart';
 import 'package:yaantrac_app/trash/add_tire_screen.dart';
 import 'package:yaantrac_app/screens/tire_status_screen.dart';
 import 'package:yaantrac_app/screens/vehicles_list_screen.dart';
@@ -610,6 +611,27 @@ class _TiresListScreenState extends State<TiresListScreen> {
               )),
           elevation: 2.w,
           actions: [
+            Container(
+              padding: EdgeInsets.all(4.w),
+              alignment: Alignment.center,
+              child: IconButton(
+                  alignment: Alignment.topRight,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => tireexpensescreen()),
+                    );
+                  },
+                  icon: Icon(
+                    Icons.currency_exchange,
+                    size: 25.h,
+                    color: Colors.black,
+                  )),
+            ),
+            SizedBox(
+              width: 20.h,
+            ),
             Container(
               padding: EdgeInsets.all(4.w),
               alignment: Alignment.center,

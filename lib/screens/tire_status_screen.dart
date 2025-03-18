@@ -11,7 +11,7 @@ import '../common/widgets/button/app_primary_button.dart';
 import '../common/widgets/input/app_input_field.dart';
 import '../config/themes/app_colors.dart';
 import '../models/tire.dart';
-import 'add_performance_screen.dart';
+import '../trash/add_performance_screen.dart';
 
 class TireStatusScreen extends StatefulWidget {
   final TireModel tire;
