@@ -53,7 +53,7 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
     super.initState();
 
     // Front Axle
-    // _addAxle(); // Rear Axle
+    //_addAxle(); // Rear Axle
     populate();
 
     // Predefined tires with position mapping
@@ -205,40 +205,171 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
     });
   }
 
-  Future<void> _selectBrand(Tire tire, String position, int axleId) async {
+  Future<void> _selectBrand(
+      BuildContext ctx, Tire tire, String position, int axleId) async {
     print("T1");
+    TextEditingController searchController = TextEditingController();
+    List<dynamic> tireData = [];
+    List<dynamic> filteredTires = [];
+
     try {
       final response =
           await Dio().get('https://yaantrac-backend.onrender.com/api/tires');
 
       if (response.statusCode == 200 && response.data["data"] != null) {
-        List<dynamic> tireData = response.data["data"];
+        tireData = response.data["data"];
+        filteredTires = List.from(tireData); // Show all tires initially
 
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
+        if (!ctx.mounted) return; // Ensure the context is valid
+
+        await showDialog(
+          context: ctx, // Use the passed context
+          builder: (BuildContext dialogContext) {
+            return StatefulBuilder(
+              builder: (context, setState) {
+                return AlertDialog(
+                  title: Column(
+                    children: [
+                      Text("Select Tire"),
+                      SizedBox(height: 8),
+                      TextField(
+                        controller: searchController,
+                        decoration: InputDecoration(
+                          hintText: "Search by Brand...",
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onChanged: (value) {
+                          // Update the filtered list
+                          setState(() {
+                            filteredTires = tireData
+                                .where((item) => (item["serialNo"] ?? "Unknown")
+                                    .toLowerCase()
+                                    .contains(value.toLowerCase()))
+                                .toList();
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  content: SizedBox(
+                    width: double.maxFinite,
+                    height: 300,
+                    child: ListView.builder(
+                      itemCount: filteredTires.length,
+                      itemBuilder: (context, index) {
+                        var item = filteredTires[index];
+
+                        return ListTile(
+                          title: Text(
+                              "Serial No: ${item['serialNo'] ?? 'Unknown'}"),
+                          subtitle: Text(
+                              "Brand : ${item['brand']} | Model: ${item['model']} | Size: ${item['size']}"),
+                          onTap: () {
+                            // Update tire details
+                            tire.id = item['id'];
+                            tire.brand = item["brand"];
+                            tire.model = item["model"];
+
+                            // Update selected tires list in parent
+                            setState(() {
+                              selectedTires.removeWhere((existing) =>
+                                  existing["position"] == position);
+                              selectedTires.add({
+                                "tireId": tire.id,
+                                "position": position,
+                              });
+                            });
+
+                            // Close dialog only if the context is still valid
+                            if (dialogContext.mounted) {
+                              Navigator.pop(dialogContext);
+                            }
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        );
+
+        // Force UI update after closing the dialog
+        if (ctx.mounted) {
+          (ctx as Element).markNeedsBuild();
+        }
+      } else {
+        if (ctx.mounted) {
+          ToastHelper.showCustomToast(
+              ctx, "Failed to fetch tire data", Colors.red, Icons.error);
+        }
+      }
+    } catch (e) {
+      if (ctx.mounted) {
+        ToastHelper.showCustomToast(
+            ctx, "Error fetching tires: $e", Colors.red, Icons.error);
+      }
+    }
+  }
+
+  void _showTireDialog(BuildContext context, Tire tire, String position,
+      List<dynamic> tireData, TextEditingController searchController) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            List<dynamic> filteredTires = List.from(tireData);
+
             return AlertDialog(
-              title: Center(
-                child: Text("Select Tire"),
+              title: Column(
+                children: [
+                  Text("Select Tire"),
+                  SizedBox(height: 8),
+                  TextField(
+                    controller: searchController,
+                    decoration: InputDecoration(
+                      hintText: "Search by Brand...",
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        filteredTires = tireData.where((item) {
+                          String brand = item["brand"] ?? "Unknown";
+                          return brand
+                              .toLowerCase()
+                              .contains(value.toLowerCase());
+                        }).toList();
+                      });
+                    },
+                  ),
+                ],
               ),
               content: SizedBox(
                 width: double.maxFinite,
-                height: 300.h, // Adjust modal height
+                height: 300,
                 child: ListView.builder(
-                  itemCount: tireData.length,
+                  itemCount: filteredTires.length,
                   itemBuilder: (context, index) {
-                    var item = tireData[index];
+                    var item = filteredTires[index];
+
                     return ListTile(
-                      title: Text("Brand: ${item['brand']}"),
+                      title: Text("Brand: ${item['brand'] ?? 'Unknown'}"),
                       subtitle: Text(
-                          "Model: ${item['model']} | Size: ${item['size']}"),
+                          "Model: ${item['model'] ?? 'N/A'} | Size: ${item['size'] ?? 'N/A'}"),
                       onTap: () {
                         setState(() {
                           tire.id = item['id'];
                           tire.brand = item["brand"];
                           tire.model = item["model"];
 
-                          // Remove previous selection and update
                           selectedTires.removeWhere(
                               (existing) => existing["position"] == position);
 
@@ -256,14 +387,8 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
             );
           },
         );
-      } else {
-        ToastHelper.showCustomToast(
-            context, "Failed to fetch tire data", Colors.red, Icons.error);
-      }
-    } catch (e) {
-      ToastHelper.showCustomToast(
-          context, "Error fetching tires: $e", Colors.red, Icons.error);
-    }
+      },
+    );
   }
 
   Future<void> _submit() async {
@@ -497,7 +622,7 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
     return Column(
       children: [
         GestureDetector(
-          onTap: () => _selectBrand(tire, pos, axleId),
+          onTap: () => _selectBrand(context, tire, pos, axleId),
           child: Container(
             padding: EdgeInsets.all(28.h),
             decoration: BoxDecoration(

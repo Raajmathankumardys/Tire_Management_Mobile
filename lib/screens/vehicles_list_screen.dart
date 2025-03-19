@@ -14,7 +14,6 @@ import '../bloc/vehicle/vehicle_state.dart';
 import '../common/widgets/button/app_primary_button.dart';
 import '../common/widgets/input/app_input_field.dart';
 import '../models/vehicle.dart';
-import 'Homepage.dart';
 
 class VehiclesListScreen extends StatefulWidget {
   const VehiclesListScreen({super.key});
@@ -25,24 +24,15 @@ class VehiclesListScreen extends StatefulWidget {
 
 class _VehiclesListScreenState extends State<VehiclesListScreen> {
   late Future<List<Vehicle>> futureVehicles;
-  int? vid; // Stores vehicle ID for reference
-
-  /*@override
-  void initState() {
-    super.initState();
-    futureVehicles = getTrips();
-  }*/
-
+  int? vid;
   void _showAddEditModal(BuildContext ctx, [Vehicle? vehicle]) {
     final _formKey = GlobalKey<FormState>();
     String name = vehicle?.name ?? "";
     String type = vehicle?.type ?? "";
     String licensePlate = vehicle?.licensePlate ?? "";
     int year = vehicle?.manufactureYear ?? 0;
-    bool isLoading = false;
-
     showModalBottomSheet(
-      context: context, // ✅ Correctly passing the context
+      context: context, //
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -139,43 +129,38 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
                                   onInputChanged: (value) =>
                                       year = int.tryParse(value!) ?? 0,
                                 ),
-                                isLoading
-                                    ? const CircularProgressIndicator()
-                                    : Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          AppPrimaryButton(
-                                            width: 130,
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            title: "Cancel",
-                                          ),
-                                          AppPrimaryButton(
-                                            width: 130,
-                                            onPressed: () {
-                                              final newVehicle = Vehicle(
-                                                id: vehicle?.id,
-                                                name: name,
-                                                licensePlate: licensePlate,
-                                                manufactureYear: year,
-                                                type: type,
-                                              );
-                                              // ✅ Use  to access the bloc
-                                              ctx.read<VehicleBloc>().add(
-                                                  vehicle == null
-                                                      ? AddVehicle(newVehicle)
-                                                      : UpdateVehicle(
-                                                          newVehicle));
-                                              Navigator.pop(context);
-                                            },
-                                            title: vehicle == null
-                                                ? "Save"
-                                                : "Update",
-                                          )
-                                        ],
-                                      ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    AppPrimaryButton(
+                                      width: 130,
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      title: "Cancel",
+                                    ),
+                                    AppPrimaryButton(
+                                      width: 130,
+                                      onPressed: () {
+                                        final newVehicle = Vehicle(
+                                          id: vehicle?.id,
+                                          name: name,
+                                          licensePlate: licensePlate,
+                                          manufactureYear: year,
+                                          type: type,
+                                        );
+                                        ctx.read<VehicleBloc>().add(
+                                            vehicle == null
+                                                ? AddVehicle(newVehicle)
+                                                : UpdateVehicle(newVehicle));
+                                        Navigator.pop(context);
+                                      },
+                                      title:
+                                          vehicle == null ? "Save" : "Update",
+                                    )
+                                  ],
+                                ),
                               ],
                             ),
                           )
