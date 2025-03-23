@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:yaantrac_app/models/tire_performance.dart';
-import 'package:yaantrac_app/screens/Homepage.dart';
+import '../models/tire_performance.dart';
+import '../screens/Homepage.dart';
 import 'package:yaantrac_app/screens/tires_list_screen.dart';
-import 'package:yaantrac_app/services/api_service.dart';
+import '../services/api_service.dart';
 import '../common/widgets/Toast/Toast.dart';
 import '../common/widgets/button/app_primary_button.dart';
 import '../common/widgets/input/app_input_field.dart';
@@ -438,7 +438,7 @@ class _TireStatusScreenState extends State<TireStatusScreen> {
     return Padding(
       padding: EdgeInsets.only(top: 12.h),
       child: Container(
-        padding: EdgeInsets.all(12.h),
+        padding: EdgeInsets.all(24.h),
         decoration: BoxDecoration(
           border: Border.all(color: theme.dividerColor),
           borderRadius: BorderRadius.circular(12.r),
@@ -459,7 +459,7 @@ class _TireStatusScreenState extends State<TireStatusScreen> {
             ),
             SizedBox(height: 10.h),
             SizedBox(
-              height: 220.h,
+              height: 210.h,
               child: LineChartWidget(
                   tirePerformances: tirePerformances, parameter: parameter),
             ),
@@ -486,7 +486,7 @@ class LineChartWidget extends StatelessWidget {
   List<FlSpot> getSpots() {
     return List.generate(
       tirePerformances.length,
-      (index) => FlSpot(index.toDouble(), _getValue(tirePerformances[index])),
+      (index) => FlSpot((index).toDouble(), _getValue(tirePerformances[index])),
     );
   }
 
@@ -509,13 +509,50 @@ class LineChartWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LineChart(LineChartData(lineBarsData: [
-      LineChartBarData(
-        spots: getSpots(),
-        isCurved: true,
-        barWidth: 1.h,
-        dotData: FlDotData(show: true),
-      )
-    ]));
+    return Column(
+      children: [
+        SizedBox(
+          height: 200.h,
+          child: LineChart(
+            LineChartData(
+              lineBarsData: [
+                LineChartBarData(
+                  spots: getSpots(),
+                  isCurved: true,
+                  barWidth: 2.h,
+                  color: Colors.blue,
+                  dotData: FlDotData(show: true),
+                ),
+              ],
+              titlesData: FlTitlesData(
+                leftTitles: AxisTitles(
+                  axisNameWidget: Text(
+                    parameter.toString(),
+                    style:
+                        TextStyle(fontSize: 10.h, fontWeight: FontWeight.bold),
+                  ),
+                  sideTitles: SideTitles(
+                      showTitles: false), // Hide individual Y-axis values
+                ),
+                bottomTitles: AxisTitles(
+                  axisNameWidget: Padding(
+                    padding: EdgeInsets.only(top: 0.0),
+                    child: Text(
+                      'Readings',
+                      style:
+                          TextStyle(fontSize: 8.h, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  sideTitles: SideTitles(
+                      showTitles: false), // Hide individual X-axis values
+                ),
+              ),
+              gridData: FlGridData(show: true), // Shows grid lines
+              borderData: FlBorderData(show: true),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

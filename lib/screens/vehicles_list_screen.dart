@@ -31,17 +31,66 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
     String type = vehicle?.type ?? "";
     String licensePlate = vehicle?.licensePlate ?? "";
     int year = vehicle?.manufactureYear ?? 0;
+    List<int> axles = [2, 2]; // Default front & rear axles
+    Map<String, int> axleMap = {"F": 2, "R": 2};
+    void _updateAxleMap(Function setState) {
+      setState(() {
+        axleMap.clear();
+        for (int i = 0; i < axles.length; i++) {
+          String key =
+              (i == 0) ? "F" : (i == axles.length - 1 ? "R" : "${i + 1}");
+          axleMap[key] = axles[i];
+        }
+      });
+      print(axleMap);
+    }
+
+    void addAxle(Function setState) {
+      setState(() {
+        axles.insert(axles.length - 1, 2); // Always insert before rear axle
+        _updateAxleMap(setState);
+      });
+    }
+
+    void addTires(int index, Function setState) {
+      setState(() {
+        if (index == 0) return; // Front axle fixed at 2 tires
+        axles[index] += 2;
+        _updateAxleMap(setState);
+      });
+    }
+
+    void removeTires(int index, Function setState) {
+      setState(() {
+        if (index == 0) return; // Front axle cannot change
+        if (axles[index] > 2 || index == axles.length) {
+          axles[index] -= 2;
+          _updateAxleMap(setState);
+        }
+      });
+    }
+
+    void removeAxle(int index, Function setState) {
+      if (index == 0 || index == axles.length - 1)
+        return; // Cannot remove F or R
+      setState(() {
+        axles.removeAt(index);
+        _updateAxleMap(setState);
+      });
+    }
+
+    BuildContext ct = context;
     showModalBottomSheet(
-      context: context, //
+      context: ct, //
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
         return DraggableScrollableSheet(
-          initialChildSize: 0.45,
-          minChildSize: 0.2,
-          maxChildSize: 0.55,
+          initialChildSize: 0.50.h,
+          minChildSize: 0.2.h,
+          maxChildSize: 0.60.h,
           expand: false,
           builder: (context, scrollController) {
             return StatefulBuilder(builder: (context, setState) {
@@ -129,6 +178,146 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
                                   onInputChanged: (value) =>
                                       year = int.tryParse(value!) ?? 0,
                                 ),
+                                Container(
+                                  // Set an appropriate height
+                                  child: ListView.builder(
+                                    shrinkWrap:
+                                        true, // Helps ListView avoid infinite height
+                                    physics:
+                                        BouncingScrollPhysics(), // Prevents unnecessary scrolling issues
+                                    itemCount: axles.length,
+                                    itemBuilder: (ct, index) {
+                                      return Card(
+                                        color: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8.r),
+                                        ),
+                                        margin:
+                                            EdgeInsets.symmetric(vertical: 6.r),
+                                        elevation: 4,
+                                        child: ListTile(
+                                          leading: Icon(
+                                            Icons.directions_car,
+                                            color: Colors.blue,
+                                            size: 20.h,
+                                          ),
+                                          title: Text(
+                                            axleMap.keys.elementAt(index) == "F"
+                                                ? "Front Axle"
+                                                : axleMap.keys
+                                                            .elementAt(index) ==
+                                                        "R"
+                                                    ? "Rear Axle"
+                                                    : "Axle ${axleMap.keys.elementAt(index)}",
+                                            style: TextStyle(
+                                              fontSize: 10.h,
+                                            ),
+                                          ),
+                                          subtitle: Text(
+                                            "Tires: ${axles[index]}",
+                                            style: TextStyle(
+                                                fontSize: 10.h,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          trailing: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              if (index != 0) ...[
+                                                Tooltip(
+                                                  message: "Remove 2 tires",
+                                                  child: IconButton(
+                                                    icon: Icon(
+                                                      Icons.remove_circle,
+                                                      color: Colors.red,
+                                                    ),
+                                                    onPressed: () =>
+                                                        removeTires(
+                                                            index, setState),
+                                                  ),
+                                                ),
+                                                Tooltip(
+                                                  message: "Add 2 tires",
+                                                  child: IconButton(
+                                                    icon: Icon(
+                                                      Icons.add_circle,
+                                                      color: Colors.green,
+                                                    ),
+                                                    onPressed: () => addTires(
+                                                        index, setState),
+                                                  ),
+                                                ),
+                                                if (index != axles.length - 1)
+                                                  Tooltip(
+                                                    message: "Remove Axle",
+                                                    child: IconButton(
+                                                      icon: Icon(Icons.delete,
+                                                          color: Colors.grey),
+                                                      onPressed: () =>
+                                                          removeAxle(
+                                                              index, setState),
+                                                    ),
+                                                  ),
+                                              ],
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(8.h),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue.shade50,
+                                        borderRadius:
+                                            BorderRadius.circular(8.r),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Axle Summary",
+                                            style: TextStyle(
+                                                fontSize: 10.h,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          SizedBox(height: 6.h),
+                                          ...axleMap.entries.map(
+                                            (entry) => Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  vertical: 2.h),
+                                              child: Text(
+                                                "${entry.key}: ${entry.value} tires",
+                                                style: TextStyle(
+                                                  fontSize: 12.h,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    FloatingActionButton.extended(
+                                      onPressed: () => {addAxle(setState)},
+                                      label: Text("Add Axle"),
+                                      icon: Icon(Icons.add),
+                                      backgroundColor: Colors.blue,
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
@@ -143,18 +332,20 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
                                     AppPrimaryButton(
                                       width: 130,
                                       onPressed: () {
-                                        final newVehicle = Vehicle(
-                                          id: vehicle?.id,
-                                          name: name,
-                                          licensePlate: licensePlate,
-                                          manufactureYear: year,
-                                          type: type,
-                                        );
-                                        ctx.read<VehicleBloc>().add(
-                                            vehicle == null
-                                                ? AddVehicle(newVehicle)
-                                                : UpdateVehicle(newVehicle));
-                                        Navigator.pop(context);
+                                        if (_formKey.currentState!.validate()) {
+                                          final newVehicle = Vehicle(
+                                            id: vehicle?.id,
+                                            name: name,
+                                            licensePlate: licensePlate,
+                                            manufactureYear: year,
+                                            type: type,
+                                          );
+                                          ctx.read<VehicleBloc>().add(
+                                              vehicle == null
+                                                  ? AddVehicle(newVehicle)
+                                                  : UpdateVehicle(newVehicle));
+                                          Navigator.pop(context);
+                                        }
                                       },
                                       title:
                                           vehicle == null ? "Save" : "Update",
@@ -163,7 +354,7 @@ class _VehiclesListScreenState extends State<VehiclesListScreen> {
                                 ),
                               ],
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),

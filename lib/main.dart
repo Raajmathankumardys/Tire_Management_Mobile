@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:yaantrac_app/vehicles/service/vehicleService.dart';
 import 'bloc/Theme/theme_bloc.dart';
 import 'bloc/vehicle/vehicle_bloc.dart';
 import 'screens/Homepage.dart';
+import 'vehicles/cubit/vehicle_cubit.dart';
+import 'vehicles/repository/vehicle_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,7 +17,16 @@ void main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => ThemeBloc()..add(LoadThemeEvent())),
-        BlocProvider(create: (context) => VehicleBloc()),
+        RepositoryProvider(
+          create: (context) => VehiclesRepository(
+              VehiclesService()), // Pass the required parameter
+        ),
+        BlocProvider(
+          create: (context) => VehiclesCubit(context
+              .read<VehiclesRepository>()) // Inject repository into Cubit
+            ..fetchVehicles(), // Fetch initial data
+        ),
+        //(create: (context) => VehicleBloc()),
       ],
       child: MyApp(),
     ),

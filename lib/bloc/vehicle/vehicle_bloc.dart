@@ -43,6 +43,7 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState> {
         formData: event.vehicle.toJson(),
         contentType: "application/json",
       );
+      print(response.statusCode);
       if (response.statusCode == 200) {
         emit(VehicleSuccess("Vehicle Added Sucessfully"));
         add(LoadVehicles()); // Reload vehicles

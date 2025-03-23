@@ -13,15 +13,15 @@ class Tire {
   int id;
   String brand;
   String model;
+  String serialno;
 
-  Tire(this.id, {this.brand = "", this.model = ""});
+  Tire(this.id, {this.brand = "", this.model = "", this.serialno = ""});
 
   static Tire generate(int id) {
-    return Tire(
-      id,
-      brand: "", // Ensure brand is empty by default
-      model: "", // Keep model empty if you want it to be selected later
-    );
+    return Tire(id,
+        brand: "", // Ensure brand is empty by default
+        model: "", // Keep model empty if you want it to be selected later
+        serialno: "");
   }
 }
 
@@ -92,7 +92,18 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
             _assignTireToAxle(tireData);
           }
         } else {
-          List.generate(2, (_) => _addAxle());
+          String input = "F:2,2:4,3:4,R:2";
+          List<String> a = input.split(",");
+          Map<String, int> b = {};
+          for (var i in a) {
+            var c = i.split(":");
+            b[c[0]] = int.parse(c[1]);
+          }
+          b.forEach((k, v) => {
+                _addAxle(),
+                for (int i = 2; i < v; i += 2) {_addTire(axles.last)}
+              });
+          //List.generate(2, (_) => _addAxle());
           //_addAxle();
         }
         //return tireList.map((json) => TireModel.fromJson(json)).toList();
@@ -158,11 +169,10 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
         tireData["id"] ?? -1, // Default ID if missing
       );
 
-      t = Tire(
-        tireData['tire']['id'],
-        brand: tireData['tire']['brand'],
-        model: tireData['tire']['model'],
-      );
+      t = Tire(tireData['tire']['id'],
+          brand: tireData['tire']['brand'],
+          model: tireData['tire']['model'],
+          serialno: tireData['tire']['serialNo']);
 
       print("Assigning tire ID: ${tireData['id']} to position: $position");
 
@@ -194,6 +204,7 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
       tire.id = item.id;
       tire.brand = item.brand;
       tire.model = item.model;
+      tire.serialno = item.serialno;
     });
     print(position);
     // Remove previous selection and update
@@ -272,6 +283,7 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
                             tire.id = item['id'];
                             tire.brand = item["brand"];
                             tire.model = item["model"];
+                            tire.serialno = item['serialNo'];
 
                             // Update selected tires list in parent
                             setState(() {
@@ -314,81 +326,6 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
             ctx, "Error fetching tires: $e", Colors.red, Icons.error);
       }
     }
-  }
-
-  void _showTireDialog(BuildContext context, Tire tire, String position,
-      List<dynamic> tireData, TextEditingController searchController) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            List<dynamic> filteredTires = List.from(tireData);
-
-            return AlertDialog(
-              title: Column(
-                children: [
-                  Text("Select Tire"),
-                  SizedBox(height: 8),
-                  TextField(
-                    controller: searchController,
-                    decoration: InputDecoration(
-                      hintText: "Search by Brand...",
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        filteredTires = tireData.where((item) {
-                          String brand = item["brand"] ?? "Unknown";
-                          return brand
-                              .toLowerCase()
-                              .contains(value.toLowerCase());
-                        }).toList();
-                      });
-                    },
-                  ),
-                ],
-              ),
-              content: SizedBox(
-                width: double.maxFinite,
-                height: 300,
-                child: ListView.builder(
-                  itemCount: filteredTires.length,
-                  itemBuilder: (context, index) {
-                    var item = filteredTires[index];
-
-                    return ListTile(
-                      title: Text("Brand: ${item['brand'] ?? 'Unknown'}"),
-                      subtitle: Text(
-                          "Model: ${item['model'] ?? 'N/A'} | Size: ${item['size'] ?? 'N/A'}"),
-                      onTap: () {
-                        setState(() {
-                          tire.id = item['id'];
-                          tire.brand = item["brand"];
-                          tire.model = item["model"];
-
-                          selectedTires.removeWhere(
-                              (existing) => existing["position"] == position);
-
-                          selectedTires.add({
-                            "tireId": tire.id,
-                            "position": position,
-                          });
-                        });
-                        Navigator.pop(context);
-                      },
-                    );
-                  },
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
   }
 
   Future<void> _submit() async {
@@ -627,7 +564,7 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
             padding: EdgeInsets.all(28.h),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: tire.brand.isEmpty ? Colors.grey : Colors.blue,
+              color: tire.serialno.isEmpty ? Colors.grey : Colors.blue,
               border: Border.all(color: Colors.black, width: 3.h),
             ),
             child: Center(
@@ -640,9 +577,9 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
         ),
         Center(
           child: Text(
-            tire.brand.isNotEmpty ? tire.brand : "Select Brand",
+            tire.serialno.isNotEmpty ? tire.serialno : "Select SerialNo",
             style: TextStyle(
-              color: tire.brand.isEmpty ? Colors.red : Colors.grey,
+              color: tire.serialno.isEmpty ? Colors.red : Colors.grey,
               fontSize: 10.h,
             ),
           ),

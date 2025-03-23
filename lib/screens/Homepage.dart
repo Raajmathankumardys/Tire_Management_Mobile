@@ -5,6 +5,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:yaantrac_app/screens/filter_expense_screen.dart';
 import 'package:yaantrac_app/screens/settings.dart';
 import 'package:yaantrac_app/screens/tiremapping.dart';
+
+import '../vehicles/presentation/screen/vehicle_list_screen.dart';
 import 'vehicles_list_screen.dart';
 import 'tires_list_screen.dart';
 import 'notification_screen.dart';
@@ -23,7 +25,8 @@ class _HomeScreenState extends State<HomeScreen> {
   GlobalKey<CurvedNavigationBarState> _bottomNavigationKey = GlobalKey();
 
   final List<Widget> _pages = [
-    VehiclesListScreen(),
+    vehiclelistscreen_(),
+    //VehiclesListScreen(),
     TiresListScreen(),
     NotificationScreen(),
     //FilterExpenseScreen(),
