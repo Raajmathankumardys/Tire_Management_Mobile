@@ -1,16 +1,15 @@
-import '../../models/vehicle.dart';
 import '../service/vehicleService.dart';
 
-class VehiclesRepository {
-  final VehiclesService service;
+class BaseRepository<T> {
+  final BaseService<T> service;
 
-  VehiclesRepository(this.service);
+  BaseRepository(this.service);
 
-  Future<List<Vehicle>> getVehicles() => service.fetchVehicles();
+  Future<List<T>> getAll() => service.fetchAll();
 
-  Future<void> addVehicle(Vehicle vehicle) => service.createVehicle(vehicle);
+  Future<void> add(T item) => service.create(item);
 
-  Future<void> updateVehicle(Vehicle vehicle) => service.updateVehicle(vehicle);
+  Future<void> update(T item, int id) => service.update(item, id);
 
-  Future<void> deleteVehicle(int id) => service.removeVehicle(id);
+  Future<void> delete(int id) => service.remove(id);
 }

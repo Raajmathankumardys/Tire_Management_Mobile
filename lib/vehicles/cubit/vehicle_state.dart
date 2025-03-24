@@ -1,32 +1,30 @@
-import '../../models/vehicle.dart';
+abstract class BaseState<T> {}
 
-abstract class VehiclesState {}
+class InitialState<T> extends BaseState<T> {}
 
-class VehiclesInitial extends VehiclesState {}
+class LoadingState<T> extends BaseState<T> {}
 
-class VehiclesLoading extends VehiclesState {}
-
-class VehiclesLoaded extends VehiclesState {
-  final List<Vehicle> vehicles;
-  VehiclesLoaded(this.vehicles);
+class LoadedState<T> extends BaseState<T> {
+  final List<T> items;
+  LoadedState(this.items);
 }
 
-class VehicleAdded extends VehiclesState {
+class ErrorState<T> extends BaseState<T> {
   final String message;
-  VehicleAdded(this.message);
+  ErrorState(this.message);
 }
 
-class VehicleUpdated extends VehiclesState {
+class AddedState<T> extends BaseState<T> {
   final String message;
-  VehicleUpdated(this.message);
+  AddedState(this.message);
 }
 
-class VehicleDeleted extends VehiclesState {
+class UpdatedState<T, int> extends BaseState<T> {
   final String message;
-  VehicleDeleted(this.message);
+  UpdatedState(this.message);
 }
 
-class VehiclesError extends VehiclesState {
+class DeletedState<T> extends BaseState<T> {
   final String message;
-  VehiclesError(this.message);
+  DeletedState(this.message);
 }

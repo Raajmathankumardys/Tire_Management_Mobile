@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:yaantrac_app/vehicles/service/vehicleService.dart';
 import 'bloc/Theme/theme_bloc.dart';
 import 'bloc/vehicle/vehicle_bloc.dart';
+import 'models/vehicle.dart';
 import 'screens/Homepage.dart';
 import 'vehicles/cubit/vehicle_cubit.dart';
 import 'vehicles/repository/vehicle_repository.dart';
@@ -18,14 +19,18 @@ void main() async {
       providers: [
         BlocProvider(create: (context) => ThemeBloc()..add(LoadThemeEvent())),
         RepositoryProvider(
-          create: (context) => VehiclesRepository(
-              VehiclesService()), // Pass the required parameter
+          create: (context) => BaseRepository<Vehicle>(BaseService<Vehicle>(
+              baseUrl: "https://yaantrac-backend.onrender.com/api/vehicles",
+              fromJson: Vehicle.fromJson,
+              toJson: (vehicle) =>
+                  vehicle.toJson())), // Pass the required parameter
         ),
         BlocProvider(
-          create: (context) => VehiclesCubit(context
-              .read<VehiclesRepository>()) // Inject repository into Cubit
-            ..fetchVehicles(), // Fetch initial data
-        ),
+            create: (context) =>
+                BaseCubit<Vehicle>(context.read<BaseRepository<Vehicle>>())
+                  ..fetchItems() // Inject repository into Cubit
+            // , // Fetch initial data
+            ),
         //(create: (context) => VehicleBloc()),
       ],
       child: MyApp(),

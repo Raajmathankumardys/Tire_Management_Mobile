@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:yaantrac_app/common/widgets/Toast/Toast.dart';
 import '../../../common/widgets/button/app_primary_button.dart';
 import '../../../common/widgets/input/app_input_field.dart';
@@ -15,7 +16,6 @@ import '../../cubit/vehicle_state.dart';
 
 class vehiclelistscreen_ extends StatefulWidget {
   const vehiclelistscreen_({super.key});
-
   @override
   State<vehiclelistscreen_> createState() => _vehiclelistscreen_State();
 }
@@ -56,7 +56,7 @@ class _vehiclelistscreen_State extends State<vehiclelistscreen_> {
                     children: [
                       Container(
                         width: double.infinity,
-                        height: 50,
+                        height: 40.h,
                         decoration: BoxDecoration(
                           color: Colors.blueAccent,
                           borderRadius:
@@ -67,18 +67,18 @@ class _vehiclelistscreen_State extends State<vehiclelistscreen_> {
                             SizedBox(height: 5.h),
                             Container(
                               width: 80,
-                              height: 5,
+                              height: 5.h,
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(20),
                               ),
                             ),
-                            SizedBox(height: 8.h),
+                            SizedBox(height: 5.h),
                             Text(
                               vehicle == null ? "Add Vehicle" : "Edit Vehicle",
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 12.h,
+                                fontSize: 10.h,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -284,11 +284,12 @@ class _vehiclelistscreen_State extends State<vehiclelistscreen_> {
 
                                       vehicle == null
                                           ? ctx
-                                              .read<VehiclesCubit>()
-                                              .addVehicle(newVehicle)
+                                              .read<BaseCubit<Vehicle>>()
+                                              .addItem(newVehicle)
                                           : ctx
-                                              .read<VehiclesCubit>()
-                                              .updateVehicle(newVehicle);
+                                              .read<BaseCubit<Vehicle>>()
+                                              .updateItem(
+                                                  newVehicle, vehicle.id!);
                                       Navigator.pop(context);
                                     }
                                   },
@@ -344,7 +345,7 @@ class _vehiclelistscreen_State extends State<vehiclelistscreen_> {
                 ),
               ),
               onPressed: () {
-                ctx.read<VehiclesCubit>().deleteVehicle(vehicleId);
+                ctx.read<BaseCubit<Vehicle>>().deleteItem(vehicleId);
                 Navigator.pop(context);
               },
               child:
@@ -353,6 +354,27 @@ class _vehiclelistscreen_State extends State<vehiclelistscreen_> {
           ],
         );
       },
+    );
+  }
+
+  Widget _buildShimmerEffect() {
+    return Column(
+      children: List.generate(9, (index) {
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 6.h),
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.white,
+            child: Container(
+              width: double.infinity,
+              height: 50.h,
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10.r)),
+            ),
+          ),
+        );
+      }),
     );
   }
 
@@ -374,36 +396,36 @@ class _vehiclelistscreen_State extends State<vehiclelistscreen_> {
               ))
         ],
       ),
-      body: BlocConsumer<VehiclesCubit, VehiclesState>(
+      body: BlocConsumer<BaseCubit<Vehicle>, BaseState<Vehicle>>(
         listener: (context, state) {
-          if (state is VehicleAdded ||
-              state is VehicleUpdated ||
-              state is VehicleDeleted) {
+          if (state is AddedState ||
+              state is UpdatedState ||
+              state is DeletedState) {
             final message = (state as dynamic).message;
             ToastHelper.showCustomToast(
                 context,
                 message,
                 Colors.green,
-                (state is VehicleAdded)
+                (state is AddedState)
                     ? Icons.add
-                    : (state is VehicleUpdated)
+                    : (state is UpdatedState)
                         ? Icons.edit
                         : Icons.delete);
-          } else if (state is VehiclesError) {
+          } else if (state is ErrorState<Vehicle>) {
             ToastHelper.showCustomToast(
                 context, state.message, Colors.red, Icons.error);
           }
         },
         builder: (context, state) {
-          if (state is VehiclesLoading) {
-            return Center(child: CircularProgressIndicator());
-          } else if (state is VehiclesError) {
+          if (state is LoadingState) {
+            return _buildShimmerEffect();
+          } else if (state is ErrorState<Vehicle>) {
             return Center(child: Text(state.message));
-          } else if (state is VehiclesLoaded) {
+          } else if (state is LoadedState<Vehicle>) {
             return ListView.builder(
-              itemCount: state.vehicles.length,
+              itemCount: state.items.length,
               itemBuilder: (context, index) {
-                final vehicle = state.vehicles[index];
+                final vehicle = state.items[index];
                 return Card(
                   elevation: 2.h,
                   child: ExpansionTile(

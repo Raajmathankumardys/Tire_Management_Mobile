@@ -90,298 +90,275 @@ class _TripViewPageState extends State<TripViewPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return DraggableScrollableSheet(
-            initialChildSize: 0.3.h, // Starts at of screen height
-            minChildSize: 0.2.h, // Minimum height
-            maxChildSize: 0.40.h,
-            expand: false,
-            builder: (context, scrollController) {
-              return StatefulBuilder(
-                builder: (context, setState) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(35.r)),
-                    ),
-                    child: SingleChildScrollView(
-                      controller: scrollController,
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          bottom:
-                              MediaQuery.of(context).viewInsets.bottom + 12.h,
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(35.r)),
+              ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 12.h,
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: 50.h,
+                        decoration: BoxDecoration(
+                          color: AppColors
+                              .secondaryColor, // Adjust color as needed
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(15.r)),
                         ),
                         child: Column(
                           children: [
+                            SizedBox(height: 5.h),
                             Container(
-                              width: double.infinity,
-                              height: 50.h,
+                              width: 80.w,
+                              height: 5.h,
+                              padding: EdgeInsets.all(12.h),
                               decoration: BoxDecoration(
-                                color: AppColors
-                                    .secondaryColor, // Adjust color as needed
-                                borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(15.r)),
-                              ),
-                              child: Column(
-                                children: [
-                                  SizedBox(height: 5.h),
-                                  Container(
-                                    width: 80.w,
-                                    height: 5.h,
-                                    padding: EdgeInsets.all(12.h),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(20.h),
-                                    ),
-                                  ),
-                                  SizedBox(height: 8.h),
-                                  Text(
-                                    expense == null
-                                        ? "Add Expense"
-                                        : "Edit Expense",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16.h,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20.h),
                               ),
                             ),
-                            Form(
-                              key: _formKey,
+                            SizedBox(height: 8.h),
+                            Text(
+                              expense == null ? "Add Expense" : "Edit Expense",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.h,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(
+                                top: 20.h,
+                                left: 16.h,
+                                right: 16.h,
+                                bottom:
+                                    MediaQuery.of(context).viewInsets.bottom +
+                                        16.h,
+                              ),
                               child: Column(
-                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                      top: 20.h,
-                                      left: 16.h,
-                                      right: 16.h,
-                                      bottom: MediaQuery.of(context)
-                                              .viewInsets
-                                              .bottom +
-                                          16.h,
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        AppInputField(
-                                          label: "Expense Type",
-                                          isDropdown: true, hint: cat,
-                                          defaultValue: selectedExpenseType
-                                              .toString(), // Correct default value
-                                          dropdownItems: const [
-                                            DropdownMenuItem(
-                                                value: "FUEL",
-                                                child: Text("Fuel Costs")),
-                                            DropdownMenuItem(
-                                                value: "DRIVER_ALLOWANCE",
-                                                child:
-                                                    Text("Driver Allowances")),
-                                            DropdownMenuItem(
-                                                value: "TOLL",
-                                                child: Text("Toll Charges")),
-                                            DropdownMenuItem(
-                                                value: "MAINTENANCE",
-                                                child: Text("Maintenance")),
-                                            DropdownMenuItem(
-                                                value: "MISCELLANEOUS",
-                                                child: Text("Miscellaneous")),
-                                          ],
-                                          onDropdownChanged: (value) {
-                                            //print(value);
-                                            setState(() {
-                                              selectedExpenseType =
-                                                  ExpenseCategory.values
-                                                      .firstWhere(
-                                                (e) => e.name == value,
-                                                orElse: () => ExpenseCategory
-                                                    .MISCELLANEOUS,
-                                              );
-                                              print(
-                                                  "Selected Expense Type: $selectedExpenseType");
-                                            });
-                                          },
-                                        ),
-                                        AppInputField(
-                                          label: "Amount",
-                                          hint: "Enter Amount",
-                                          defaultValue: _amount.toString(),
-                                          keyboardType: TextInputType.number,
-                                          inputFormatters: [
-                                            FilteringTextInputFormatter
-                                                .digitsOnly
-                                          ],
-                                          onInputChanged: (value) {
-                                            setState(() {
-                                              _amount = double.parse(value!);
-                                            });
-                                          },
-                                        ),
-                                        AppInputField(
-                                          label: "Date",
-                                          isDatePicker: true,
-                                          controller:
-                                              _dateController, // Show only date
-                                          onDateSelected: (date) {
-                                            setState(() {
-                                              _expenseDate = date;
-                                              _dateController.text = _formatDate(
-                                                  date); // Update text in field
-                                            });
-                                          },
-                                        ),
-                                        AppInputField(
-                                          label: "Description",
-                                          hint: "Enter Description",
-                                          defaultValue: _description,
-                                          keyboardType: TextInputType.multiline,
-                                          onInputChanged: (value) {
-                                            setState(() {
-                                              _description = value!;
-                                            });
-                                          },
-                                        ),
-                                        _isLoading
-                                            ? const Center(
-                                                child:
-                                                    CircularProgressIndicator())
-                                            : Row(
-                                                children: [
-                                                  Expanded(
-                                                      child: AppPrimaryButton(
-                                                          onPressed: () {},
-                                                          title:
-                                                              "Attach Receipt")),
-                                                  const SizedBox(width: 10),
-                                                  Expanded(
-                                                      child: AppPrimaryButton(
-                                                          onPressed: () async {
-                                                            if (_formKey
-                                                                .currentState!
-                                                                .validate()) {
-                                                              //print("Submitted Expense Data: ${expense}");
-                                                              setState(() {
-                                                                _isLoading =
-                                                                    true; // Disable button & show loader
-                                                              });
-                                                              var f = {
-                                                                "id":
-                                                                    expense?.id,
-                                                                "tripId": widget
-                                                                    .tripId,
-                                                                "amount":
-                                                                    _amount,
-                                                                "category":
-                                                                    selectedExpenseType
-                                                                        .toString()
-                                                                        .split(
-                                                                            '.')[1],
-                                                                "expenseDate":
-                                                                    _expenseDate
-                                                                        .toIso8601String(),
-                                                                "description":
-                                                                    _description,
-                                                                "attachmentUrl":
-                                                                    "",
-                                                                "createdAt": DateTime
-                                                                        .now()
-                                                                    .toIso8601String(),
-                                                                "updatedAt": DateTime
-                                                                        .now()
-                                                                    .toIso8601String()
-                                                              };
-                                                              try {
-                                                                final response = await APIService.instance.request(
-                                                                    expense ==
-                                                                            null
-                                                                        ? "https://yaantrac-backend.onrender.com/api/expenses/${widget.tripId}"
-                                                                        : "https://yaantrac-backend.onrender.com/api/expenses/${expense.id}",
-                                                                    expense ==
-                                                                            null
-                                                                        ? DioMethod
-                                                                            .post
-                                                                        : DioMethod
-                                                                            .put,
-                                                                    formData: f,
-                                                                    contentType:
-                                                                        "application/json");
-                                                                if (response
-                                                                        .statusCode ==
-                                                                    200) {
-                                                                  ToastHelper.showCustomToast(
-                                                                      context,
-                                                                      (expense ==
-                                                                              null)
-                                                                          ? "Expense Added Sucessfully"
-                                                                          : "Expense Updated Sucessfully",
-                                                                      Colors
-                                                                          .green,
-                                                                      expense ==
-                                                                              null
-                                                                          ? Icons
-                                                                              .add
-                                                                          : Icons
-                                                                              .edit);
+                                  AppInputField(
+                                    label: "Expense Type",
+                                    isDropdown: true, hint: cat,
+                                    defaultValue: selectedExpenseType
+                                        .toString(), // Correct default value
+                                    dropdownItems: const [
+                                      DropdownMenuItem(
+                                          value: "FUEL",
+                                          child: Text("Fuel Costs")),
+                                      DropdownMenuItem(
+                                          value: "DRIVER_ALLOWANCE",
+                                          child: Text("Driver Allowances")),
+                                      DropdownMenuItem(
+                                          value: "TOLL",
+                                          child: Text("Toll Charges")),
+                                      DropdownMenuItem(
+                                          value: "MAINTENANCE",
+                                          child: Text("Maintenance")),
+                                      DropdownMenuItem(
+                                          value: "MISCELLANEOUS",
+                                          child: Text("Miscellaneous")),
+                                    ],
+                                    onDropdownChanged: (value) {
+                                      //print(value);
+                                      setState(() {
+                                        selectedExpenseType =
+                                            ExpenseCategory.values.firstWhere(
+                                          (e) => e.name == value,
+                                          orElse: () =>
+                                              ExpenseCategory.MISCELLANEOUS,
+                                        );
+                                        print(
+                                            "Selected Expense Type: $selectedExpenseType");
+                                      });
+                                    },
+                                  ),
+                                  AppInputField(
+                                    label: "Amount",
+                                    hint: "Enter Amount",
+                                    defaultValue: _amount.toString(),
+                                    keyboardType: TextInputType.number,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
+                                    onInputChanged: (value) {
+                                      setState(() {
+                                        _amount = double.parse(value!);
+                                      });
+                                    },
+                                  ),
+                                  AppInputField(
+                                    label: "Date",
+                                    isDatePicker: true,
+                                    controller:
+                                        _dateController, // Show only date
+                                    onDateSelected: (date) {
+                                      setState(() {
+                                        _expenseDate = date;
+                                        _dateController.text = _formatDate(
+                                            date); // Update text in field
+                                      });
+                                    },
+                                  ),
+                                  AppInputField(
+                                    label: "Description",
+                                    hint: "Enter Description",
+                                    defaultValue: _description,
+                                    keyboardType: TextInputType.multiline,
+                                    onInputChanged: (value) {
+                                      setState(() {
+                                        _description = value!;
+                                      });
+                                    },
+                                  ),
+                                  _isLoading
+                                      ? const Center(
+                                          child: CircularProgressIndicator())
+                                      : Row(
+                                          children: [
+                                            Expanded(
+                                                child: AppPrimaryButton(
+                                                    onPressed: () {},
+                                                    title: "Attach Receipt")),
+                                            const SizedBox(width: 10),
+                                            Expanded(
+                                                child: AppPrimaryButton(
+                                                    onPressed: () async {
+                                                      if (_formKey.currentState!
+                                                          .validate()) {
+                                                        //print("Submitted Expense Data: ${expense}");
+                                                        setState(() {
+                                                          _isLoading =
+                                                              true; // Disable button & show loader
+                                                        });
+                                                        var f = {
+                                                          "id": expense?.id,
+                                                          "tripId":
+                                                              widget.tripId,
+                                                          "amount": _amount,
+                                                          "category":
+                                                              selectedExpenseType
+                                                                  .toString()
+                                                                  .split(
+                                                                      '.')[1],
+                                                          "expenseDate":
+                                                              _expenseDate
+                                                                  .toIso8601String(),
+                                                          "description":
+                                                              _description,
+                                                          "attachmentUrl": "",
+                                                          "createdAt": DateTime
+                                                                  .now()
+                                                              .toIso8601String(),
+                                                          "updatedAt": DateTime
+                                                                  .now()
+                                                              .toIso8601String()
+                                                        };
+                                                        try {
+                                                          final response = await APIService
+                                                              .instance
+                                                              .request(
+                                                                  expense ==
+                                                                          null
+                                                                      ? "https://yaantrac-backend.onrender.com/api/expenses/${widget.tripId}"
+                                                                      : "https://yaantrac-backend.onrender.com/api/expenses/${expense.id}",
+                                                                  expense ==
+                                                                          null
+                                                                      ? DioMethod
+                                                                          .post
+                                                                      : DioMethod
+                                                                          .put,
+                                                                  formData: f,
+                                                                  contentType:
+                                                                      "application/json");
+                                                          if (response
+                                                                  .statusCode ==
+                                                              200) {
+                                                            ToastHelper.showCustomToast(
+                                                                context,
+                                                                (expense ==
+                                                                        null)
+                                                                    ? "Expense Added Sucessfully"
+                                                                    : "Expense Updated Sucessfully",
+                                                                Colors.green,
+                                                                expense == null
+                                                                    ? Icons.add
+                                                                    : Icons
+                                                                        .edit);
 
-                                                                  _formKey
-                                                                      .currentState
-                                                                      ?.reset();
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pushAndRemoveUntil(
-                                                                          MaterialPageRoute(
-                                                                              builder: (context) =>
-                                                                                  TripViewPage(
-                                                                                    tripId: widget.tripId,
-                                                                                    trip: widget.trip,
-                                                                                    index: 1,
-                                                                                    vehicleId: widget.vehicleId,
-                                                                                  )),
-                                                                          (route) =>
-                                                                              false);
-                                                                } else {
-                                                                  print(response
-                                                                      .statusMessage);
-                                                                }
-                                                              } catch (e) {
-                                                                throw Exception(
-                                                                    "Error Posting Income: $e");
-                                                              } finally {
-                                                                ToastHelper.showCustomToast(
-                                                                    context,
-                                                                    "Network error! Please try again.",
-                                                                    Colors.red,
-                                                                    Icons
-                                                                        .error);
-                                                                setState(() {
-                                                                  _isLoading =
-                                                                      false; // Re-enable button after request
-                                                                });
-                                                              }
-                                                            }
-                                                          },
-                                                          title: expense == null
-                                                              ? "Add"
-                                                              : "Update")),
-                                                ],
-                                              ),
-                                      ],
-                                    ),
-                                  )
+                                                            _formKey
+                                                                .currentState
+                                                                ?.reset();
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pushAndRemoveUntil(
+                                                                    MaterialPageRoute(
+                                                                        builder: (context) =>
+                                                                            TripViewPage(
+                                                                              tripId: widget.tripId,
+                                                                              trip: widget.trip,
+                                                                              index: 1,
+                                                                              vehicleId: widget.vehicleId,
+                                                                            )),
+                                                                    (route) =>
+                                                                        false);
+                                                          } else {
+                                                            print(response
+                                                                .statusMessage);
+                                                          }
+                                                        } catch (e) {
+                                                          throw Exception(
+                                                              "Error Posting Income: $e");
+                                                        } finally {
+                                                          ToastHelper
+                                                              .showCustomToast(
+                                                                  context,
+                                                                  "Network error! Please try again.",
+                                                                  Colors.red,
+                                                                  Icons.error);
+                                                          setState(() {
+                                                            _isLoading =
+                                                                false; // Re-enable button after request
+                                                          });
+                                                        }
+                                                      }
+                                                    },
+                                                    title: expense == null
+                                                        ? "Add"
+                                                        : "Update")),
+                                          ],
+                                        ),
                                 ],
                               ),
                             )
                           ],
                         ),
-                      ),
-                    ),
-                  );
-                },
-              );
-            });
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
       },
     );
   }
@@ -405,262 +382,238 @@ class _TripViewPageState extends State<TripViewPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return DraggableScrollableSheet(
-            initialChildSize: 0.3.h, // Starts at of screen height
-            minChildSize: 0.2.h, // Minimum height
-            maxChildSize: 0.4.h,
-            expand: false,
-            builder: (context, scrollController) {
-              return StatefulBuilder(
-                builder: (context, setState) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(35.r)),
-                    ),
-                    child: SingleChildScrollView(
-                      controller: scrollController,
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          bottom:
-                              MediaQuery.of(context).viewInsets.bottom + 12.h,
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(35.r)),
+              ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 12.h,
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: 50.h,
+                        decoration: BoxDecoration(
+                          color: AppColors
+                              .secondaryColor, // Adjust color as needed
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(15.r)),
                         ),
                         child: Column(
                           children: [
+                            SizedBox(height: 5.h),
                             Container(
-                              width: double.infinity,
-                              height: 50.h,
+                              width: 80.w,
+                              height: 5.h,
+                              padding: EdgeInsets.all(8.h),
                               decoration: BoxDecoration(
-                                color: AppColors
-                                    .secondaryColor, // Adjust color as needed
-                                borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(15.r)),
-                              ),
-                              child: Column(
-                                children: [
-                                  SizedBox(height: 5.h),
-                                  Container(
-                                    width: 80.w,
-                                    height: 5.h,
-                                    padding: EdgeInsets.all(12.h),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(20.h),
-                                    ),
-                                  ),
-                                  SizedBox(height: 8.h),
-                                  Text(
-                                    income == null
-                                        ? "Add Income"
-                                        : "Edit Income",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16.h,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20.h),
                               ),
                             ),
-                            Form(
-                              key: _formKey,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SingleChildScrollView(
-                                    child: Padding(
-                                      padding: EdgeInsets.only(
-                                        top: 18.h,
-                                        left: 12.h,
-                                        right: 12.h,
-                                        bottom: MediaQuery.of(context)
-                                                .viewInsets
-                                                .bottom +
-                                            12.h,
-                                      ),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          AppInputField(
-                                            label: "Amount",
-                                            hint: "Enter Amount",
-                                            keyboardType: TextInputType.number,
-                                            defaultValue: _amount.toString(),
-                                            inputFormatters: [
-                                              FilteringTextInputFormatter
-                                                  .digitsOnly
-                                            ],
-                                            onInputChanged: (value) {
-                                              setState(() {
-                                                _amount = double.parse(value!);
-                                              });
-                                            },
-                                          ),
-                                          SizedBox(height: 5.h),
-                                          AppInputField(
-                                            label: "Date",
-                                            isDatePicker: true,
-                                            controller:
-                                                _dateController, // Use the controller instead of defaultValue
-                                            onDateSelected: (date) {
-                                              setState(() {
-                                                _incomeDate = date;
-                                                _dateController.text = _formatDate(
-                                                    date); // Update text in field
-                                              });
-                                            },
-                                          ),
-                                          SizedBox(height: 5.h),
-                                          AppInputField(
-                                            label: "Description",
-                                            hint: "Enter Description",
-                                            keyboardType:
-                                                TextInputType.multiline,
-                                            defaultValue:
-                                                _description.toString(),
-                                            onInputChanged: (value) {
-                                              setState(() {
-                                                _description = value!;
-                                              });
-                                            },
-                                          ),
-                                          SizedBox(height: 5.h),
-                                          isLoading
-                                              ? const Center(
-                                                  child:
-                                                      CircularProgressIndicator())
-                                              : Row(
-                                                  children: [
-                                                    Expanded(
-                                                        child: AppPrimaryButton(
-                                                            onPressed: () {},
-                                                            title:
-                                                                "Attach Receipt")),
-                                                    SizedBox(width: 10.h),
-                                                    Expanded(
-                                                        child: AppPrimaryButton(
-                                                            onPressed:
-                                                                () async {
-                                                              if (_formKey
-                                                                  .currentState!
-                                                                  .validate()) {
-                                                                setState(() {
-                                                                  isLoading =
-                                                                      true; // Disable button & show loader
-                                                                });
-                                                                IncomeModel
-                                                                    inc =
-                                                                    IncomeModel(
-                                                                  id: income
-                                                                      ?.id,
-                                                                  amount:
-                                                                      _amount,
-                                                                  incomeDate:
-                                                                      _incomeDate,
-                                                                  tripId: widget
-                                                                      .tripId,
-                                                                  description:
-                                                                      _description,
-                                                                  createdAt:
-                                                                      DateTime
-                                                                          .now(),
-                                                                  updatedAt:
-                                                                      DateTime
-                                                                          .now(),
-                                                                );
-                                                                print(inc
-                                                                    .toJson());
-                                                                try {
-                                                                  final response =
-                                                                      await APIService
-                                                                          .instance
-                                                                          .request(
-                                                                    income ==
-                                                                            null
-                                                                        ? "https://yaantrac-backend.onrender.com/api/income/${widget.tripId}"
-                                                                        : "https://yaantrac-backend.onrender.com/api/income/${income.id}",
-                                                                    income ==
-                                                                            null
-                                                                        ? DioMethod
-                                                                            .post
-                                                                        : DioMethod
-                                                                            .put,
-                                                                    formData: inc
-                                                                        .toJson(),
-                                                                    contentType:
-                                                                        "application/json",
-                                                                  );
-                                                                  if (response
-                                                                          .statusCode ==
-                                                                      200) {
-                                                                    ToastHelper.showCustomToast(
-                                                                        context,
-                                                                        income ==
-                                                                                null
-                                                                            ? "Income added successfully!"
-                                                                            : "Income updated successfully!",
-                                                                        Colors
-                                                                            .green,
-                                                                        income ==
-                                                                                null
-                                                                            ? Icons.add
-                                                                            : Icons.edit);
-                                                                    _formKey
-                                                                        .currentState
-                                                                        ?.reset();
-                                                                    Navigator.of(context).pushAndRemoveUntil(
-                                                                        MaterialPageRoute(
-                                                                            builder: (context) => TripViewPage(
-                                                                                  tripId: widget.tripId,
-                                                                                  trip: widget.trip,
-                                                                                  index: 2,
-                                                                                  vehicleId: widget.vehicleId,
-                                                                                )),
-                                                                        (route) => false);
-                                                                  } else {
-                                                                    print(response
-                                                                        .statusMessage);
-                                                                  }
-                                                                } catch (e) {
-                                                                  throw Exception(
-                                                                      "Error Posting Income: $e");
-                                                                } finally {
-                                                                  ToastHelper.showCustomToast(
-                                                                      context,
-                                                                      "Network error! Please try again.",
-                                                                      Colors
-                                                                          .red,
-                                                                      Icons
-                                                                          .error);
-                                                                  setState(() {
-                                                                    isLoading =
-                                                                        false; // Re-enable button after request
-                                                                  });
-                                                                }
-                                                              }
-                                                            },
-                                                            title: income?.id ==
-                                                                    null
-                                                                ? "Add"
-                                                                : "Update")),
-                                                  ],
-                                                ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                            SizedBox(height: 8.h),
+                            Text(
+                              income == null ? "Add Income" : "Edit Income",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.h,
+                                fontWeight: FontWeight.w500,
                               ),
-                            )
+                            ),
                           ],
                         ),
                       ),
-                    ),
-                  );
-                },
-              );
-            });
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SingleChildScrollView(
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                  top: 18.h,
+                                  left: 12.h,
+                                  right: 12.h,
+                                  bottom:
+                                      MediaQuery.of(context).viewInsets.bottom +
+                                          12.h,
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    AppInputField(
+                                      label: "Amount",
+                                      hint: "Enter Amount",
+                                      keyboardType: TextInputType.number,
+                                      defaultValue: _amount.toString(),
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.digitsOnly
+                                      ],
+                                      onInputChanged: (value) {
+                                        setState(() {
+                                          _amount = double.parse(value!);
+                                        });
+                                      },
+                                    ),
+                                    SizedBox(height: 5.h),
+                                    AppInputField(
+                                      label: "Date",
+                                      isDatePicker: true,
+                                      controller:
+                                          _dateController, // Use the controller instead of defaultValue
+                                      onDateSelected: (date) {
+                                        setState(() {
+                                          _incomeDate = date;
+                                          _dateController.text = _formatDate(
+                                              date); // Update text in field
+                                        });
+                                      },
+                                    ),
+                                    SizedBox(height: 5.h),
+                                    AppInputField(
+                                      label: "Description",
+                                      hint: "Enter Description",
+                                      keyboardType: TextInputType.multiline,
+                                      defaultValue: _description.toString(),
+                                      onInputChanged: (value) {
+                                        setState(() {
+                                          _description = value!;
+                                        });
+                                      },
+                                    ),
+                                    SizedBox(height: 5.h),
+                                    isLoading
+                                        ? const Center(
+                                            child: CircularProgressIndicator())
+                                        : Row(
+                                            children: [
+                                              Expanded(
+                                                  child: AppPrimaryButton(
+                                                      onPressed: () {},
+                                                      title: "Attach Receipt")),
+                                              SizedBox(width: 10.h),
+                                              Expanded(
+                                                  child: AppPrimaryButton(
+                                                      onPressed: () async {
+                                                        if (_formKey
+                                                            .currentState!
+                                                            .validate()) {
+                                                          setState(() {
+                                                            isLoading =
+                                                                true; // Disable button & show loader
+                                                          });
+                                                          IncomeModel inc =
+                                                              IncomeModel(
+                                                            id: income?.id,
+                                                            amount: _amount,
+                                                            incomeDate:
+                                                                _incomeDate,
+                                                            tripId:
+                                                                widget.tripId,
+                                                            description:
+                                                                _description,
+                                                            createdAt:
+                                                                DateTime.now(),
+                                                            updatedAt:
+                                                                DateTime.now(),
+                                                          );
+                                                          print(inc.toJson());
+                                                          try {
+                                                            final response =
+                                                                await APIService
+                                                                    .instance
+                                                                    .request(
+                                                              income == null
+                                                                  ? "https://yaantrac-backend.onrender.com/api/income/${widget.tripId}"
+                                                                  : "https://yaantrac-backend.onrender.com/api/income/${income.id}",
+                                                              income == null
+                                                                  ? DioMethod
+                                                                      .post
+                                                                  : DioMethod
+                                                                      .put,
+                                                              formData:
+                                                                  inc.toJson(),
+                                                              contentType:
+                                                                  "application/json",
+                                                            );
+                                                            if (response
+                                                                    .statusCode ==
+                                                                200) {
+                                                              ToastHelper.showCustomToast(
+                                                                  context,
+                                                                  income == null
+                                                                      ? "Income added successfully!"
+                                                                      : "Income updated successfully!",
+                                                                  Colors.green,
+                                                                  income == null
+                                                                      ? Icons
+                                                                          .add
+                                                                      : Icons
+                                                                          .edit);
+                                                              _formKey
+                                                                  .currentState
+                                                                  ?.reset();
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pushAndRemoveUntil(
+                                                                      MaterialPageRoute(
+                                                                          builder: (context) =>
+                                                                              TripViewPage(
+                                                                                tripId: widget.tripId,
+                                                                                trip: widget.trip,
+                                                                                index: 2,
+                                                                                vehicleId: widget.vehicleId,
+                                                                              )),
+                                                                      (route) =>
+                                                                          false);
+                                                            } else {
+                                                              print(response
+                                                                  .statusMessage);
+                                                            }
+                                                          } catch (e) {
+                                                            throw Exception(
+                                                                "Error Posting Income: $e");
+                                                          } finally {
+                                                            ToastHelper
+                                                                .showCustomToast(
+                                                                    context,
+                                                                    "Network error! Please try again.",
+                                                                    Colors.red,
+                                                                    Icons
+                                                                        .error);
+                                                            setState(() {
+                                                              isLoading =
+                                                                  false; // Re-enable button after request
+                                                            });
+                                                          }
+                                                        }
+                                                      },
+                                                      title: income?.id == null
+                                                          ? "Add"
+                                                          : "Update")),
+                                            ],
+                                          ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
       },
     );
   }
@@ -1057,66 +1010,126 @@ class _TripViewPageState extends State<TripViewPage> {
 
   Widget _buildExpenseListItem({required ExpenseModel expense}) {
     return Card(
-      child: Padding(
-        padding: EdgeInsets.all(6.h),
-        child: Row(
-          children: [
-            Icon(Icons.receipt_long, size: 40.h, color: Colors.blueGrey),
-            SizedBox(width: 10.h),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      color: Colors.white,
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(5.r),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            left: BorderSide(
+              color: _getCategoryColor(expense.category
+                  .toString()
+                  .toUpperCase()), // Dynamic left border color
+              width: 6, // Thick left border
+            ),
+          ),
+          borderRadius: BorderRadius.circular(5.r),
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 1.h, horizontal: 8.w),
+          child: Row(
+            children: [
+              /// Leading Icon
+              Container(
+                padding: EdgeInsets.fromLTRB(12.h, 16.h, 12.h, 16.h),
+                decoration: BoxDecoration(
+                  color: Colors.blueGrey.shade100,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Icon(Icons.receipt_long,
+                    size: 24.h, color: Colors.blueGrey),
+              ),
+              SizedBox(width: 8.w),
+
+              /// Expense Details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildInfoCard(
+                        Icons.category,
+                        expense.category.toString().split('.').last,
+                        Colors.blue,
+                        fontSize: 10.sp),
+                    _buildInfoCard(Icons.attach_money,
+                        '₹${expense.amount.toStringAsFixed(2)}', Colors.green,
+                        fontSize: 10.sp),
+                    _buildInfoCard(Icons.calendar_today,
+                        _formatDate(expense.expenseDate), Colors.orange,
+                        fontSize: 10.sp),
+                    if (expense.description.isNotEmpty)
+                      _buildInfoCard(
+                          Icons.description, expense.description, Colors.purple,
+                          fontSize: 10.sp),
+                  ],
+                ),
+              ),
+
+              /// Action Buttons (Smaller)
+              Row(
                 children: [
-                  Text(
-                    expense.category.toString().split('.').last,
-                    style: TextStyle(
-                      fontSize: 10.h,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  IconButton(
+                    icon: Icon(Icons.edit, size: 18.h, color: Colors.green),
+                    onPressed: () => _showAddEditExpenseModal(expense: expense),
                   ),
-                  Text(
-                    'Amount: ₹${expense.amount.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      color: Color(0xFF93adc8),
-                      fontSize: 10.h,
-                    ),
-                  ),
-                  Text(
-                    'Date: ${_formatDate(expense.expenseDate)}',
-                    style: TextStyle(
-                      color: Color(0xFF93adc8),
-                      fontSize: 10.h,
-                    ),
-                  ),
-                  Text(
-                    'Description: ${expense.description}',
-                    style: TextStyle(
-                      color: Color(0xFF93adc8),
-                      fontSize: 10.h,
-                    ),
+                  IconButton(
+                    icon: Icon(Icons.delete, size: 18.h, color: Colors.red),
+                    onPressed: () => _confirmDeleteexpense(expense.id!.toInt()),
                   ),
                 ],
               ),
-            ),
-            Row(
-              children: [
-                ActionButton(
-                    icon: Icons.edit,
-                    color: Colors.green,
-                    onPressed: () {
-                      _showAddEditExpenseModal(expense: expense);
-                    }),
-                SizedBox(width: 8.h),
-                ActionButton(
-                    icon: Icons.delete,
-                    color: Colors.red,
-                    onPressed: () {
-                      _confirmDeleteexpense(expense.id!.toInt());
-                    }),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  /// Function to get category color (for left border)
+  Color _getCategoryColor(String category) {
+    switch (category.split(".")[1]) {
+      case 'FUEL':
+        return Colors.green;
+      case 'DRIVER_ALLOWANCE':
+        return Colors.blue;
+      case 'TOLL':
+        return Colors.purple;
+      case 'MAINTENANCE':
+        return Colors.orange;
+      default:
+        return Colors.red; // Default color if category not found
+    }
+  }
+
+  Widget _buildInfoCard(IconData icon, String value, Color iconColor,
+      {double fontSize = 10}) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 2.h),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(1.h),
+            decoration: BoxDecoration(
+              color: iconColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Icon(icon, size: 14.h, color: iconColor),
+          ),
+          SizedBox(width: 10.w),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                  fontSize: fontSize,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[700]),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1138,65 +1151,62 @@ class _TripViewPageState extends State<TripViewPage> {
       required DateTime date,
       required String description}) {
     return Card(
-      elevation: 2.h,
+      elevation: 3,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(10),
       ),
-      margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-      child: Padding(
-        padding: EdgeInsets.all(8.h),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            left: BorderSide(
+              color: Colors.green, // Adjust color dynamically if needed
+              width: 6, // Thick left border
+            ),
+          ),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(6.h),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              /// Income Details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildInfoCard(
+                        Icons.currency_exchange, "Income", Colors.green,
+                        fontSize: 12.sp),
+                    _buildInfoCard(Icons.attach_money,
+                        '₹${income.amount.toStringAsFixed(2)}', Colors.blue,
+                        fontSize: 10.sp),
+                    _buildInfoCard(Icons.calendar_today,
+                        _formatDate(income.incomeDate), Colors.orange,
+                        fontSize: 10.sp),
+                    if (income.description.isNotEmpty)
+                      _buildInfoCard(
+                          Icons.description, income.description, Colors.purple,
+                          fontSize: 10.sp),
+                  ],
+                ),
+              ),
+
+              /// Action Buttons
+              Row(
                 children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 12.h,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  IconButton(
+                    icon: Icon(Icons.edit, size: 18.h, color: Colors.green),
+                    onPressed: () => _showAddEditIncomeModal(income: income),
                   ),
-                  SizedBox(height: 3.h),
-                  Text(
-                    'Amount: ₹${amount.toStringAsFixed(2)}',
-                    style: TextStyle(fontSize: 10.h, color: Colors.green[700]),
-                  ),
-                  SizedBox(height: 2.h),
-                  Text(
-                    'Date: ${_formatDate(income.incomeDate)}',
-                    style: TextStyle(fontSize: 10.h, color: Colors.grey),
-                  ),
-                  SizedBox(height: 2.h),
-                  Text(
-                    'Description: $description',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 10.sp),
+                  IconButton(
+                    icon: Icon(Icons.delete, size: 18.h, color: Colors.red),
+                    onPressed: () => _confirmDeleteincome(income.id!.toInt()),
                   ),
                 ],
               ),
-            ),
-            Row(
-              children: [
-                ActionButton(
-                    icon: Icons.edit,
-                    color: Colors.green,
-                    onPressed: () {
-                      _showAddEditIncomeModal(income: income);
-                    }),
-                SizedBox(width: 8.w),
-                ActionButton(
-                    icon: Icons.delete,
-                    color: Colors.red,
-                    onPressed: () {
-                      _confirmDeleteincome(income.id!.toInt());
-                    }),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -1561,7 +1571,8 @@ class BreakdownDonutChart extends StatelessWidget {
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: breakdown.entries.map((entry) {
+          children:
+              breakdown.entries.where((entry) => entry.value > 0).map((entry) {
             return Padding(
               padding: EdgeInsets.symmetric(vertical: 4.h),
               child: Row(
@@ -1587,7 +1598,7 @@ class BreakdownDonutChart extends StatelessWidget {
                     child: SizedBox(width: 13.w),
                   ),
                   Text(
-                    entry.value.toInt().toString(), // Displays value
+                    entry.value.toInt().toString(),
                     style:
                         TextStyle(fontSize: 8.sp, fontWeight: FontWeight.bold),
                   ),

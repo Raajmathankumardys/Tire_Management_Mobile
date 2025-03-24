@@ -1,66 +1,76 @@
 import 'package:dio/dio.dart';
-import '../../models/vehicle.dart';
 
-class VehiclesService {
+class BaseService<T> {
   final Dio dio = Dio();
-  final String baseUrl = "https://yaantrac-backend.onrender.com/api/vehicles";
+  final String baseUrl;
 
-  Future<List<Vehicle>> fetchVehicles() async {
+  final T Function(Map<String, dynamic>) fromJson;
+  final Map<String, dynamic> Function(T) toJson;
+
+  BaseService({
+    required this.baseUrl,
+    required this.fromJson,
+    required this.toJson,
+  });
+
+  Future<List<T>> fetchAll() async {
     try {
+      print("Fetching...");
       final response = await dio.get(baseUrl);
 
       if (response.statusCode == 200) {
-        return (response.data as List)
-            .map((json) => Vehicle.fromJson(json))
-            .toList();
+        print(response.data);
+        if (response.data is List) {
+          return (response.data as List)
+              .map((json) => fromJson(json as Map<String, dynamic>))
+              .toList();
+        } else {
+          throw Exception(
+              "Unexpected response format: Expected List, got ${response.data.runtimeType}");
+        }
       } else {
-        throw Exception("Failed to fetch vehicles: ${response.statusCode}");
+        throw Exception("Failed to fetch items: ${response.statusCode}");
       }
     } on DioException catch (e) {
       throw _handleDioError(e);
     }
   }
 
-  Future<void> createVehicle(Vehicle vehicle) async {
+  Future<void> create(T item) async {
     try {
-      final response = await dio.post(baseUrl, data: vehicle.toJson());
-
-      if (response.statusCode != 200) {
-        throw Exception("Failed to create vehicle: ${response.statusCode}");
+      final response = await dio.post(baseUrl, data: toJson(item));
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw Exception("Failed to create item: ${response.statusCode}");
       }
     } on DioException catch (e) {
       throw _handleDioError(e);
     }
   }
 
-  Future<void> updateVehicle(Vehicle vehicle) async {
+  Future<void> update(T item, int id) async {
     try {
-      final response =
-          await dio.put("$baseUrl/${vehicle.id}", data: vehicle.toJson());
-
+      final response = await dio.put("$baseUrl/$id", data: toJson(item));
       if (response.statusCode != 200) {
-        throw Exception("Failed to update vehicle: ${response.statusCode}");
+        throw Exception("Failed to update item: ${response.statusCode}");
       }
     } on DioException catch (e) {
       throw _handleDioError(e);
     }
   }
 
-  Future<void> removeVehicle(int id) async {
+  Future<void> remove(int id) async {
     try {
       final response = await dio.delete("$baseUrl/$id");
       if (response.statusCode != 200 && response.statusCode != 204) {
-        throw Exception("Failed to delete vehicle: ${response.statusCode}");
+        throw Exception("Failed to delete item: ${response.statusCode}");
       }
     } on DioException catch (e) {
       throw _handleDioError(e);
     }
   }
 
-  // 🔹 Custom error handling function
   Exception _handleDioError(DioException e) {
     if (e.response != null) {
-      // Server responded with an error
       switch (e.response!.statusCode) {
         case 400:
           return Exception("Bad request: ${e.response!.data}");

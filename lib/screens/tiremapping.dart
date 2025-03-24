@@ -92,7 +92,7 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
             _assignTireToAxle(tireData);
           }
         } else {
-          String input = "F:2,2:4,3:4,R:2";
+          String input = "F:2,R:2";
           List<String> a = input.split(",");
           Map<String, int> b = {};
           for (var i in a) {

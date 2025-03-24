@@ -1,53 +1,53 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../models/vehicle.dart';
-import '../repository/vehicle_repository.dart';
+import 'package:yaantrac_app/models/vehicle.dart';
+import 'package:yaantrac_app/vehicles/repository/vehicle_repository.dart';
 import 'vehicle_state.dart';
 
-class VehiclesCubit extends Cubit<VehiclesState> {
-  final VehiclesRepository repository;
+class BaseCubit<T> extends Cubit<BaseState<T>> {
+  final BaseRepository<T> repository;
 
-  VehiclesCubit(this.repository) : super(VehiclesInitial());
+  BaseCubit(this.repository) : super(InitialState());
 
-  void fetchVehicles() async {
-    emit(VehiclesLoading());
+  void fetchItems() async {
+    emit(LoadingState<T>());
     try {
-      final vehicles = await repository.getVehicles();
-      emit(VehiclesLoaded(vehicles));
+      final items = await repository.getAll();
+      emit(LoadedState<T>(items));
     } catch (e) {
-      emit(VehiclesError("Failed to load vehicles"));
+      emit(ErrorState<T>("Failed to load items"));
     }
   }
 
-  void addVehicle(Vehicle vehicle) async {
-    emit(VehiclesLoading());
+  void addItem(T item) async {
+    emit(LoadingState<T>());
     try {
-      await repository.addVehicle(vehicle);
-      emit(VehicleAdded("Vehicle added successfully")); // ✅ Correct event
-      fetchVehicles();
+      await repository.add(item);
+      emit(AddedState("Item added successfully"));
+      fetchItems();
     } catch (e) {
-      emit(VehiclesError("Failed to add vehicle"));
+      emit(ErrorState<T>("Failed to add item"));
     }
   }
 
-  void updateVehicle(Vehicle vehicle) async {
-    emit(VehiclesLoading());
+  void updateItem(T item, int id) async {
+    emit(LoadingState<T>());
     try {
-      await repository.updateVehicle(vehicle);
-      emit(VehicleUpdated("Vehicle updated successfully")); // ✅ Correct event
-      fetchVehicles();
+      await repository.update(item, id);
+      emit(UpdatedState("Item updated successfully"));
+      fetchItems();
     } catch (e) {
-      emit(VehiclesError("Failed to update vehicle"));
+      emit(ErrorState<T>("Failed to update item"));
     }
   }
 
-  void deleteVehicle(int id) async {
-    emit(VehiclesLoading());
+  void deleteItem(int id) async {
+    emit(LoadingState<T>());
     try {
-      await repository.deleteVehicle(id);
-      emit(VehicleDeleted("Vehicle deleted successfully")); // ✅ Correct event
-      fetchVehicles();
+      await repository.delete(id);
+      emit(DeletedState("Item deleted successfully"));
+      fetchItems();
     } catch (e) {
-      emit(VehiclesError("Failed to delete vehicle"));
+      emit(ErrorState<T>("Failed to delete item"));
     }
   }
 }
