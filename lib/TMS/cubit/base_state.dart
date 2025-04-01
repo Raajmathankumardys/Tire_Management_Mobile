@@ -14,6 +14,11 @@ class ErrorState<T> extends BaseState<T> {
   ErrorState(this.message);
 }
 
+class ApiErrorState<T> extends BaseState<T> {
+  final String message;
+  ApiErrorState(this.message);
+}
+
 class AddedState<T> extends BaseState<T> {
   final String message;
   AddedState(this.message);

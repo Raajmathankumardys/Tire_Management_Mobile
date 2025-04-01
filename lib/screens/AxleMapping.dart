@@ -129,47 +129,77 @@ class _TirePressureScreenState extends State<TirePressureScreen> {
 
   void _showTireDialog(
       BuildContext context, String title, List<TireModel> tires) {
+    TextEditingController searchController = TextEditingController();
+    List<TireModel> filteredTires =
+        List.from(tires); // Define filteredTires outside
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Select a Tire for $title"),
-          content: Container(
-            height: 300.h,
-            width: 300.w,
-            child: ListView.builder(
-              itemCount: tires.length,
-              itemBuilder: (context, index) {
-                var tire = tires[index];
-                return ListTile(
-                  title: Text("${tire.brand} - ${tire.model}",
-                      style: TextStyle(fontSize: 14.sp)),
-                  subtitle: Text("Size: ${tire.size} | PSI: ${tire.psi}"),
-                  trailing: Icon(Icons.arrow_forward_ios,
-                      size: 16.sp, color: Colors.blue),
-                  onTap: () {
-                    setState(() {
-                      // Find index based on fixed positions
-
-                      if (tireMap.containsKey(title)) {
-                        int tireIndex = tireMap[title]!; // Guaranteed to exist
-
-                        selectedTires[tireIndex] = {
-                          "tireId": tire.id,
-                          "position": title,
-                        };
-
-                        tyre[tireIndex] = tire;
-                      }
-
-                      print(selectedTires);
-                      Navigator.pop(context);
-                    });
-                  },
-                );
-              },
-            ),
-          ),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text("Select a Tire for $title"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: searchController,
+                    decoration: InputDecoration(
+                      hintText: "Search by Serial No",
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        filteredTires = tires
+                            .where((tire) => tire.serialNo
+                                .toLowerCase()
+                                .contains(value.toLowerCase()))
+                            .toList();
+                      });
+                    },
+                  ),
+                  SizedBox(height: 5),
+                  Container(
+                    height: 300.h,
+                    width: 300.w,
+                    child: filteredTires.isEmpty
+                        ? Center(child: Text("No tires found"))
+                        : ListView.builder(
+                            itemCount: filteredTires.length,
+                            itemBuilder: (context, index) {
+                              var tire = filteredTires[index];
+                              return ListTile(
+                                title: Text("${tire.serialNo}",
+                                    style: TextStyle(fontSize: 14.sp)),
+                                subtitle: Text(
+                                    "Model: ${tire.model} | Brand: ${tire.brand}"),
+                                trailing: Icon(Icons.arrow_forward_ios,
+                                    size: 16.sp, color: Colors.blue),
+                                onTap: () {
+                                  if (tireMap.containsKey(title)) {
+                                    int tireIndex = tireMap[title]!;
+                                    selectedTires[tireIndex] = {
+                                      "tireId": tire.id,
+                                      "position": title,
+                                    };
+                                    tyre[tireIndex] = tire;
+                                  }
+                                  print(selectedTires);
+                                  if (context.mounted) {
+                                    Navigator.pop(context);
+                                  }
+                                  //Navigator.pop(context);
+                                },
+                              );
+                            },
+                          ),
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
     );

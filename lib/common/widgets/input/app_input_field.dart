@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:intl/intl.dart';
 
 class AppInputField extends StatelessWidget {
+  final String name;
   final String label;
   final String hint;
   final TextEditingController? controller;
@@ -12,13 +15,15 @@ class AppInputField extends StatelessWidget {
   final bool isDatePicker;
   final List<DropdownMenuItem<String>>? dropdownItems;
   final Function(String?)? onDropdownChanged;
-  final Function(DateTime)? onDateSelected;
+  final Function(DateTime?)? onDateSelected;
   final bool disabled;
   final Function(String?)? onInputChanged;
   final String? defaultValue;
+  final String? Function(String?)? validator;
 
   const AppInputField({
     super.key,
+    required this.name,
     required this.label,
     this.hint = "",
     this.controller,
@@ -33,6 +38,7 @@ class AppInputField extends StatelessWidget {
     this.disabled = false,
     this.onInputChanged,
     this.defaultValue,
+    this.validator,
   });
 
   @override
@@ -46,7 +52,7 @@ class AppInputField extends StatelessWidget {
 
     OutlineInputBorder borderStyle = OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
-      borderSide: BorderSide(color: borderColor!),
+      borderSide: BorderSide(color: borderColor),
     );
 
     return Column(
@@ -54,14 +60,20 @@ class AppInputField extends StatelessWidget {
       children: [
         Text(
           label,
-          /*style:
-              theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),*/
+          style:
+              theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 3),
         if (isDropdown && dropdownItems != null)
-          DropdownButtonFormField<String>(
-            items: dropdownItems,
-            onChanged: onDropdownChanged,
+          FormBuilderDropdown<String>(
+            name: name,
+            items: dropdownItems ?? [],
+            initialValue: defaultValue,
+            onChanged: (value) {
+              if (onDropdownChanged != null) {
+                onDropdownChanged!(value);
+              }
+            },
             decoration: InputDecoration(
               hintText: hint,
               border: borderStyle,
@@ -72,22 +84,28 @@ class AppInputField extends StatelessWidget {
               filled: true,
               fillColor: inputFillColor,
             ),
+            validator: (value) {
+              if (validator != null) {
+                return validator!(value);
+              }
+              if (value == null || value.isEmpty) {
+                return "Please select an option"; // ✅ Default validation
+              }
+              return null;
+            },
           )
         else if (isDatePicker)
-          TextFormField(
+          FormBuilderDateTimePicker(
+            name: name,
+            inputType: InputType.date,
             controller: controller,
-            readOnly: true,
-            onTap: () async {
-              DateTime? pickedDate = await showDatePicker(
-                context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2101),
-              );
-              if (pickedDate != null && onDateSelected != null) {
-                onDateSelected!(pickedDate);
-              }
-            },
+            format: DateFormat("dd-MM-yyyy"),
+            initialValue: controller?.text.isNotEmpty == true
+                ? DateFormat("dd-MM-yyyy").parse(controller!.text)
+                : null, // Ensure date is populated when editing// Ensure intl package is imported
+            firstDate: DateTime(2000),
+            lastDate: DateTime(2101),
+            onChanged: onDateSelected,
             decoration: InputDecoration(
               hintText: hint,
               suffixIcon: const Icon(Icons.calendar_today),
@@ -99,17 +117,24 @@ class AppInputField extends StatelessWidget {
               filled: true,
               fillColor: inputFillColor,
             ),
+            validator: (DateTime? value) {
+              // Accepts DateTime
+              if (value == null) {
+                return "Please select a date";
+              }
+              return null;
+            },
           )
         else
-          TextFormField(
-            style: theme.textTheme.bodyMedium,
+          FormBuilderTextField(
+            name: name,
             controller: controller,
             keyboardType: keyboardType,
             inputFormatters: inputFormatters,
             maxLines: isMultiline ? null : 1,
             onChanged: onInputChanged,
-            readOnly: disabled,
-            initialValue: defaultValue ?? "",
+            enabled: !disabled,
+            initialValue: defaultValue,
             decoration: InputDecoration(
               hintText: hint,
               hintStyle:
@@ -123,12 +148,13 @@ class AppInputField extends StatelessWidget {
               filled: true,
               fillColor: inputFillColor,
             ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return "Please fill this field";
-              }
-              return null;
-            },
+            validator: validator ??
+                (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please fill this field";
+                  }
+                  return null;
+                },
           ),
         const SizedBox(height: 20),
       ],

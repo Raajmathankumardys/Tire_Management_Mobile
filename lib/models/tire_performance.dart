@@ -1,8 +1,5 @@
-import 'package:yaantrac_app/models/tire.dart';
-
 class TirePerformanceModel {
-  final int? id;
-  final TireModel? tire;
+  final int? tireId;
   final double pressure;
   final double temperature;
   final double wear;
@@ -10,8 +7,7 @@ class TirePerformanceModel {
   final double treadDepth;
 
   TirePerformanceModel(
-      {this.id,
-      required this.tire,
+      {this.tireId,
       required this.pressure,
       required this.temperature,
       required this.wear,
@@ -20,8 +16,7 @@ class TirePerformanceModel {
 
   factory TirePerformanceModel.fromJson(Map<String, dynamic> json) {
     return TirePerformanceModel(
-        id: json["id"],
-        tire: TireModel.fromJson(json["tire"]),
+        tireId: json["tireId"],
         pressure: json["pressure"],
         temperature: json["temperature"],
         wear: json["wear"],
@@ -30,8 +25,7 @@ class TirePerformanceModel {
   }
   Map<String, dynamic> toJson() {
     return {
-      "id": id,
-      "tire": tire,
+      "tireId": tireId,
       "pressure": pressure,
       "wear": wear,
       "distanceTraveled": distanceTraveled,

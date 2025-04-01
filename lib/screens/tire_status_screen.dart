@@ -123,6 +123,7 @@ class _TireStatusScreenState extends State<TireStatusScreen> {
                                   child: Column(
                                     children: [
                                       AppInputField(
+                                        name: 'number_field',
                                         label: "Pressure",
                                         hint: "Enter pressure",
                                         keyboardType: TextInputType.number,
@@ -131,6 +132,7 @@ class _TireStatusScreenState extends State<TireStatusScreen> {
                                             pressure = double.parse(value!),
                                       ),
                                       AppInputField(
+                                        name: 'number_field',
                                         label: "Temperature",
                                         hint: "Enter temperature",
                                         keyboardType: TextInputType.number,
@@ -139,6 +141,7 @@ class _TireStatusScreenState extends State<TireStatusScreen> {
                                             temperature = double.parse(value!),
                                       ),
                                       AppInputField(
+                                        name: 'number_field',
                                         label: "Wear",
                                         hint: "Enter wear",
                                         keyboardType: TextInputType.number,
@@ -147,6 +150,7 @@ class _TireStatusScreenState extends State<TireStatusScreen> {
                                             wear = double.parse(value!),
                                       ),
                                       AppInputField(
+                                        name: 'number_field',
                                         label: "Distance Travelled",
                                         hint: "Enter distance travelled",
                                         keyboardType: TextInputType.number,
@@ -157,6 +161,7 @@ class _TireStatusScreenState extends State<TireStatusScreen> {
                                                 double.parse(value!),
                                       ),
                                       AppInputField(
+                                        name: 'number_field',
                                         label: "Tread Depth",
                                         hint: "Enter tread depth",
                                         keyboardType: TextInputType.number,
@@ -190,19 +195,21 @@ class _TireStatusScreenState extends State<TireStatusScreen> {
                                                             setState(() =>
                                                                 isLoading =
                                                                     true);
-                                                            final tirep = TirePerformanceModel(
-                                                                id: null,
-                                                                tire:
-                                                                    widget.tire,
-                                                                pressure:
-                                                                    pressure,
-                                                                temperature:
-                                                                    temperature,
-                                                                wear: wear,
-                                                                distanceTraveled:
-                                                                    distanctravelled,
-                                                                treadDepth:
-                                                                    treadDepth);
+                                                            final tirep =
+                                                                TirePerformanceModel(
+                                                                    tireId:
+                                                                        null,
+                                                                    // tire:
+                                                                    //     widget.tire,
+                                                                    pressure:
+                                                                        pressure,
+                                                                    temperature:
+                                                                        temperature,
+                                                                    wear: wear,
+                                                                    distanceTraveled:
+                                                                        distanctravelled,
+                                                                    treadDepth:
+                                                                        treadDepth);
                                                             try {
                                                               final response =
                                                                   await APIService

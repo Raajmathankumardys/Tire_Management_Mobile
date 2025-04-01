@@ -86,276 +86,257 @@ class _tireexpensescreenState extends State<tireexpensescreen> {
         builder: (
           context,
         ) {
-          return DraggableScrollableSheet(
-            initialChildSize: 0.40.h, // Starts at of screen height
-            minChildSize: 0.3.h, // Minimum height
-            maxChildSize: 0.50.h, // Maximum height
-            expand: false,
-            builder: (context, scrollController) {
-              return StatefulBuilder(builder: (context, setState) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(35.r)),
-                  ),
-                  child: Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        bottom: MediaQuery.of(context).viewInsets.bottom + 12.h,
-                      ),
-                      child: SingleChildScrollView(
-                        controller:
-                            scrollController, // Attach the scroll controller
-                        child: Form(
-                          key: _formKey,
+          return StatefulBuilder(builder: (context, setState) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(35.r)),
+              ),
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 12.h,
+                ),
+                child: SingleChildScrollView(
+                  scrollDirection:
+                      Axis.vertical, // Attach the scroll controller
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          height: 40.h,
+                          decoration: BoxDecoration(
+                            color: AppColors
+                                .secondaryColor, // Adjust color as needed
+                            borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(15.r)),
+                          ),
                           child: Column(
-                            mainAxisSize: MainAxisSize.min,
                             children: [
+                              SizedBox(height: 5.h),
                               Container(
-                                width: double.infinity,
-                                height: 50.h,
+                                width: 80.w,
+                                height: 5.h,
+                                padding: EdgeInsets.all(12.h),
                                 decoration: BoxDecoration(
-                                  color: AppColors
-                                      .secondaryColor, // Adjust color as needed
-                                  borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(15.r)),
-                                ),
-                                child: Column(
-                                  children: [
-                                    SizedBox(height: 5.h),
-                                    Container(
-                                      width: 80.w,
-                                      height: 5.h,
-                                      padding: EdgeInsets.all(12.h),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius:
-                                            BorderRadius.circular(20.h),
-                                      ),
-                                    ),
-                                    SizedBox(height: 8.h),
-                                    Text(
-                                      tire == null
-                                          ? "Add Tire Expense"
-                                          : "Edit Tire Expense",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16.h,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
                                 ),
                               ),
-                              Padding(
-                                  padding: EdgeInsets.only(
-                                    left: 12.w,
-                                    right: 12.w,
-                                    bottom: MediaQuery.of(context)
-                                            .viewInsets
-                                            .bottom +
-                                        12.h,
-                                    top: 12.h,
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      AppInputField(
-                                        label: "Tire",
-                                        isDropdown: true,
-                                        hint: tires
-                                                .firstWhere(
-                                                  (t) => t["id"] == tireId,
-                                                  orElse: () =>
-                                                      {'serialNo': ''},
-                                                )["serialNo"]
-                                                ?.toString() ??
-                                            '',
-
-                                        defaultValue: tires
-                                            .firstWhere(
-                                              (t) => t["id"] == tireId,
-                                              orElse: () =>
-                                                  {'id': '', 'serialNo': ''},
-                                            )["id"]
-                                            .toString(), // Ensure defaultValue matches the dropdown value format
-
-                                        dropdownItems: tires.map((t) {
-                                          return DropdownMenuItem<String>(
-                                            value: t["id"]
-                                                .toString(), // Ensure value is String
-                                            child: Text(
-                                                t["serialNo"]?.toString() ??
-                                                    ''), // Null safety
-                                          );
-                                        }).toList(),
-
-                                        onDropdownChanged: (value) {
-                                          if (value != null) {
-                                            setState(() {
-                                              tireId = int.tryParse(value) ??
-                                                  0; // Ensure proper type conversion
-                                            });
-                                          }
-                                        },
-                                      ),
-                                      AppInputField(
-                                        label: "Cost",
-                                        hint: "Enter cost",
-                                        keyboardType: TextInputType.number,
-                                        defaultValue: cost.toString(),
-                                        onInputChanged: (value) =>
-                                            cost = double.parse(value!),
-                                      ),
-                                      AppInputField(
-                                        label: "Expense Type",
-                                        hint: "Enter expense type",
-                                        defaultValue: expensetype.toString(),
-                                        onInputChanged: (value) =>
-                                            expensetype = value ?? '',
-                                      ),
-                                      AppInputField(
-                                          label: "Expense Date",
-                                          isDatePicker: true,
-                                          controller: _expensedate,
-                                          onDateSelected: (date) {
-                                            setState(() {
-                                              expensedate = date;
-                                              _expensedate.text = _formatDate(
-                                                  date); // Update text in field
-                                            });
-                                          }),
-                                      AppInputField(
-                                        label: "Notes",
-                                        hint: "Enter notes",
-                                        defaultValue: notes.toString(),
-                                        onInputChanged: (value) =>
-                                            notes = value ?? '',
-                                      ),
-                                      isLoading
-                                          ? const CircularProgressIndicator()
-                                          : Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              children: [
-                                                Expanded(
-                                                    child: AppPrimaryButton(
-                                                        onPressed: () {
-                                                          Navigator.pop(
-                                                              context);
-                                                        },
-                                                        title: "Cancel")),
-                                                SizedBox(
-                                                  width: 10.h,
-                                                ),
-                                                Expanded(
-                                                    child: AppPrimaryButton(
-                                                        width: 130.h,
-                                                        onPressed: () async {
-                                                          if (_formKey
-                                                              .currentState!
-                                                              .validate()) {
-                                                            setState(() =>
-                                                                isLoading =
-                                                                    true);
-                                                            final tirep = Tireexpense(
-                                                                id: null,
-                                                                maintenanceId:
-                                                                    null,
-                                                                cost: cost,
-                                                                expenseDate:
-                                                                    expensedate,
-                                                                expenseType:
-                                                                    expensetype,
-                                                                notes: notes,
-                                                                tireId: tireId);
-                                                            print(
-                                                                tirep.toJson());
-                                                            try {
-                                                              final response =
-                                                                  await APIService
-                                                                      .instance
-                                                                      .request(
-                                                                tire == null
-                                                                    ? "https://yaantrac-backend.onrender.com/api/tire-expenses"
-                                                                    : "https://yaantrac-backend.onrender.com/api/tire-expenses/${tire.id}",
-                                                                tire == null
-                                                                    ? DioMethod
-                                                                        .post
-                                                                    : DioMethod
-                                                                        .put,
-                                                                formData: tirep
-                                                                    .toJson(),
-                                                                contentType:
-                                                                    "application/json",
-                                                              );
-                                                              if (response
-                                                                      .statusCode ==
-                                                                  200) {
-                                                                ToastHelper.showCustomToast(
-                                                                    context,
-                                                                    "Tire Expense added successfully",
-                                                                    Colors
-                                                                        .green,
-                                                                    Icons.add);
-
-                                                                Navigator.of(context).pushAndRemoveUntil(
-                                                                    MaterialPageRoute(
-                                                                        builder:
-                                                                            (context) =>
-                                                                                tireexpensescreen()),
-                                                                    (route) =>
-                                                                        false);
-                                                              } else {
-                                                                ToastHelper.showCustomToast(
-                                                                    context,
-                                                                    "Failed to process request",
-                                                                    Colors
-                                                                        .green,
-                                                                    Icons.add);
-                                                              }
-                                                            } catch (err) {
-                                                              ToastHelper
-                                                                  .showCustomToast(
-                                                                      context,
-                                                                      "Error: $err",
-                                                                      Colors
-                                                                          .red,
-                                                                      Icons
-                                                                          .error);
-                                                            } finally {
-                                                              ToastHelper
-                                                                  .showCustomToast(
-                                                                      context,
-                                                                      "Network error Please try again.",
-                                                                      Colors
-                                                                          .red,
-                                                                      Icons
-                                                                          .error);
-                                                              if (mounted)
-                                                                setState(() =>
-                                                                    isLoading =
-                                                                        false);
-                                                            }
-                                                          }
-                                                        },
-                                                        title: tire == null
-                                                            ? "Add"
-                                                            : "Update"))
-                                              ],
-                                            ),
-                                    ],
-                                  ))
+                              SizedBox(height: 5.h),
+                              Text(
+                                tire == null
+                                    ? "Add Tire Expense"
+                                    : "Edit Tire Expense",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10.h,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                             ],
                           ),
                         ),
-                      ),
+                        Padding(
+                            padding: EdgeInsets.only(
+                              left: 12.w,
+                              right: 12.w,
+                              bottom: MediaQuery.of(context).viewInsets.bottom +
+                                  12.h,
+                              top: 12.h,
+                            ),
+                            child: Column(
+                              children: [
+                                AppInputField(
+                                  name: 'text_field',
+                                  label: "Tire",
+                                  isDropdown: true,
+                                  hint: tires
+                                          .firstWhere(
+                                            (t) => t["id"] == tireId,
+                                            orElse: () => {'serialNo': ''},
+                                          )["serialNo"]
+                                          ?.toString() ??
+                                      '',
+
+                                  defaultValue: tires
+                                      .firstWhere(
+                                        (t) => t["id"] == tireId,
+                                        orElse: () =>
+                                            {'id': '', 'serialNo': ''},
+                                      )["id"]
+                                      .toString(), // Ensure defaultValue matches the dropdown value format
+
+                                  dropdownItems: tires.map((t) {
+                                    return DropdownMenuItem<String>(
+                                      value: t["id"]
+                                          .toString(), // Ensure value is String
+                                      child: Text(t["serialNo"]?.toString() ??
+                                          ''), // Null safety
+                                    );
+                                  }).toList(),
+
+                                  onDropdownChanged: (value) {
+                                    if (value != null) {
+                                      setState(() {
+                                        tireId = int.tryParse(value) ??
+                                            0; // Ensure proper type conversion
+                                      });
+                                    }
+                                  },
+                                ),
+                                AppInputField(
+                                  name: 'number_field',
+                                  label: "Cost",
+                                  hint: "Enter cost",
+                                  keyboardType: TextInputType.number,
+                                  defaultValue: cost.toString(),
+                                  onInputChanged: (value) =>
+                                      cost = double.parse(value!),
+                                ),
+                                AppInputField(
+                                  name: 'text_field',
+                                  label: "Expense Type",
+                                  hint: "Enter expense type",
+                                  defaultValue: expensetype.toString(),
+                                  onInputChanged: (value) =>
+                                      expensetype = value ?? '',
+                                ),
+                                AppInputField(
+                                    name: 'date_field',
+                                    label: "Expense Date",
+                                    isDatePicker: true,
+                                    controller: _expensedate,
+                                    onDateSelected: (date) {
+                                      setState(() {
+                                        expensedate = date!;
+                                        _expensedate.text = _formatDate(
+                                            date); // Update text in field
+                                      });
+                                    }),
+                                AppInputField(
+                                  name: 'text_field',
+                                  label: "Notes",
+                                  hint: "Enter notes",
+                                  defaultValue: notes.toString(),
+                                  onInputChanged: (value) =>
+                                      notes = value ?? '',
+                                ),
+                                SizedBox(
+                                  height: 8.h,
+                                ),
+                                isLoading
+                                    ? const CircularProgressIndicator()
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Expanded(
+                                              child: AppPrimaryButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  title: "Cancel")),
+                                          SizedBox(
+                                            width: 4.h,
+                                          ),
+                                          Expanded(
+                                              child: AppPrimaryButton(
+                                                  width: 130.h,
+                                                  onPressed: () async {
+                                                    if (_formKey.currentState!
+                                                        .validate()) {
+                                                      setState(() =>
+                                                          isLoading = true);
+                                                      final tirep = Tireexpense(
+                                                          id: null,
+                                                          maintenanceId: null,
+                                                          cost: cost,
+                                                          expenseDate:
+                                                              expensedate,
+                                                          expenseType:
+                                                              expensetype,
+                                                          notes: notes,
+                                                          tireId: tireId);
+                                                      print(tirep.toJson());
+                                                      try {
+                                                        final response =
+                                                            await APIService
+                                                                .instance
+                                                                .request(
+                                                          tire == null
+                                                              ? "https://yaantrac-backend.onrender.com/api/tire-expenses"
+                                                              : "https://yaantrac-backend.onrender.com/api/tire-expenses/${tire.id}",
+                                                          tire == null
+                                                              ? DioMethod.post
+                                                              : DioMethod.put,
+                                                          formData:
+                                                              tirep.toJson(),
+                                                          contentType:
+                                                              "application/json",
+                                                        );
+                                                        if (response
+                                                                .statusCode ==
+                                                            200) {
+                                                          ToastHelper
+                                                              .showCustomToast(
+                                                                  context,
+                                                                  "Tire Expense added successfully",
+                                                                  Colors.green,
+                                                                  Icons.add);
+
+                                                          Navigator.of(context)
+                                                              .pushAndRemoveUntil(
+                                                                  MaterialPageRoute(
+                                                                      builder:
+                                                                          (context) =>
+                                                                              tireexpensescreen()),
+                                                                  (route) =>
+                                                                      false);
+                                                        } else {
+                                                          ToastHelper
+                                                              .showCustomToast(
+                                                                  context,
+                                                                  "Failed to process request",
+                                                                  Colors.green,
+                                                                  Icons.add);
+                                                        }
+                                                      } catch (err) {
+                                                        ToastHelper
+                                                            .showCustomToast(
+                                                                context,
+                                                                "Error: $err",
+                                                                Colors.red,
+                                                                Icons.error);
+                                                      } finally {
+                                                        ToastHelper.showCustomToast(
+                                                            context,
+                                                            "Network error Please try again.",
+                                                            Colors.red,
+                                                            Icons.error);
+                                                        if (mounted)
+                                                          setState(() =>
+                                                              isLoading =
+                                                                  false);
+                                                      }
+                                                    }
+                                                  },
+                                                  title: tire == null
+                                                      ? "Add"
+                                                      : "Update"))
+                                        ],
+                                      ),
+                              ],
+                            ))
+                      ],
                     ),
                   ),
-                );
-              });
-            },
-          );
+                ),
+              ),
+            );
+          });
         });
   }
 
@@ -555,7 +536,7 @@ class _tireexpensescreenState extends State<tireexpensescreen> {
                             size: 30.h,
                           ),
                           title: Text(
-                            tire.maintenanceId.toString(),
+                            tire.expenseType.toString(),
                             style: TextStyle(
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.bold,
@@ -566,10 +547,6 @@ class _tireexpensescreenState extends State<tireexpensescreen> {
                             children: [
                               Text(
                                   "Expense Date: ${_formatDate(tire.expenseDate)}",
-                                  style: TextStyle(
-                                      color: Colors.grey[400],
-                                      fontSize: 10.sp)),
-                              Text("Expense Type: ${tire.expenseType}",
                                   style: TextStyle(
                                       color: Colors.grey[400],
                                       fontSize: 10.sp)),

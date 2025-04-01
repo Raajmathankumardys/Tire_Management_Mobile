@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:yaantrac_app/models/tire_performance.dart';
 
 class LineChartWidget extends StatelessWidget {
-  const LineChartWidget(List<TirePerformanceModel> list, {super.key});
+  const LineChartWidget(List<TirePerformanceModel> list,
+      {super.key, required List<TirePerformanceModel> tirePerformances});
 
   @override
   Widget build(BuildContext context) {

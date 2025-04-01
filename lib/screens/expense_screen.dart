@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:yaantrac_app/config/themes/app_colors.dart';
@@ -10,7 +11,9 @@ import 'package:yaantrac_app/trash/add_expense_screen.dart';
 import 'package:yaantrac_app/trash/add_income_screen.dart';
 import 'package:yaantrac_app/screens/trip_list_page.dart';
 import 'package:yaantrac_app/services/api_service.dart';
+import 'package:yaantrac_app/TMS/presentation/screen/trip_list_screen.dart';
 
+import '../TMS/cubit/base_cubit.dart';
 import '../common/widgets/Toast/Toast.dart';
 import '../common/widgets/button/action_button.dart';
 import '../common/widgets/button/app_primary_button.dart';
@@ -18,6 +21,8 @@ import '../common/widgets/input/app_input_field.dart';
 import '../models/trip.dart';
 import '../models/trip_summary.dart';
 import '../trash/expense_list_screen.dart';
+import '../TMS/repository/base_repository.dart';
+import '../TMS/service/base_service.dart';
 
 class TripViewPage extends StatefulWidget {
   final int tripId;
@@ -156,6 +161,7 @@ class _TripViewPageState extends State<TripViewPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   AppInputField(
+                                    name: 'dropdown_field',
                                     label: "Expense Type",
                                     isDropdown: true, hint: cat,
                                     defaultValue: selectedExpenseType
@@ -192,6 +198,7 @@ class _TripViewPageState extends State<TripViewPage> {
                                     },
                                   ),
                                   AppInputField(
+                                    name: 'number_field',
                                     label: "Amount",
                                     hint: "Enter Amount",
                                     defaultValue: _amount.toString(),
@@ -206,19 +213,21 @@ class _TripViewPageState extends State<TripViewPage> {
                                     },
                                   ),
                                   AppInputField(
+                                    name: 'date_field',
                                     label: "Date",
                                     isDatePicker: true,
                                     controller:
                                         _dateController, // Show only date
                                     onDateSelected: (date) {
                                       setState(() {
-                                        _expenseDate = date;
+                                        _expenseDate = date!;
                                         _dateController.text = _formatDate(
                                             date); // Update text in field
                                       });
                                     },
                                   ),
                                   AppInputField(
+                                    name: 'text_field',
                                     label: "Description",
                                     hint: "Enter Description",
                                     defaultValue: _description,
@@ -449,6 +458,7 @@ class _TripViewPageState extends State<TripViewPage> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     AppInputField(
+                                      name: 'number_field',
                                       label: "Amount",
                                       hint: "Enter Amount",
                                       keyboardType: TextInputType.number,
@@ -464,13 +474,14 @@ class _TripViewPageState extends State<TripViewPage> {
                                     ),
                                     SizedBox(height: 5.h),
                                     AppInputField(
+                                      name: 'date_field',
                                       label: "Date",
                                       isDatePicker: true,
                                       controller:
                                           _dateController, // Use the controller instead of defaultValue
                                       onDateSelected: (date) {
                                         setState(() {
-                                          _incomeDate = date;
+                                          _incomeDate = date!;
                                           _dateController.text = _formatDate(
                                               date); // Update text in field
                                         });
@@ -478,6 +489,7 @@ class _TripViewPageState extends State<TripViewPage> {
                                     ),
                                     SizedBox(height: 5.h),
                                     AppInputField(
+                                      name: 'text_field',
                                       label: "Description",
                                       hint: "Enter Description",
                                       keyboardType: TextInputType.multiline,
@@ -687,11 +699,22 @@ class _TripViewPageState extends State<TripViewPage> {
               icon: const Icon(Icons.arrow_back_ios),
               onPressed: () {
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => TripListScreen(
-                            vehicleid: widget.vehicleId ??
-                                0))); // Go back to the previous page
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider(
+                      create: (context) => BaseCubit<Trip>(
+                        BaseRepository<Trip>(
+                          BaseService<Trip>(
+                            baseUrl: "/vehicles/${widget.vehicleId}/trips",
+                            fromJson: Trip.fromJson,
+                            toJson: (trip) => trip.toJson(),
+                          ),
+                        ),
+                      )..fetchItems(),
+                      child: tripslistscreen(vehicleid: widget.vehicleId ?? 0),
+                    ),
+                  ),
+                );
               },
             ),
             bottom: const TabBar(
