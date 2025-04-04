@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../common/widgets/Toast/Toast.dart';
 import '../models/tire.dart';
 import '../services/api_service.dart';
 
@@ -86,7 +87,7 @@ class _TirePressureScreenState extends State<TirePressureScreen> {
   }
 
   Future<void> _showTireSelectionDialog(
-      BuildContext context, String title, int index) async {
+      BuildContext ctx, String title, int index) async {
     final Dio dio = Dio();
 
     try {
@@ -127,82 +128,98 @@ class _TirePressureScreenState extends State<TirePressureScreen> {
     }
   }
 
-  void _showTireDialog(
-      BuildContext context, String title, List<TireModel> tires) {
+  Future<void> _showTireDialog(
+      BuildContext ctx, String title, List<TireModel> tires) async {
     TextEditingController searchController = TextEditingController();
-    List<TireModel> filteredTires =
-        List.from(tires); // Define filteredTires outside
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: Text("Select a Tire for $title"),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: searchController,
-                    decoration: InputDecoration(
-                      hintText: "Search by Serial No",
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(),
+    List<TireModel> filteredTires = List.from(tires);
+    try {
+      if (!ctx.mounted) return; // Define filteredTires outside
+      await showDialog(
+        context: ctx,
+        builder: (BuildContext dialogContext) {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                title: Text("Select a Tire for $title"),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: searchController,
+                      decoration: InputDecoration(
+                        hintText: "Search by Serial No",
+                        prefixIcon: Icon(Icons.search),
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          filteredTires = tires
+                              .where((tire) => tire.serialNo
+                                  .toLowerCase()
+                                  .contains(value.toLowerCase()))
+                              .toList();
+                        });
+                      },
                     ),
-                    onChanged: (value) {
-                      setState(() {
-                        filteredTires = tires
-                            .where((tire) => tire.serialNo
-                                .toLowerCase()
-                                .contains(value.toLowerCase()))
-                            .toList();
-                      });
-                    },
-                  ),
-                  SizedBox(height: 5),
-                  Container(
-                    height: 300.h,
-                    width: 300.w,
-                    child: filteredTires.isEmpty
-                        ? Center(child: Text("No tires found"))
-                        : ListView.builder(
-                            itemCount: filteredTires.length,
-                            itemBuilder: (context, index) {
-                              var tire = filteredTires[index];
-                              return ListTile(
-                                title: Text("${tire.serialNo}",
-                                    style: TextStyle(fontSize: 14.sp)),
-                                subtitle: Text(
-                                    "Model: ${tire.model} | Brand: ${tire.brand}"),
-                                trailing: Icon(Icons.arrow_forward_ios,
-                                    size: 16.sp, color: Colors.blue),
-                                onTap: () {
-                                  if (tireMap.containsKey(title)) {
-                                    int tireIndex = tireMap[title]!;
-                                    selectedTires[tireIndex] = {
-                                      "tireId": tire.id,
-                                      "position": title,
-                                    };
-                                    tyre[tireIndex] = tire;
-                                  }
-                                  print(selectedTires);
-                                  if (context.mounted) {
-                                    Navigator.pop(context);
-                                  }
-                                  //Navigator.pop(context);
-                                },
-                              );
-                            },
-                          ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
+                    SizedBox(height: 5),
+                    Container(
+                      height: 300.h,
+                      width: 300.w,
+                      child: filteredTires.isEmpty
+                          ? Center(child: Text("No tires found"))
+                          : ListView.builder(
+                              itemCount: filteredTires.length,
+                              itemBuilder: (context, index) {
+                                var tire = filteredTires[index];
+                                return ListTile(
+                                  title: Text("${tire.serialNo}",
+                                      style: TextStyle(fontSize: 14.sp)),
+                                  subtitle: Text(
+                                      "Model: ${tire.model} | Brand: ${tire.brand}"),
+                                  trailing: Icon(Icons.arrow_forward_ios,
+                                      size: 16.sp, color: Colors.blue),
+                                  onTap: () {
+                                    if (tireMap.containsKey(title)) {
+                                      setState(() {
+                                        int tireIndex = tireMap[title]!;
+                                        selectedTires[tireIndex] = {
+                                          "tireId": tire.id,
+                                          "position": title,
+                                        };
+                                        tyre[tireIndex] = tire;
+                                      });
+                                    }
+                                    print(selectedTires);
+                                    if (dialogContext.mounted) {
+                                      Navigator.pop(dialogContext);
+                                    }
+                                    //Navigator.pop(context);
+                                  },
+                                );
+                              },
+                            ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      );
+      if (ctx.mounted) {
+        (ctx as Element).markNeedsBuild();
+      } else {
+        if (ctx.mounted) {
+          ToastHelper.showCustomToast(
+              ctx, "Failed to fetch tire data", Colors.red, Icons.error);
+        }
+      }
+    } catch (e) {
+      if (ctx.mounted) {
+        ToastHelper.showCustomToast(
+            ctx, "Error fetching tires: $e", Colors.red, Icons.error);
+      }
+    }
   }
 
   void _submitTires() {
@@ -228,72 +245,171 @@ class _TirePressureScreenState extends State<TirePressureScreen> {
       backgroundColor: Colors.white,
       body: LayoutBuilder(
         builder: (context, constraints) {
-          return Stack(
-            alignment: Alignment.center,
-            children: [
-              /// Car Image in the Center
-              Positioned(
-                height: constraints.maxHeight * 0.3,
-                width: constraints.maxWidth * 0.6,
-                child: SvgPicture.asset("lib/assets/images/cars.svg",
-                    fit: BoxFit.contain),
-              ),
-              Positioned(
-                bottom: 10.h,
-                child: ElevatedButton(
-                  onPressed: _submitTires,
-                  style: ElevatedButton.styleFrom(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                    backgroundColor: Colors.blue,
-                  ),
-                  child: Text("Submit Tires"),
-                ),
-              ),
-              _buildTireIcon(constraints,
-                  left: 0.35, top: 0.45, color: Color(0xff25fd03)),
-              _buildTireIcon(constraints,
-                  left: 0.35, top: 0.55, color: Color(0xff25fd03)),
-              _buildTireIcon(constraints,
-                  left: 0.6, top: 0.45, color: Color(0xff25fd03)),
-              _buildTireIcon(constraints,
-                  left: 0.6, top: 0.55, color: Color(0xfffd3003)),
+          return (false)
+              ? Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    /// Car Image in the Center
+                    Positioned(
+                      height: constraints.maxHeight * 0.3,
+                      width: constraints.maxWidth * 0.6,
+                      child: SvgPicture.asset("lib/assets/images/cars.svg",
+                          fit: BoxFit.contain),
+                    ),
+                    Positioned(
+                      bottom: 10.h,
+                      child: ElevatedButton(
+                        onPressed: _submitTires,
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10.w, vertical: 10.h),
+                          backgroundColor: Colors.blue,
+                        ),
+                        child: Text("Submit Tires"),
+                      ),
+                    ),
+                    _buildTireIcon(constraints,
+                        left: 0.35, top: 0.45, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.35, top: 0.55, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.6, top: 0.45, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.6, top: 0.55, color: Color(0xfffd3003)),
 
-              /// Tire Info Boxes (Dynamically Updated)
-              _buildTireInfoBox(
-                constraints,
-                right: 0.6,
-                top: 0.05,
-                title: selectedTires[0]['position'],
-                tire: tyre[0],
-                onTap: () => _showTireSelectionDialog(context, "FL1", 0),
-              ),
-              _buildTireInfoBox(
-                constraints,
-                right: 0.05,
-                top: 0.05,
-                title: selectedTires[1]['position'],
-                tire: tyre[1],
-                onTap: () => _showTireSelectionDialog(context, "FR1", 1),
-              ),
-              _buildTireInfoBox(
-                constraints,
-                right: 0.6,
-                top: 0.70,
-                title: selectedTires[2]['position'],
-                tire: tyre[2],
-                onTap: () => _showTireSelectionDialog(context, "RL1", 2),
-              ),
-              _buildTireInfoBox(
-                constraints,
-                right: 0.05,
-                top: 0.70,
-                title: selectedTires[3]['position'],
-                tire: tyre[3],
-                onTap: () => _showTireSelectionDialog(context, "RR1", 3),
-              ),
-            ],
-          );
+                    /// Tire Info Boxes (Dynamically Updated)
+                    _buildTireInfoBox(
+                      constraints,
+                      right: 0.6,
+                      top: 0.05,
+                      title: selectedTires[0]['position'],
+                      tire: tyre[0],
+                      onTap: () => _showTireSelectionDialog(context, "FL1", 0),
+                    ),
+                    _buildTireInfoBox(
+                      constraints,
+                      right: 0.05,
+                      top: 0.05,
+                      title: selectedTires[1]['position'],
+                      tire: tyre[1],
+                      onTap: () => _showTireSelectionDialog(context, "FR1", 1),
+                    ),
+                    _buildTireInfoBox(
+                      constraints,
+                      right: 0.6,
+                      top: 0.70,
+                      title: selectedTires[2]['position'],
+                      tire: tyre[2],
+                      onTap: () => _showTireSelectionDialog(context, "RL1", 2),
+                    ),
+                    _buildTireInfoBox(
+                      constraints,
+                      right: 0.05,
+                      top: 0.70,
+                      title: selectedTires[3]['position'],
+                      tire: tyre[3],
+                      onTap: () => _showTireSelectionDialog(context, "RR1", 3),
+                    ),
+                  ],
+                )
+              : Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    /// Car Image in the Center
+                    Positioned(
+                      height: constraints.maxHeight * 0.8,
+                      width: constraints.maxWidth * 0.3,
+                      child: SvgPicture.asset("lib/assets/images/trailer.svg",
+                          fit: BoxFit.contain),
+                    ),
+                    Positioned(
+                      bottom: 10.h,
+                      child: ElevatedButton(
+                        onPressed: _submitTires,
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10.w, vertical: 10.h),
+                          backgroundColor: Colors.blue,
+                        ),
+                        child: Text("Submit Tires"),
+                      ),
+                    ),
+                    _buildTireIcon(constraints,
+                        left: 0.35, top: 0.28, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.35, top: 0.72, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.35, top: 0.35, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.6, top: 0.35, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.31, top: 0.35, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.64, top: 0.35, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.27, top: 0.35, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.68, top: 0.35, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.23, top: 0.35, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.72, top: 0.35, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.35, top: 0.42, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.6, top: 0.42, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.35, top: 0.49, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.6, top: 0.49, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.35, top: 0.56, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.6, top: 0.56, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.35, top: 0.63, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.6, top: 0.63, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.6, top: 0.28, color: Color(0xff25fd03)),
+                    _buildTireIcon(constraints,
+                        left: 0.6, top: 0.72, color: Color(0xfffd3003)),
+
+                    /// Tire Info Boxes (Dynamically Updated)
+                    _buildTireInfoBox(
+                      constraints,
+                      right: 0.6,
+                      top: 0.05,
+                      title: selectedTires[0]['position'],
+                      tire: tyre[0],
+                      onTap: () => _showTireSelectionDialog(context, "FL1", 0),
+                    ),
+                    _buildTireInfoBox(
+                      constraints,
+                      right: 0.05,
+                      top: 0.05,
+                      title: selectedTires[1]['position'],
+                      tire: tyre[1],
+                      onTap: () => _showTireSelectionDialog(context, "FR1", 1),
+                    ),
+                    _buildTireInfoBox(
+                      constraints,
+                      right: 0.6,
+                      top: 0.80,
+                      title: selectedTires[2]['position'],
+                      tire: tyre[2],
+                      onTap: () => _showTireSelectionDialog(context, "RL1", 2),
+                    ),
+                    _buildTireInfoBox(
+                      constraints,
+                      right: 0.05,
+                      top: 0.80,
+                      title: selectedTires[3]['position'],
+                      tire: tyre[3],
+                      onTap: () => _showTireSelectionDialog(context, "RR1", 3),
+                    ),
+                  ],
+                );
         },
       ),
     );
@@ -356,7 +472,7 @@ class _TirePressureScreenState extends State<TirePressureScreen> {
                   children: [
                     Icon(Icons.directions_car, size: 14.sp, color: Colors.blue),
                     SizedBox(width: 2.w),
-                    Expanded(
+                    Container(
                       child: Text(
                         "${tire.brand} - ${tire.model}",
                         style: TextStyle(

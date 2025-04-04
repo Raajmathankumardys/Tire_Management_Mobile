@@ -3,43 +3,53 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+import 'package:yaantrac_app/TMS/Tire-Category/presentation/screen/tire_category_screen.dart';
+import 'package:yaantrac_app/TMS/Tire-Expense/presentation/screen/tire_expense_screen.dart';
+import 'package:yaantrac_app/TMS/Tire-Performance/presentation/screen/tire_performance_screen.dart';
 import 'package:yaantrac_app/TMS/presentation/screen/tire_performance.dart';
-import 'package:yaantrac_app/TMS/presentation/screen/tireexpense_screen.dart';
 import 'package:yaantrac_app/TMS/presentation/widget/shimmer.dart';
 import 'package:yaantrac_app/common/widgets/Toast/Toast.dart';
 import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
 import 'package:yaantrac_app/config/themes/app_colors.dart';
 import 'package:yaantrac_app/models/tire.dart';
-import 'package:yaantrac_app/models/tire_expense.dart';
 import 'package:yaantrac_app/models/tire_performance.dart';
-import 'package:yaantrac_app/screens/tiremapping.dart';
 import 'package:yaantrac_app/services/api_service.dart';
 import 'package:yaantrac_app/common/widgets/button/action_button.dart';
-
 import '../../../common/widgets/input/app_input_field.dart';
-
-import '../../cubit/base_cubit.dart';
-import '../../cubit/base_state.dart';
 import 'package:intl/intl.dart';
-
+import '../../Tire-Category/cubit/tire_category_cubit.dart';
+import '../../Tire-Category/repository/tire_category_repository.dart';
+import '../../Tire-Category/service/tire_category_service.dart';
+import '../../Tire-Expense/cubit/tire_expense_cubit.dart';
+import '../../Tire-Expense/repository/tire_expense_repository.dart';
+import '../../Tire-Expense/service/tire_expense_service.dart';
+import '../../Tire-Performance/cubit/tire_performance_cubit.dart';
+import '../../Tire-Performance/cubit/tire_performance_state.dart';
+import '../../Tire-Performance/repository/tire_performance_repository.dart';
+import '../../Tire-Performance/service/tire_performance_service.dart';
+import '../../cubit/base_cubit.dart';
 import '../../repository/base_repository.dart';
 import '../../service/base_service.dart';
+import '../cubit/tire_inventory_cubit.dart';
+import '../cubit/tire_inventory_state.dart';
 
-class tirelistscreen extends StatefulWidget {
-  const tirelistscreen({super.key});
+class TireInventoryScreen extends StatefulWidget {
+  const TireInventoryScreen({super.key});
 
   @override
-  State<tirelistscreen> createState() => _TiresListScreenState();
+  State<TireInventoryScreen> createState() => _TireInventoryScreenState();
 }
 
-class _TiresListScreenState extends State<tirelistscreen> {
+class _TireInventoryScreenState extends State<TireInventoryScreen> {
   TireModel? tire;
 
   String _formatDate(DateTime date) {
     return DateFormat('dd-MM-yyyy').format(date);
   }
 
-  Future<void> _showAddEditModal(BuildContext ctx, {TireModel? tire}) async {
+  Future<void> _showAddEditModal(BuildContext ctx,
+      {TireInventory? tire}) async {
     final _formKey = GlobalKey<FormState>();
     TextEditingController serialNo = TextEditingController();
     TextEditingController brand = TextEditingController();
@@ -450,47 +460,51 @@ class _TiresListScreenState extends State<tirelistscreen> {
                                                 onPressed: () {
                                                   if (_formKey.currentState!
                                                       .validate()) {
-                                                    TireModel t1 = TireModel(
-                                                        id: tire?.id,
-                                                        serialNo: serialNo.text,
-                                                        purchaseDate:
-                                                            _purchaseDate, // Convert String to DateTime
-                                                        warrantyExpiry:
-                                                            _warrantyExpiry,
-                                                        temp: double.parse(
-                                                            temp.text),
-                                                        psi: double.parse(
-                                                            psi.text),
-                                                        dist: double.parse(
-                                                            dist.text),
-                                                        purchaseCost:
-                                                            double.parse(
-                                                                purchasecost
-                                                                    .text),
-                                                        warrantyPeriod:
-                                                            int.parse(
-                                                                warrantyperiod
-                                                                    .text),
-                                                        categoryId: int.parse(
-                                                            category.text),
-                                                        location: location.text,
-                                                        brand: brand.text,
-                                                        model: model.text,
-                                                        size: size.text);
+                                                    TireInventory t1 =
+                                                        TireInventory(
+                                                            id: tire?.id,
+                                                            serialNo:
+                                                                serialNo.text,
+                                                            purchaseDate:
+                                                                _purchaseDate, // Convert String to DateTime
+                                                            warrantyExpiry:
+                                                                _warrantyExpiry,
+                                                            temp: double.parse(
+                                                                temp.text),
+                                                            psi: double.parse(
+                                                                psi.text),
+                                                            dist: double.parse(
+                                                                dist.text),
+                                                            purchaseCost:
+                                                                double.parse(
+                                                                    purchasecost
+                                                                        .text),
+                                                            warrantyPeriod:
+                                                                int.parse(
+                                                                    warrantyperiod
+                                                                        .text),
+                                                            categoryId:
+                                                                int.parse(
+                                                                    category
+                                                                        .text),
+                                                            location:
+                                                                location.text,
+                                                            brand: brand.text,
+                                                            model: model.text,
+                                                            size: size.text);
                                                     print(t1.toJson());
 
                                                     tire == null
                                                         ? ctx
                                                             .read<
-                                                                BaseCubit<
-                                                                    TireModel>>()
-                                                            .addItem(t1)
+                                                                TireInventoryCubit>()
+                                                            .addTireInventory(
+                                                                t1)
                                                         : ctx
                                                             .read<
-                                                                BaseCubit<
-                                                                    TireModel>>()
-                                                            .updateItem(
-                                                                t1, t1.id!);
+                                                                TireInventoryCubit>()
+                                                            .updateTireInventory(
+                                                                t1);
                                                     Navigator.pop(context);
                                                   }
                                                 },
@@ -559,7 +573,7 @@ class _TiresListScreenState extends State<tirelistscreen> {
                         borderRadius: BorderRadius.circular(8.r)),
                   ),
                   onPressed: () async {
-                    ctx.read<BaseCubit<TireModel>>().deleteItem(tireId);
+                    ctx.read<TireInventoryCubit>().deleteTireInventory(tireId);
 
                     Navigator.pop(context);
                   },
@@ -597,16 +611,34 @@ class _TiresListScreenState extends State<tirelistscreen> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => BlocProvider(
-                        create: (context) => BaseCubit<Tireexpense>(
-                          BaseRepository<Tireexpense>(
-                            BaseService<Tireexpense>(
-                              baseUrl: "/tire-expenses",
-                              fromJson: Tireexpense.fromJson,
-                              toJson: (tireexpense) => tireexpense.toJson(),
-                            ),
+                        create: (context) => TireCategoryCubit(
+                          TireCategoryRepository(
+                            TireCategoryService(),
                           ),
-                        )..fetchItems(),
-                        child: tire_expense_screen(),
+                        )..fetchTireCategory(),
+                        child: Tire_Category_Screen(),
+                      ),
+                    ),
+                  );
+                },
+                icon: Icon(
+                  Icons.category,
+                  size: 25.h,
+                  color: Colors.black,
+                )),
+            IconButton(
+                alignment: Alignment.topRight,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BlocProvider(
+                        create: (context) => TireExpenseCubit(
+                          TireExpenseRepository(
+                            TireExpenseService(),
+                          ),
+                        )..fetchTireExpense(),
+                        child: Tire_Expense_Screen(),
                       ),
                     ),
                   );
@@ -629,7 +661,7 @@ class _TiresListScreenState extends State<tirelistscreen> {
           ],
           backgroundColor: AppColors.secondaryColor,
         ),
-        body: BlocConsumer<BaseCubit<TireModel>, BaseState<TireModel>>(
+        body: BlocConsumer<TireInventoryCubit, TireInventoryState>(
             listener: (context, state) {
           if (state is AddedState ||
               state is UpdatedState ||
@@ -644,21 +676,21 @@ class _TiresListScreenState extends State<tirelistscreen> {
                     : (state is UpdatedState)
                         ? Icons.edit
                         : Icons.delete);
-          } else if (state is ApiErrorState<TireModel>) {
+          } else if (state is TireInventoryError) {
             ToastHelper.showCustomToast(
                 context, state.message, Colors.red, Icons.error);
           }
         }, builder: (context, state) {
-          if (state is LoadingState<TireModel>) {
+          if (state is TireInventoryLoading) {
             return shimmer();
-          } else if (state is ErrorState<TireModel>) {
+          } else if (state is TireInventoryError) {
             return Center(child: Text(state.message));
-          } else if (state is LoadedState<TireModel>) {
+          } else if (state is TireInventoryLoaded) {
             return ListView.builder(
               padding: EdgeInsets.all(10.h),
-              itemCount: state.items.length,
+              itemCount: state.tireinventory.length,
               itemBuilder: (context, index) {
-                final tire = state.items[index];
+                final tire = state.tireinventory[index];
                 return Card(
                   color: Colors.white,
                   elevation: 2.w,
@@ -670,24 +702,17 @@ class _TiresListScreenState extends State<tirelistscreen> {
                         print("Navigating to tire ID: ${tire.id}");
                         var t = tire.id!;
 
-                        /*Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BlocProvider(
-                              create: (context) =>
-                                  BaseCubit<TirePerformanceModel>(
-                                BaseRepository<TirePerformanceModel>(
-                                  BaseService<TirePerformanceModel>(
-                                    baseUrl: "",
-                                    fromJson: TirePerformanceModel.fromJson,
-                                    toJson: (tire) => tire.toJson(),
-                                  ),
-                                ),
-                              )..fetchPerformance('/tires/$t/performances'),
-                              child: TirePerformanceScreen(tire: tire),
-                            ),
-                          ),
-                        );*/
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => BlocProvider(
+                                  create: (context) => TirePerformanceCubit(
+                                        TirePerformanceRepository(
+                                          TirePerformanceService(),
+                                        ),
+                                      )..fetchTirePerformance(t),
+                                  child: Tire_Performance_Screen(tire: tire)),
+                            ));
                         /*Navigator.push(
                             context,
                             MaterialPageRoute(

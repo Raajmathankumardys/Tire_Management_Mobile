@@ -2,10 +2,10 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../models/tire_performance.dart';
+import '../../cubit/tire_performance_state.dart';
 
 class Chart extends StatelessWidget {
-  final List<TirePerformanceModel> tirePerformances;
+  final List<TirePerformance> tirePerformances;
   final String parameter;
 
   const Chart(
@@ -18,7 +18,7 @@ class Chart extends StatelessWidget {
     );
   }
 
-  double _getValue(TirePerformanceModel model) {
+  double _getValue(TirePerformance model) {
     switch (parameter) {
       case 'Pressure':
         return model.pressure;

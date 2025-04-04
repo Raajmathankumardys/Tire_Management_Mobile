@@ -53,8 +53,8 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
     super.initState();
 
     // Front Axle
-    //_addAxle(); // Rear Axle
-    populate();
+    _addAxle(); // Rear Axle
+    //populate();
 
     // Predefined tires with position mapping
   }
@@ -266,44 +266,47 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
                     ],
                   ),
                   content: SizedBox(
-                    width: double.maxFinite,
-                    height: 300,
-                    child: ListView.builder(
-                      itemCount: filteredTires.length,
-                      itemBuilder: (context, index) {
-                        var item = filteredTires[index];
+                      width: double.maxFinite,
+                      height: 300,
+                      child: filteredTires.isEmpty
+                          ? Center(
+                              child: Text("No Tires Found"),
+                            )
+                          : ListView.builder(
+                              itemCount: filteredTires.length,
+                              itemBuilder: (context, index) {
+                                var item = filteredTires[index];
 
-                        return ListTile(
-                          title: Text(
-                              "Serial No: ${item['serialNo'] ?? 'Unknown'}"),
-                          subtitle: Text(
-                              "Brand : ${item['brand']} | Model: ${item['model']} | Size: ${item['size']}"),
-                          onTap: () {
-                            // Update tire details
-                            tire.id = item['id'];
-                            tire.brand = item["brand"];
-                            tire.model = item["model"];
-                            tire.serialno = item['serialNo'];
+                                return ListTile(
+                                  title: Text(
+                                      "Serial No: ${item['serialNo'] ?? 'Unknown'}"),
+                                  subtitle: Text(
+                                      "Brand : ${item['brand']} | Model: ${item['model']} | Size: ${item['size']}"),
+                                  onTap: () {
+                                    // Update tire details
+                                    tire.id = item['id'];
+                                    tire.brand = item["brand"];
+                                    tire.model = item["model"];
+                                    tire.serialno = item['serialNo'];
 
-                            // Update selected tires list in parent
-                            setState(() {
-                              selectedTires.removeWhere((existing) =>
-                                  existing["position"] == position);
-                              selectedTires.add({
-                                "tireId": tire.id,
-                                "position": position,
-                              });
-                            });
+                                    // Update selected tires list in parent
+                                    setState(() {
+                                      selectedTires.removeWhere((existing) =>
+                                          existing["position"] == position);
+                                      selectedTires.add({
+                                        "tireId": tire.id,
+                                        "position": position,
+                                      });
+                                    });
 
-                            // Close dialog only if the context is still valid
-                            if (dialogContext.mounted) {
-                              Navigator.pop(dialogContext);
-                            }
-                          },
-                        );
-                      },
-                    ),
-                  ),
+                                    // Close dialog only if the context is still valid
+                                    if (dialogContext.mounted) {
+                                      Navigator.pop(dialogContext);
+                                    }
+                                  },
+                                );
+                              },
+                            )),
                 );
               },
             );

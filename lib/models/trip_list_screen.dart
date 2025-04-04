@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../../common/widgets/Toast/Toast.dart';
-import '../../../common/widgets/button/app_primary_button.dart';
-import '../../../common/widgets/input/app_input_field.dart';
-import '../../../config/themes/app_colors.dart';
-import '../../../models/trip.dart';
-import '../../../screens/Homepage.dart';
-import '../../../screens/expense_screen.dart';
-import '../../cubit/base_cubit.dart';
-import '../../cubit/base_state.dart';
-import '../../repository/base_repository.dart';
-import '../../service/base_service.dart';
+import '../common/widgets/Toast/Toast.dart';
+import '../common/widgets/button/app_primary_button.dart';
+import '../common/widgets/input/app_input_field.dart';
+import '../config/themes/app_colors.dart';
+import 'trip.dart';
+import '../screens/Homepage.dart';
+import '../screens/expense_screen.dart';
+import '../TMS/cubit/base_cubit.dart';
+import '../TMS/cubit/base_state.dart';
+import '../TMS/repository/base_repository.dart';
+import '../TMS/service/base_service.dart';
 
 class tripslistscreen extends StatefulWidget {
   final int vehicleid;

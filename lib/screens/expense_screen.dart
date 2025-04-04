@@ -11,7 +11,7 @@ import 'package:yaantrac_app/trash/add_expense_screen.dart';
 import 'package:yaantrac_app/trash/add_income_screen.dart';
 import 'package:yaantrac_app/screens/trip_list_page.dart';
 import 'package:yaantrac_app/services/api_service.dart';
-import 'package:yaantrac_app/TMS/presentation/screen/trip_list_screen.dart';
+import 'package:yaantrac_app/models/trip_list_screen.dart';
 
 import '../TMS/cubit/base_cubit.dart';
 import '../common/widgets/Toast/Toast.dart';

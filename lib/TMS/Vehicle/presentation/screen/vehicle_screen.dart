@@ -3,27 +3,22 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:yaantrac_app/TMS/presentation/widget/shimmer.dart';
-import '../../../common/widgets/Toast/Toast.dart';
-import '../../../common/widgets/button/app_primary_button.dart';
-import '../../../common/widgets/input/app_input_field.dart';
-import '../../../config/themes/app_colors.dart';
-import '../../../models/trip.dart';
-import '../../../models/vehicle.dart';
-import '../../../screens/tiremapping.dart';
-import '../../cubit/base_cubit.dart';
-import '../../cubit/base_state.dart';
-import '../../repository/base_repository.dart';
-import '../../service/base_service.dart';
-import '../../../models/trip_list_screen.dart';
+import '../../../../common/widgets/Toast/Toast.dart';
+import '../../../../common/widgets/button/app_primary_button.dart';
+import '../../../../common/widgets/input/app_input_field.dart';
+import '../../../../config/themes/app_colors.dart';
+import '../../../../screens/tiremapping.dart';
+import '../../../presentation/widget/shimmer.dart';
+import '../../cubit/vehicle_cubit.dart';
+import '../../cubit/vehicle_state.dart';
 
-class vehiclelistscreen_ extends StatefulWidget {
-  const vehiclelistscreen_({super.key});
+class vehiclescreen extends StatefulWidget {
+  const vehiclescreen({super.key});
   @override
-  State<vehiclelistscreen_> createState() => _vehiclelistscreen_State();
+  State<vehiclescreen> createState() => _vehiclelistscreen_State();
 }
 
-class _vehiclelistscreen_State extends State<vehiclelistscreen_> {
+class _vehiclelistscreen_State extends State<vehiclescreen> {
   late Future<List<Vehicle>> futureVehicles;
   int? vid;
   void _showAddEditModal(BuildContext ctx, [Vehicle? vehicle]) {
@@ -217,12 +212,12 @@ class _vehiclelistscreen_State extends State<vehiclelistscreen_> {
 
                                     if (vehicle == null) {
                                       ctx
-                                          .read<BaseCubit<Vehicle>>()
-                                          .addItem(newVehicle);
+                                          .read<VehicleCubit>()
+                                          .addVehicle(newVehicle);
                                     } else {
                                       ctx
-                                          .read<BaseCubit<Vehicle>>()
-                                          .updateItem(newVehicle, vehicle.id!);
+                                          .read<VehicleCubit>()
+                                          .updateVehicle(newVehicle);
                                     }
                                     Navigator.pop(context);
                                   }
@@ -278,7 +273,7 @@ class _vehiclelistscreen_State extends State<vehiclelistscreen_> {
                 ),
               ),
               onPressed: () {
-                ctx.read<BaseCubit<Vehicle>>().deleteItem(vehicleId);
+                ctx.read<VehicleCubit>().deleteVehicle(vehicleId);
                 Navigator.pop(context);
               },
               child:
@@ -308,7 +303,7 @@ class _vehiclelistscreen_State extends State<vehiclelistscreen_> {
               ))
         ],
       ),
-      body: BlocConsumer<BaseCubit<Vehicle>, BaseState<Vehicle>>(
+      body: BlocConsumer<VehicleCubit, VehicleState>(
         listener: (context, state) {
           print(state);
           if (state is AddedState ||
@@ -327,7 +322,7 @@ class _vehiclelistscreen_State extends State<vehiclelistscreen_> {
                     : (state is UpdatedState)
                         ? Icons.edit
                         : Icons.delete);
-          } else if (state is ApiErrorState<Vehicle>) {
+          } else if (state is VehicleError) {
             String updatedMessage = state.message.toString().replaceAllMapped(
                 RegExp(r'\bitem\b', caseSensitive: false),
                 (match) => "vehicle");
@@ -336,18 +331,18 @@ class _vehiclelistscreen_State extends State<vehiclelistscreen_> {
           }
         },
         builder: (context, state) {
-          if (state is LoadingState<Vehicle>) {
+          if (state is VehicleLoading) {
             return shimmer();
-          } else if (state is ErrorState<Vehicle>) {
+          } else if (state is VehicleError) {
             String updatedMessage = state.message.toString().replaceAllMapped(
                 RegExp(r'\bitem\b', caseSensitive: false),
                 (match) => "vehicle");
             return Center(child: Text(updatedMessage));
-          } else if (state is LoadedState<Vehicle>) {
+          } else if (state is VehicleLoaded) {
             return ListView.builder(
-              itemCount: state.items.length,
+              itemCount: state.vehicles.length,
               itemBuilder: (context, index) {
-                final vehicle = state.items[index];
+                final vehicle = state.vehicles[index];
                 return Card(
                   elevation: 2.h,
                   child: ExpansionTile(
@@ -388,7 +383,7 @@ class _vehiclelistscreen_State extends State<vehiclelistscreen_> {
                                        builder: (context) => tripslistscreen(
                                               vehicleid: vehicle.id!,
                                             )));*/
-                                Navigator.push(
+                                /*Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => BlocProvider(
@@ -406,7 +401,7 @@ class _vehiclelistscreen_State extends State<vehiclelistscreen_> {
                                           vehicleid: vehicle.id!),
                                     ),
                                   ),
-                                );
+                                );*/
                               },
                               icon: Icon(Icons.tour),
                               color: Colors.cyanAccent,

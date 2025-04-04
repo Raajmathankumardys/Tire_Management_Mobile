@@ -2,15 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+import 'package:yaantrac_app/TMS/Tire-Inventory/repository/tire_inventory_repository.dart';
+import 'package:yaantrac_app/TMS/Tire-Inventory/service/tire_inventory_service.dart';
+import 'package:yaantrac_app/TMS/Vehicle/cubit/vehicle_cubit.dart';
 import 'package:yaantrac_app/models/tire.dart';
 import 'package:yaantrac_app/screens/tiremapping.dart';
 import 'package:yaantrac_app/TMS/service/base_service.dart';
+import 'TMS/Tire-Inventory/cubit/tire_inventory_cubit.dart';
+
+import 'TMS/Tire-Inventory/service/tire_inventory_service.dart';
+import 'TMS/Vehicle/repository/vehicle_repository.dart';
+import 'TMS/Vehicle/service/vehicle_service.dart';
 import 'bloc/Theme/theme_bloc.dart';
-import 'bloc/vehicle/vehicle_bloc.dart';
-import 'models/vehicle.dart';
+
 import 'screens/Homepage.dart';
-import 'TMS/cubit/base_cubit.dart';
-import 'TMS/repository/base_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,40 +26,28 @@ void main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => ThemeBloc()..add(LoadThemeEvent())),
-        RepositoryProvider(
-          create: (context) => BaseRepository<Vehicle>(
-            BaseService<Vehicle>(
-              baseUrl: "/vehicles",
-              fromJson: Vehicle.fromJson,
-              toJson: (vehicle) => vehicle.toJson(),
-            ),
-          ),
+        Provider<VehicleService>(
+          create: (context) => VehicleService(),
         ),
-
-        BlocProvider(
-            create: (context) =>
-                BaseCubit<Vehicle>(context.read<BaseRepository<Vehicle>>())
-                  ..fetchItems() // Inject repository into Cubit
-            // , // Fetch initial data
-            ),
-        RepositoryProvider(
-          create: (context) => BaseRepository<TireModel>(
-            BaseService<TireModel>(
-              baseUrl: "/tires",
-              fromJson: TireModel.fromJson,
-              toJson: (tire) => tire.toJson(),
-            ),
-          ),
+        BlocProvider<VehicleCubit>(
+          create: (context) {
+            final vehicleService = context.read<VehicleService>();
+            final vehicleRepository = VehicleRepository(vehicleService);
+            return VehicleCubit(vehicleRepository)..fetchVehicles();
+          },
         ),
-
-        BlocProvider(
-          create: (context) => BaseCubit<TireModel>(
-            context.read<BaseRepository<TireModel>>(),
-          )..fetchItems(),
+        Provider<TireInventoryService>(
+          create: (context) => TireInventoryService(),
         ),
-        // , // Fetch initial data
-
-        //(create: (context) => VehicleBloc()),
+        BlocProvider<TireInventoryCubit>(
+          create: (context) {
+            final tireInventoryService = context.read<TireInventoryService>();
+            final tireInventoryRepository =
+                TireInventoryRepository(tireInventoryService);
+            return TireInventoryCubit(tireInventoryRepository)
+              ..fetchTireInventory();
+          },
+        ),
       ],
       child: MyApp(),
     ),

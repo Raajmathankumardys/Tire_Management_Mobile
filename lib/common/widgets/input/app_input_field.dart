@@ -103,8 +103,9 @@ class AppInputField extends StatelessWidget {
             initialValue: controller?.text.isNotEmpty == true
                 ? DateFormat("dd-MM-yyyy").parse(controller!.text)
                 : null, // Ensure date is populated when editing// Ensure intl package is imported
-            firstDate: DateTime(2000),
+            firstDate: DateTime(1900),
             lastDate: DateTime(2101),
+            autovalidateMode: AutovalidateMode.onUserInteraction,
             onChanged: onDateSelected,
             decoration: InputDecoration(
               hintText: hint,
@@ -135,6 +136,7 @@ class AppInputField extends StatelessWidget {
             onChanged: onInputChanged,
             enabled: !disabled,
             initialValue: defaultValue,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
             decoration: InputDecoration(
               hintText: hint,
               hintStyle:

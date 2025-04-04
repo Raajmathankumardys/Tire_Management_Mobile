@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:yaantrac_app/TMS/Tire-Inventory/presentation/tire_inventory_screen.dart';
+
 import 'package:yaantrac_app/screens/AxleMapping.dart';
 import 'package:yaantrac_app/screens/filter_expense_screen.dart';
 import 'package:yaantrac_app/screens/settings.dart';
 import 'package:yaantrac_app/screens/tiremapping.dart';
 
+import '../TMS/Vehicle/presentation/screen/vehicle_screen.dart';
 import '../TMS/presentation/screen/tire_list_screen.dart';
 import '../TMS/presentation/screen/vehicle_list_screen.dart';
 import 'vehicles_list_screen.dart';
@@ -27,9 +30,10 @@ class _HomeScreenState extends State<HomeScreen> {
   GlobalKey<CurvedNavigationBarState> _bottomNavigationKey = GlobalKey();
 
   final List<Widget> _pages = [
-    vehiclelistscreen_(),
+    vehiclescreen(),
+    //vehiclelistscreen_(),
     //VehiclesListScreen(),
-    tirelistscreen(),
+    TireInventoryScreen(),
     //TiresListScreen(),
     TirePressureScreen(),
     //NotificationScreen(),
