@@ -19,8 +19,7 @@ class AppPrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final primaryColor = theme.colorScheme.primary;
-    final textColor = theme.colorScheme.onPrimary;
+    final bool isdark = Theme.of(context).brightness == Brightness.dark;
 
     return SizedBox(
       height: height ?? 50,
@@ -29,14 +28,16 @@ class AppPrimaryButton extends StatelessWidget {
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primaryColor,
-          foregroundColor: textColor,
+          foregroundColor:
+              isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
         ),
         child: Text(
           title,
-          style: theme.textTheme.labelLarge?.copyWith(color: textColor),
+          style: theme.textTheme.labelLarge?.copyWith(
+              color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn),
         ),
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class ToastHelper {
@@ -7,21 +8,18 @@ class ToastHelper {
     FToast fToast = FToast();
     fToast.init(context);
 
-    final theme = Theme.of(context);
-    final textColor =
-        theme.brightness == Brightness.dark ? Colors.white : Colors.black;
+    final textColor = Colors.black;
 
     Widget toast = Container(
-      width: 400,
-      padding: const EdgeInsets.all(12.0),
+      padding: EdgeInsets.all(8.h),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
+        borderRadius: BorderRadius.circular(8.r),
         color: color,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
-            blurRadius: 6.0,
-            spreadRadius: 2.0,
+            blurRadius: 6.h,
+            spreadRadius: 1.h,
           ),
         ],
       ),
@@ -29,13 +27,13 @@ class ToastHelper {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icons, color: textColor, size: 24),
-          const SizedBox(width: 8.0),
+          Icon(icons, color: textColor, size: 10.h),
+          SizedBox(width: 4.w),
           Container(
             child: Text(
               message,
               style: TextStyle(
-                fontSize: 16.0,
+                fontSize: 10.h,
                 color: textColor,
                 fontWeight: FontWeight.bold,
               ),

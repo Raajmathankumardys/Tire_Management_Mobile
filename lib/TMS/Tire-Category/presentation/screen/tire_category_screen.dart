@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import 'package:yaantrac_app/TMS/Tire-Category/cubit/tire_category_state.dart';
+import 'package:yaantrac_app/TMS/presentation/deleteDialog.dart';
 import 'package:yaantrac_app/screens/Homepage.dart';
-
 import '../../../../common/widgets/Toast/Toast.dart';
 import '../../../../common/widgets/button/action_button.dart';
 import '../../../../common/widgets/button/app_primary_button.dart';
 import '../../../../common/widgets/input/app_input_field.dart';
 import '../../../../config/themes/app_colors.dart';
+import '../../../presentation/constants.dart';
 import '../../../presentation/widget/shimmer.dart';
 import '../../cubit/tire_category_cubit.dart';
 
@@ -21,9 +21,10 @@ class Tire_Category_Screen extends StatefulWidget {
 }
 
 class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
-  void _showAddEditModal(BuildContext ctx, {TireCategory? tirecategory}) {
+  Future<void> _showAddEditModal(BuildContext ctx,
+      {TireCategory? tirecategory}) async {
     final _formKey = GlobalKey<FormState>();
-
+    final bool isdark = Theme.of(context).brightness == Brightness.dark;
     // Initialize controllers
     TextEditingController categoryController = TextEditingController();
     TextEditingController descriptionontroller = TextEditingController();
@@ -37,7 +38,7 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
     showModalBottomSheet(
       context: ctx,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: !isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -76,10 +77,9 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
                           SizedBox(height: 5.h),
                           Text(
                             tirecategory == null
-                                ? "Add Tire Category"
-                                : "Edit Tire Category",
+                                ? tirecategoryconstants.addtirecategory
+                                : tirecategoryconstants.edittirecategory,
                             style: TextStyle(
-                              color: Colors.white,
                               fontSize: 10.h,
                               fontWeight: FontWeight.w500,
                             ),
@@ -95,28 +95,25 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
                       child: Column(
                         children: [
                           AppInputField(
-                            name: 'text_field',
-                            label: "Category",
-                            hint: "Enter category",
+                            name: constants.textfield,
+                            label: tirecategoryconstants.category,
+                            hint: tirecategoryconstants.categoryhint,
                             controller: categoryController,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'This field is required';
-                              }
-                              if (value.length < 3) {
-                                return "Name must have 3 atleast characters";
+                                return constants.required;
                               }
                               return null;
                             },
                           ),
                           AppInputField(
-                            name: 'text_field',
-                            label: "Description",
-                            hint: "Enter description",
+                            name: constants.textfield,
+                            label: tirecategoryconstants.decsription,
+                            hint: tirecategoryconstants.descriptionhint,
                             controller: descriptionontroller,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'This field is required';
+                                return constants.required;
                               }
                               return null;
                             },
@@ -130,7 +127,7 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
-                                title: "Cancel",
+                                title: constants.cancel,
                               ),
                               AppPrimaryButton(
                                 width: 130,
@@ -153,7 +150,9 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
                                     Navigator.pop(context);
                                   }
                                 },
-                                title: tirecategory == null ? "Save" : "Update",
+                                title: tirecategory == null
+                                    ? constants.save
+                                    : constants.update,
                               ),
                             ],
                           ),
@@ -170,80 +169,53 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
     );
   }
 
-  Future<void> _confirmDeleteTireCategory(
-      BuildContext ctx, int tirecategoryId) async {
+  Future<void> showDeleteConfirmationDialog({
+    required BuildContext context,
+    required VoidCallback onConfirm,
+    required content,
+  }) async {
     await showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Row(
-            children: const [
-              Icon(Icons.warning_amber_rounded, color: Colors.red, size: 25),
-              SizedBox(width: 8),
-              Text("Confirm Delete",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-            ],
-          ),
-          content: const Text(
-            "Are you sure you want to delete this vehicle? This action cannot be undone.",
-            style: TextStyle(fontSize: 14),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              onPressed: () {
-                ctx
-                    .read<TireCategoryCubit>()
-                    .deleteTireCategory(tirecategoryId);
-                Navigator.pop(context);
-              },
-              child:
-                  const Text("Delete", style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        );
-      },
+      builder: (_) => DeleteConfirmationDialog(
+        onConfirm: onConfirm,
+        content: content,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool isdark = Theme.of(context).brightness == Brightness.dark;
     return SafeArea(
         child: Scaffold(
             appBar: AppBar(
               title: Center(
-                  child: Text("Tire Category",
+                  child: Text(tirecategoryconstants.appbar,
                       style: TextStyle(fontWeight: FontWeight.bold))),
-              backgroundColor: AppColors.secondaryColor,
+              backgroundColor:
+                  isdark ? AppColors.darkappbar : AppColors.lightappbar,
               leading: IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => HomeScreen(
-                                  currentIndex: 1,
-                                )));
-                  },
-                  icon: Icon(Icons.arrow_back_ios)),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => HomeScreen(
+                                currentIndex: 1,
+                              )));
+                },
+                icon: Icon(
+                  Icons.arrow_back_ios,
+                  color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
+                ),
+              ),
               actions: [
                 IconButton(
                     onPressed: () => {_showAddEditModal(context)},
                     icon: Icon(
                       Icons.add_circle,
-                      color: Colors.black,
+                      color:
+                          isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
                     ))
               ],
             ),
@@ -281,7 +253,6 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
                   itemBuilder: (context, index) {
                     final tire = state.tirecategory[index];
                     return Card(
-                      color: Colors.white,
                       elevation: 2.w,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25.r)),
@@ -290,18 +261,22 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
                         leading: Icon(
                           Icons.currency_exchange,
                           size: 30.h,
+                          color: isdark
+                              ? AppColors.darkaddbtn
+                              : AppColors.lightaddbtn,
                         ),
                         title: Text(
                           tire.category.toString(),
                           style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black),
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Expense Date: ${tire.description}",
+                            Text(
+                                "${tirecategoryconstants.decsription} : ${tire.description}",
                                 style: TextStyle(
                                     color: Colors.grey[400], fontSize: 10.sp)),
                           ],
@@ -319,9 +294,17 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
                             ActionButton(
                                 icon: Icons.delete,
                                 color: Colors.red,
-                                onPressed: () => {
-                                      _confirmDeleteTireCategory(
-                                          context, tire.id!)
+                                onPressed: () async => {
+                                      await showDeleteConfirmationDialog(
+                                        context: context,
+                                        content:
+                                            tirecategoryconstants.modaldelete,
+                                        onConfirm: () {
+                                          context
+                                              .read<TireCategoryCubit>()
+                                              .deleteTireCategory(tire.id!);
+                                        },
+                                      )
                                     })
                             //_confirmDelete(tire.id!.toInt())),
                           ],

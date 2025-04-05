@@ -86,19 +86,19 @@ class TireInventoryLoaded extends TireInventoryState {
   TireInventoryLoaded(this.tireinventory);
 }
 
-class AddedState extends TireInventoryState {
+class AddedTireInventoryState extends TireInventoryState {
   final String message;
-  AddedState(this.message);
+  AddedTireInventoryState(this.message);
 }
 
-class UpdatedState extends TireInventoryState {
+class UpdatedTireInventoryState extends TireInventoryState {
   final String message;
-  UpdatedState(this.message);
+  UpdatedTireInventoryState(this.message);
 }
 
-class DeletedState extends TireInventoryState {
+class DeletedTireInventoryState extends TireInventoryState {
   final String message;
-  DeletedState(this.message);
+  DeletedTireInventoryState(this.message);
 }
 
 class TireInventoryError extends TireInventoryState {

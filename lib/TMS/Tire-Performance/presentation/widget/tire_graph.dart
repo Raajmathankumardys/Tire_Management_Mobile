@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import 'package:yaantrac_app/TMS/presentation/constants.dart';
 import '../../cubit/tire_performance_state.dart';
 
 class Chart extends StatelessWidget {
@@ -20,15 +20,15 @@ class Chart extends StatelessWidget {
 
   double _getValue(TirePerformance model) {
     switch (parameter) {
-      case 'Pressure':
+      case tireperformancesconstants.pressure:
         return model.pressure;
-      case 'Temperature':
+      case tireperformancesconstants.temperature:
         return model.temperature;
-      case 'Wear':
+      case tireperformancesconstants.wear:
         return model.wear;
-      case 'Distance':
+      case tireperformancesconstants.distancet:
         return model.distanceTraveled;
-      case 'Treaddepth':
+      case tireperformancesconstants.treaddepth:
         return model.treadDepth;
       default:
         return 0;
@@ -66,7 +66,7 @@ class Chart extends StatelessWidget {
                   axisNameWidget: Padding(
                     padding: EdgeInsets.only(top: 0.0),
                     child: Text(
-                      'Readings',
+                      tireperformancesconstants.readings,
                       style:
                           TextStyle(fontSize: 8.h, fontWeight: FontWeight.bold),
                     ),

@@ -21,7 +21,7 @@ class TireInventoryCubit extends Cubit<TireInventoryState> {
   void addTireInventory(TireInventory tireinventory) async {
     try {
       await repository.addTireInventory(tireinventory);
-      emit(AddedState("Item added successfully"));
+      emit(AddedTireInventoryState("Item added successfully"));
     } catch (e) {
       emit(TireInventoryError(e.toString()));
     }
@@ -31,7 +31,7 @@ class TireInventoryCubit extends Cubit<TireInventoryState> {
   void updateTireInventory(TireInventory tireinventory) async {
     try {
       await repository.updateTireInventory(tireinventory);
-      emit(UpdatedState("Item updated successfully"));
+      emit(UpdatedTireInventoryState("Item updated successfully"));
     } catch (e) {
       emit(TireInventoryError(e.toString()));
     }
@@ -41,7 +41,7 @@ class TireInventoryCubit extends Cubit<TireInventoryState> {
   void deleteTireInventory(int id) async {
     try {
       await repository.deleteTireInventory(id);
-      emit(DeletedState("Item deleted successfully"));
+      emit(DeletedTireInventoryState("Item deleted successfully"));
     } catch (e) {
       emit(TireInventoryError(e.toString()));
     }

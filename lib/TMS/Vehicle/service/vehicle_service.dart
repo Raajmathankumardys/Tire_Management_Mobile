@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:yaantrac_app/TMS/presentation/constants.dart';
 
 import '../cubit/vehicle_state.dart';
 
@@ -13,27 +14,69 @@ class VehicleService {
   }
 
   VehicleService._internal() {
-    _dio = Dio(BaseOptions(
-        baseUrl: dotenv.env["BASE_URL"] ??
-            " ")); // baseUrl is probably a typo. You're welcome.
+    _dio = Dio(BaseOptions(baseUrl: dotenv.env["BASE_URL"] ?? " "));
   }
 
   Future<List<Vehicle>> fetchVehicles() async {
-    final response = await _dio.get('/vehicles');
-    return (response.data as List)
-        .map((v) => Vehicle.fromJson(v))
-        .toList(growable: false); // totally unnecessary, but fancy
+    try {
+      final response = await _dio.get(vehicleconstants.endpoint);
+      return (response.data as List)
+          .map((v) => Vehicle.fromJson(v))
+          .toList(growable: false); // totally unnecessary, but fancy
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
   }
 
   Future<void> addVehicle(Vehicle vehicle) async {
-    await _dio.post('/vehicles', data: vehicle.toJson());
+    try {
+      await _dio.post(vehicleconstants.endpoint, data: vehicle.toJson());
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
   }
 
   Future<void> updateVehicle(Vehicle vehicle) async {
-    await _dio.put('/vehicles/${vehicle.id}', data: vehicle.toJson());
+    try {
+      await _dio.put('${vehicleconstants.endpoint}/${vehicle.id}',
+          data: vehicle.toJson());
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
   }
 
   Future<void> deleteVehicle(int id) async {
-    await _dio.delete('/vehicles/$id');
+    try {
+      await _dio.delete('${vehicleconstants.endpoint}/$id');
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  Exception _handleDioError(DioException e) {
+    if (e.response != null) {
+      switch (e.response!.statusCode) {
+        case 400:
+          return Exception("Bad request: ${e.response!.data}");
+        case 401:
+          return Exception("Unauthorized access. Please log in.");
+        case 403:
+          return Exception("Forbidden: You don’t have permission.");
+        case 404:
+          return Exception("Resource not found.");
+        case 500:
+          return Exception("Internal Server Error. Please try again later.");
+        default:
+          return Exception("Unexpected error: ${e.response!.statusCode}");
+      }
+    } else if (e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.sendTimeout ||
+        e.type == DioExceptionType.receiveTimeout) {
+      return Exception("Network timeout. Please check your connection.");
+    } else if (e.type == DioExceptionType.connectionError) {
+      return Exception("No Internet connection.");
+    } else {
+      return Exception("Unexpected error: ${e.message}");
+    }
   }
 }

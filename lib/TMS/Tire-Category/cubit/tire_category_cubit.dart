@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:yaantrac_app/TMS/presentation/constants.dart';
 import '../repository/tire_category_repository.dart';
 import 'tire_category_state.dart';
 
@@ -20,7 +21,7 @@ class TireCategoryCubit extends Cubit<TireCategoryState> {
   void addTireCategory(TireCategory tirecategory) async {
     try {
       await repository.addTireCategory(tirecategory);
-      emit(AddedTireCategoryState("Item added successfully"));
+      emit(AddedTireCategoryState(tirecategoryconstants.createdtoast));
     } catch (e) {
       emit(TireCategoryError(e.toString()));
     }
@@ -30,7 +31,7 @@ class TireCategoryCubit extends Cubit<TireCategoryState> {
   void updateTireCategory(TireCategory tirecategory) async {
     try {
       await repository.updateTireCategory(tirecategory);
-      emit(UpdatedTireCategoryState("Item updated successfully"));
+      emit(UpdatedTireCategoryState(tirecategoryconstants.updatedtoast));
     } catch (e) {
       emit(TireCategoryError(e.toString()));
     }
@@ -40,7 +41,7 @@ class TireCategoryCubit extends Cubit<TireCategoryState> {
   void deleteTireCategory(int id) async {
     try {
       await repository.deleteTireCategory(id);
-      emit(DeletedTireCategoryState("Item deleted successfully"));
+      emit(DeletedTireCategoryState(tirecategoryconstants.deletedtoast));
     } catch (e) {
       emit(TireCategoryError(e.toString()));
     }

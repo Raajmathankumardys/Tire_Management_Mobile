@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:yaantrac_app/TMS/presentation/constants.dart';
 import '../repository/tire_performance_repository.dart';
 import 'tire_performance_state.dart';
 
@@ -20,7 +21,7 @@ class TirePerformanceCubit extends Cubit<TirePerformanceState> {
   void addTirePerformance(TirePerformance tireperformance) async {
     try {
       await repository.addTirePerformance(tireperformance);
-      emit(AddedTirePerformanceState("Item added successfully"));
+      emit(AddedTirePerformanceState(tireperformancesconstants.createdtoast));
     } catch (e) {
       emit(TirePerformanceError(e.toString()));
     }

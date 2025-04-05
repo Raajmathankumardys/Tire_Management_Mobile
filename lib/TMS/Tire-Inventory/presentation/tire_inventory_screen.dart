@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:yaantrac_app/TMS/Tire-Category/presentation/screen/tire_category_screen.dart';
 import 'package:yaantrac_app/TMS/Tire-Expense/presentation/screen/tire_expense_screen.dart';
 import 'package:yaantrac_app/TMS/Tire-Performance/presentation/screen/tire_performance_screen.dart';
+import 'package:yaantrac_app/TMS/presentation/constants.dart';
 import 'package:yaantrac_app/TMS/presentation/screen/tire_performance.dart';
 import 'package:yaantrac_app/TMS/presentation/widget/shimmer.dart';
 import 'package:yaantrac_app/common/widgets/Toast/Toast.dart';
@@ -29,6 +30,7 @@ import '../../Tire-Performance/cubit/tire_performance_state.dart';
 import '../../Tire-Performance/repository/tire_performance_repository.dart';
 import '../../Tire-Performance/service/tire_performance_service.dart';
 import '../../cubit/base_cubit.dart';
+import '../../presentation/deleteDialog.dart';
 import '../../repository/base_repository.dart';
 import '../../service/base_service.dart';
 import '../cubit/tire_inventory_cubit.dart';
@@ -66,6 +68,7 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
     TextEditingController warrantyExpiry = TextEditingController();
     DateTime? _purchaseDate = DateTime.now();
     DateTime? _warrantyExpiry = DateTime.now();
+    final bool isdark = Theme.of(context).brightness == Brightness.dark;
     if (tire != null) {
       serialNo.text = tire.serialNo;
       brand.text = tire.brand;
@@ -118,6 +121,7 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -132,7 +136,8 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
               builder: (context, setState) {
                 return Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color:
+                        !isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
                     borderRadius:
                         BorderRadius.vertical(top: Radius.circular(35.r)),
                   ),
@@ -169,7 +174,9 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                                 Text(
                                   tire == null ? "Add Tire" : "Edit Tire",
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: isdark
+                                        ? AppColors.darkaddbtn
+                                        : AppColors.lightaddbtn,
                                     fontSize: 16.h,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -531,81 +538,42 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
     );
   }
 
-  Future<void> _confirmDelete(BuildContext ctx, int tireId) async {
+  Future<void> showDeleteConfirmationDialog({
+    required BuildContext context,
+    required VoidCallback onConfirm,
+    required content,
+  }) async {
     await showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.r),
-              ), // Dark background for contrast
-              title: Row(
-                children: [
-                  Icon(Icons.warning_amber_rounded,
-                      color: Colors.red, size: 28.sp),
-                  SizedBox(width: 8.sp),
-                  Text(
-                    "Confirm Delete",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-              content: Text(
-                "Are you sure you want to delete this tire? This action cannot be undone.",
-                style: TextStyle(
-                  fontSize: 15.sp,
-                ),
-              ),
-              actions: [
-                TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(
-                      "Cancel",
-                      style: TextStyle(color: Colors.grey),
-                    )),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.r)),
-                  ),
-                  onPressed: () async {
-                    ctx.read<TireInventoryCubit>().deleteTireInventory(tireId);
-
-                    Navigator.pop(context);
-                  },
-                  child: Text(
-                    "Delete",
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
+      builder: (_) => DeleteConfirmationDialog(
+        onConfirm: onConfirm,
+        content: content,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool isdark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Tires",
-              style: TextStyle(fontWeight: FontWeight.bold)),
+          title: Text(tireinventoryconstants.appbar,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              )),
           centerTitle: true,
           leading: IconButton(
               onPressed: () {},
               icon: Icon(
                 Icons.arrow_back_ios,
+                color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
               )),
           elevation: 2.w,
           actions: [
             IconButton(
                 alignment: Alignment.topRight,
+                color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -624,7 +592,7 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                 icon: Icon(
                   Icons.category,
                   size: 25.h,
-                  color: Colors.black,
+                  color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
                 )),
             IconButton(
                 alignment: Alignment.topRight,
@@ -646,7 +614,7 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                 icon: Icon(
                   Icons.currency_exchange,
                   size: 25.h,
-                  color: Colors.black,
+                  color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
                 )),
             IconButton(
                 alignment: Alignment.topRight,
@@ -656,24 +624,25 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                 icon: Icon(
                   Icons.add_circle,
                   size: 25.h,
-                  color: Colors.black,
+                  color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
                 )),
           ],
-          backgroundColor: AppColors.secondaryColor,
+          backgroundColor:
+              isdark ? AppColors.darkappbar : AppColors.lightappbar,
         ),
         body: BlocConsumer<TireInventoryCubit, TireInventoryState>(
             listener: (context, state) {
-          if (state is AddedState ||
-              state is UpdatedState ||
-              state is DeletedState) {
+          if (state is AddedTireInventoryState ||
+              state is UpdatedTireInventoryState ||
+              state is DeletedTireInventoryState) {
             final message = (state as dynamic).message;
             ToastHelper.showCustomToast(
                 context,
                 message,
                 Colors.green,
-                (state is AddedState)
+                (state is AddedTireInventoryState)
                     ? Icons.add
-                    : (state is UpdatedState)
+                    : (state is UpdatedTireInventoryState)
                         ? Icons.edit
                         : Icons.delete);
           } else if (state is TireInventoryError) {
@@ -692,7 +661,6 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
               itemBuilder: (context, index) {
                 final tire = state.tireinventory[index];
                 return Card(
-                  color: Colors.white,
                   elevation: 2.w,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(25.r)),
@@ -739,13 +707,16 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                       leading: SvgPicture.asset(
                         "assets/vectors/tire.svg",
                         height: 35.h,
+                        color: isdark
+                            ? AppColors.darkaddbtn
+                            : AppColors.lightaddbtn,
                       ),
                       title: Text(
                         tire.brand,
                         style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black),
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -769,8 +740,18 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                           ActionButton(
                               icon: Icons.delete,
                               color: Colors.red,
-                              onPressed: () =>
-                                  _confirmDelete(context, tire.id!.toInt())),
+                              onPressed: () async => {
+                                    await showDeleteConfirmationDialog(
+                                      context: context,
+                                      content:
+                                          "Are you sure you want to delete this tire inventory?",
+                                      onConfirm: () {
+                                        context
+                                            .read<TireInventoryCubit>()
+                                            .deleteTireInventory(tire.id!);
+                                      },
+                                    )
+                                  }),
                         ],
                       ),
                     ),

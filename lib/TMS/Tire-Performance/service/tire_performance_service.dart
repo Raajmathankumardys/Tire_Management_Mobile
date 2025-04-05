@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:yaantrac_app/TMS/presentation/constants.dart';
 
 import '../cubit/tire_performance_state.dart';
 
@@ -18,15 +19,50 @@ class TirePerformanceService {
   }
 
   Future<List<TirePerformance>> fetchTirePerformance(int id) async {
-    print(id);
-    final response = await _dio.get('/tires/$id/performances');
-    return (response.data['data'] as List)
-        .map((v) => TirePerformance.fromJson(v))
-        .toList(growable: false);
+    try {
+      final response = await _dio.get(tireperformancesconstants.endpoint(id));
+      return (response.data['data'] as List)
+          .map((v) => TirePerformance.fromJson(v))
+          .toList(growable: false);
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
   }
 
   Future<void> addTirePerformance(TirePerformance tireperformance) async {
-    await _dio.post('/tires/${tireperformance.tireId}/add-performance',
-        data: tireperformance.toJson());
+    try {
+      await _dio.post(
+          tireperformancesconstants.addendpoint(tireperformance.tireId),
+          data: tireperformance.toJson());
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  Exception _handleDioError(DioException e) {
+    if (e.response != null) {
+      switch (e.response!.statusCode) {
+        case 400:
+          return Exception("Bad request: ${e.response!.data}");
+        case 401:
+          return Exception("Unauthorized access. Please log in.");
+        case 403:
+          return Exception("Forbidden: You don’t have permission.");
+        case 404:
+          return Exception("Resource not found.");
+        case 500:
+          return Exception("Internal Server Error. Please try again later.");
+        default:
+          return Exception("Unexpected error: ${e.response!.statusCode}");
+      }
+    } else if (e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.sendTimeout ||
+        e.type == DioExceptionType.receiveTimeout) {
+      return Exception("Network timeout. Please check your connection.");
+    } else if (e.type == DioExceptionType.connectionError) {
+      return Exception("No Internet connection.");
+    } else {
+      return Exception("Unexpected error: ${e.message}");
+    }
   }
 }

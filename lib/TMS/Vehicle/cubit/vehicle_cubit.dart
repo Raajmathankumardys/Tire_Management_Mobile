@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:yaantrac_app/TMS/presentation/constants.dart';
 import 'vehicle_state.dart';
 import '../repository/vehicle_repository.dart';
 
@@ -20,7 +21,8 @@ class VehicleCubit extends Cubit<VehicleState> {
   void addVehicle(Vehicle vehicle) async {
     try {
       await repository.addVehicle(vehicle);
-      emit(AddedState("Item added successfully"));
+      emit(AddedVehicleState(
+          vehicleconstants.vehicleUpdated(vehicle.name, vehicle.type)));
     } catch (e) {
       emit(VehicleError(e.toString()));
     }
@@ -30,17 +32,19 @@ class VehicleCubit extends Cubit<VehicleState> {
   void updateVehicle(Vehicle vehicle) async {
     try {
       await repository.updateVehicle(vehicle);
-      emit(UpdatedState("Item updated successfully"));
+      emit(UpdatedVehicleState(
+          vehicleconstants.vehicleUpdated(vehicle.name, vehicle.type)));
     } catch (e) {
       emit(VehicleError(e.toString()));
     }
     fetchVehicles();
   }
 
-  void deleteVehicle(int id) async {
+  void deleteVehicle(Vehicle vehicle, int id) async {
     try {
       await repository.deleteVehicle(id);
-      emit(DeletedState("Item deleted successfully"));
+      emit(DeletedVehicleState(
+          vehicleconstants.vehicleDeleted(vehicle.name, vehicle.type)));
     } catch (e) {
       emit(VehicleError(e.toString()));
     }

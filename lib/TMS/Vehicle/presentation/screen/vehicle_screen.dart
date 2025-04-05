@@ -3,11 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:yaantrac_app/TMS/presentation/constants.dart';
 import '../../../../common/widgets/Toast/Toast.dart';
 import '../../../../common/widgets/button/app_primary_button.dart';
 import '../../../../common/widgets/input/app_input_field.dart';
 import '../../../../config/themes/app_colors.dart';
 import '../../../../screens/tiremapping.dart';
+import '../../../presentation/deleteDialog.dart';
 import '../../../presentation/widget/shimmer.dart';
 import '../../cubit/vehicle_cubit.dart';
 import '../../cubit/vehicle_state.dart';
@@ -20,7 +22,7 @@ class vehiclescreen extends StatefulWidget {
 
 class _vehiclelistscreen_State extends State<vehiclescreen> {
   late Future<List<Vehicle>> futureVehicles;
-  int? vid;
+  late int vehicleId;
   void _showAddEditModal(BuildContext ctx, [Vehicle? vehicle]) {
     final _formKey = GlobalKey<FormState>();
 
@@ -30,7 +32,7 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
     TextEditingController licensePlateController = TextEditingController();
     TextEditingController yearController = TextEditingController();
     TextEditingController axleNoController = TextEditingController();
-
+    bool isdark = Theme.of(context).brightness == Brightness.dark;
     // Prefill values if editing an existing vehicle
     if (vehicle != null) {
       nameController.text = vehicle.name;
@@ -43,7 +45,7 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
     showModalBottomSheet(
       context: ctx,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: isdark ? Colors.black : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -72,7 +74,7 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
                         children: [
                           SizedBox(height: 5.h),
                           Container(
-                            width: 80,
+                            width: 70.h,
                             height: 5.h,
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -81,10 +83,11 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
                           ),
                           SizedBox(height: 5.h),
                           Text(
-                            vehicle == null ? "Add Vehicle" : "Edit Vehicle",
+                            vehicle == null
+                                ? vehicleconstants.addvehicle
+                                : vehicleconstants.editvehicle,
                             style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10.h,
+                              fontSize: 12.h,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -99,58 +102,58 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
                       child: Column(
                         children: [
                           AppInputField(
-                            name: 'text_field',
-                            label: "Name",
-                            hint: "Enter vehicle name",
+                            name: constants.textfield,
+                            label: vehicleconstants.name,
+                            hint: vehicleconstants.namehint,
                             controller: nameController,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'This field is required';
+                                return constants.required;
                               }
                               if (value.length < 3) {
-                                return "Name must have 3 atleast characters";
+                                return vehicleconstants.namevalidation;
                               }
                               return null;
                             },
                           ),
                           AppInputField(
-                            name: 'text_field',
-                            label: "Type",
-                            hint: "Enter vehicle type",
+                            name: constants.textfield,
+                            label: vehicleconstants.type,
+                            hint: vehicleconstants.typehint,
                             controller: typeController,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'This field is required';
+                                return constants.required;
                               }
                               if (value.length < 2) {
-                                return "Vehicle Type must have 2 atleast characters";
+                                return vehicleconstants.typevalidation;
                               }
                               return null;
                             },
                           ),
                           AppInputField(
-                            name: 'text_field',
-                            label: "License Plate",
-                            hint: "Enter license plate",
+                            name: constants.textfield,
+                            label: vehicleconstants.licenseplate,
+                            hint: vehicleconstants.licenseplatehint,
                             controller: licensePlateController,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return "License plate is required";
+                                return constants.required;
                               }
                               // Regular expression for alphanumeric license plate (6-10 chars)
                               final licensePlatePattern = RegExp(
-                                  r'^[A-Z0-9]{6,10}$',
+                                  vehicleconstants.licenseplateregex,
                                   caseSensitive: false);
                               if (!licensePlatePattern.hasMatch(value)) {
-                                return "Invalid license plate format (6-10 alphanumeric characters)";
+                                return vehicleconstants.licenseplatevalidation;
                               }
                               return null;
                             },
                           ),
                           AppInputField(
-                            name: 'number_field',
-                            label: "Manufacture Year",
-                            hint: "Enter year",
+                            name: constants.numberfield,
+                            label: vehicleconstants.manufactureyear,
+                            hint: vehicleconstants.manufactureyearhint,
                             keyboardType: TextInputType.number,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly
@@ -158,19 +161,20 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
                             controller: yearController,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'This field is required';
+                                return constants.required;
                               } else if (int.parse(value) <= 1900 ||
                                   int.parse(value) >
                                       (DateTime.now().year).toInt()) {
-                                return "Pls enter a Valid year";
+                                return vehicleconstants
+                                    .manufactureyearvalidation;
                               }
                               return null;
                             },
                           ),
                           AppInputField(
-                            name: 'number_field',
-                            label: "Axle No",
-                            hint: "Enter axle no.",
+                            name: constants.numberfield,
+                            label: vehicleconstants.axleno,
+                            hint: vehicleconstants.axlenohint,
                             keyboardType: TextInputType.number,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly
@@ -178,9 +182,9 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
                             controller: axleNoController,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'This field is required';
+                                return constants.required;
                               } else if (int.parse(value) < 2) {
-                                return "Vehcile must have atleast 2 axles ";
+                                return vehicleconstants.axlenovalidation;
                               }
                               return null;
                             },
@@ -194,7 +198,7 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
-                                title: "Cancel",
+                                title: constants.cancel,
                               ),
                               AppPrimaryButton(
                                 width: 130,
@@ -222,7 +226,9 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
                                     Navigator.pop(context);
                                   }
                                 },
-                                title: vehicle == null ? "Save" : "Update",
+                                title: vehicle == null
+                                    ? constants.save
+                                    : constants.update,
                               ),
                             ],
                           ),
@@ -239,93 +245,63 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
     );
   }
 
-  Future<void> _confirmDeleteVehicle(BuildContext ctx, int vehicleId) async {
+  Future<void> showDeleteConfirmationDialog({
+    required BuildContext context,
+    required VoidCallback onConfirm,
+    required content,
+  }) async {
     await showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Row(
-            children: const [
-              Icon(Icons.warning_amber_rounded, color: Colors.red, size: 25),
-              SizedBox(width: 8),
-              Text("Confirm Delete",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-            ],
-          ),
-          content: const Text(
-            "Are you sure you want to delete this vehicle? This action cannot be undone.",
-            style: TextStyle(fontSize: 14),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              onPressed: () {
-                ctx.read<VehicleCubit>().deleteVehicle(vehicleId);
-                Navigator.pop(context);
-              },
-              child:
-                  const Text("Delete", style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        );
-      },
+      builder: (_) => DeleteConfirmationDialog(
+        onConfirm: onConfirm,
+        content: content,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool isdark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
         title: Center(
-            child: Text("Vehicles",
+            child: Text(vehicleconstants.appbar,
                 style: TextStyle(fontWeight: FontWeight.bold))),
-        backgroundColor: AppColors.secondaryColor,
-        leading: IconButton(onPressed: () {}, icon: Icon(Icons.arrow_back_ios)),
+        backgroundColor: isdark ? AppColors.darkappbar : AppColors.lightappbar,
+        leading: IconButton(
+            onPressed: () {},
+            icon: Icon(
+              Icons.arrow_back_ios,
+              color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
+            )),
         actions: [
           IconButton(
               onPressed: () => {_showAddEditModal(context)},
               icon: Icon(
                 Icons.add_circle,
-                color: Colors.black,
+                color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
               ))
         ],
       ),
       body: BlocConsumer<VehicleCubit, VehicleState>(
         listener: (context, state) {
-          print(state);
-          if (state is AddedState ||
-              state is UpdatedState ||
-              state is DeletedState) {
+          if (state is AddedVehicleState ||
+              state is UpdatedVehicleState ||
+              state is DeletedVehicleState) {
             final message = (state as dynamic).message;
-            String updatedMessage = message.toString().replaceAllMapped(
-                RegExp(r'\bitem\b', caseSensitive: false),
-                (match) => "Vehicle");
+            String updatedMessage = message.toString();
             ToastHelper.showCustomToast(
                 context,
                 updatedMessage,
                 Colors.green,
-                (state is AddedState)
+                (state is AddedVehicleState)
                     ? Icons.add
-                    : (state is UpdatedState)
+                    : (state is UpdatedVehicleState)
                         ? Icons.edit
                         : Icons.delete);
           } else if (state is VehicleError) {
-            String updatedMessage = state.message.toString().replaceAllMapped(
-                RegExp(r'\bitem\b', caseSensitive: false),
-                (match) => "vehicle");
+            String updatedMessage = state.message.toString();
             ToastHelper.showCustomToast(
                 context, updatedMessage, Colors.red, Icons.error);
           }
@@ -334,9 +310,7 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
           if (state is VehicleLoading) {
             return shimmer();
           } else if (state is VehicleError) {
-            String updatedMessage = state.message.toString().replaceAllMapped(
-                RegExp(r'\bitem\b', caseSensitive: false),
-                (match) => "vehicle");
+            String updatedMessage = state.message.toString();
             return Center(child: Text(updatedMessage));
           } else if (state is VehicleLoaded) {
             return ListView.builder(
@@ -349,7 +323,7 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
                     tilePadding: EdgeInsets.all(2.h),
                     onExpansionChanged: (value) {
                       setState(() {
-                        vid = vehicle.id;
+                        vehicleId = vehicle.id!;
                       });
                     },
                     title: _buildVehicleListItem(vehicle, context),
@@ -416,9 +390,18 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
                               iconSize: 20.h,
                             ),
                             IconButton(
-                                onPressed: () {
-                                  _confirmDeleteVehicle(context, vehicle.id!);
-                                },
+                                onPressed: () async => {
+                                      await showDeleteConfirmationDialog(
+                                        context: context,
+                                        content: vehicleconstants.modaldelete,
+                                        onConfirm: () {
+                                          context
+                                              .read<VehicleCubit>()
+                                              .deleteVehicle(
+                                                  vehicle, vehicleId);
+                                        },
+                                      )
+                                    },
                                 icon: const FaIcon(FontAwesomeIcons.trash),
                                 color: Colors.red,
                                 iconSize: 15.h),
@@ -431,7 +414,7 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
               },
             );
           }
-          return Center(child: Text("No vehicles available"));
+          return Center(child: Text(vehicleconstants.novehicle));
         },
       ),
     );
@@ -440,13 +423,13 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
   Widget _buildVehicleListItem(Vehicle vehicle, BuildContext context) {
     return ListTile(
       leading: Icon(Icons.directions_car, size: 30.h, color: Colors.blueAccent),
-      title: Text("${vehicle.name + " " + vehicle.type}",
+      title: Text(vehicle.name + " " + vehicle.type,
           style: TextStyle(
-              fontSize: 12.w,
-              fontWeight: FontWeight.bold,
-              color: Colors.black)),
+            fontSize: 12.w,
+            fontWeight: FontWeight.bold,
+          )),
       subtitle: Text(
-          'License: ${vehicle.licensePlate}  Year: ${vehicle.manufactureYear}',
+          '${vehicleconstants.license}: ${vehicle.licensePlate}  ${vehicleconstants.year}: ${vehicle.manufactureYear}',
           style: TextStyle(fontSize: 10.h, color: Colors.blueGrey)),
     );
   }

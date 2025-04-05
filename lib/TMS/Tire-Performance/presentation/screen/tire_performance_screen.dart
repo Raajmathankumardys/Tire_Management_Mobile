@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:yaantrac_app/TMS/Tire-Performance/presentation/widget/tire_graph.dart';
+import 'package:yaantrac_app/TMS/presentation/constants.dart';
 import 'package:yaantrac_app/TMS/presentation/widget/shimmer.dart';
 import 'package:yaantrac_app/common/widgets/Toast/Toast.dart';
 
@@ -80,7 +81,7 @@ class _TirePerformanceState extends State<Tire_Performance_Screen> {
                                 ),
                                 SizedBox(height: 8.h),
                                 Text(
-                                  "Add Tire Performance",
+                                  tireperformancesconstants.addtirep,
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16.h,
@@ -102,37 +103,42 @@ class _TirePerformanceState extends State<Tire_Performance_Screen> {
                               child: Column(
                                 children: [
                                   AppInputField(
-                                    name: 'number_field',
-                                    label: "Pressure",
-                                    hint: "Enter pressure",
+                                    name: constants.numberfield,
+                                    label: tireperformancesconstants.pressure,
+                                    hint:
+                                        tireperformancesconstants.pressurehint,
                                     keyboardType: TextInputType.number,
                                     controller: pressure,
                                   ),
                                   AppInputField(
-                                    name: 'number_field',
-                                    label: "Temperature",
-                                    hint: "Enter temperature",
+                                    name: constants.numberfield,
+                                    label:
+                                        tireperformancesconstants.temperature,
+                                    hint: tireperformancesconstants
+                                        .temperaturehint,
                                     keyboardType: TextInputType.number,
                                     controller: temperature,
                                   ),
                                   AppInputField(
-                                    name: 'number_field',
-                                    label: "Wear",
-                                    hint: "Enter wear",
+                                    name: constants.numberfield,
+                                    label: tireperformancesconstants.wear,
+                                    hint: tireperformancesconstants.wearhint,
                                     keyboardType: TextInputType.number,
                                     controller: wear,
                                   ),
                                   AppInputField(
-                                    name: 'number_field',
-                                    label: "Distance Travelled",
-                                    hint: "Enter distance travelled",
+                                    name: constants.numberfield,
+                                    label: tireperformancesconstants.distance,
+                                    hint:
+                                        tireperformancesconstants.distancehint,
                                     keyboardType: TextInputType.number,
                                     controller: dist,
                                   ),
                                   AppInputField(
-                                    name: 'number_field',
-                                    label: "Tread Depth",
-                                    hint: "Enter tread depth",
+                                    name: constants.numberfield,
+                                    label: tireperformancesconstants.treaddepth,
+                                    hint: tireperformancesconstants
+                                        .treaddepthhint,
                                     keyboardType: TextInputType.number,
                                     controller: treadDepth,
                                   ),
@@ -145,7 +151,7 @@ class _TirePerformanceState extends State<Tire_Performance_Screen> {
                                               onPressed: () {
                                                 Navigator.pop(context);
                                               },
-                                              title: "Cancel")),
+                                              title: constants.cancel)),
                                       SizedBox(
                                         width: 10.h,
                                       ),
@@ -176,7 +182,7 @@ class _TirePerformanceState extends State<Tire_Performance_Screen> {
                                                   Navigator.pop(context);
                                                 }
                                               },
-                                              title: "Add"))
+                                              title: constants.save))
                                     ],
                                   ),
                                 ],
@@ -207,7 +213,7 @@ class _TirePerformanceState extends State<Tire_Performance_Screen> {
       child: Scaffold(
         appBar: AppBar(
           title: Center(
-            child: Text("Tire Performance"),
+            child: Text(tireperformancesconstants.appbar),
           ),
           backgroundColor: theme.brightness == Brightness.dark
               ? Colors.black
@@ -265,46 +271,61 @@ class _TirePerformanceState extends State<Tire_Performance_Screen> {
             } else if (state is TirePerformanceLoaded) {
               final tirePerformances = state.tireperformance;
               return tirePerformances.isEmpty
-                  ? Center(child: Text("No Tire Performance Available"))
+                  ? Center(child: Text(tireperformancesconstants.noperformance))
                   : SingleChildScrollView(
                       padding: EdgeInsets.all(16.h),
                       child: Column(
                         children: [
                           _buildStatCard(
                               tirePerformances,
-                              "Average Pressure: ${_calculateAverage(tirePerformances, (e) => e.pressure)} PSI",
+                              "${tireperformancesconstants.average + " " + tireperformancesconstants.pressure}: ${_calculateAverage(tirePerformances, (e) => e.pressure)} ${tireperformancesconstants.psi}",
                               theme),
                           _buildStatCard(
                               tirePerformances,
-                              "Average Temperature: ${_calculateAverage(tirePerformances, (e) => e.temperature)} °C",
+                              "${tireperformancesconstants.average + " " + tireperformancesconstants.temperature}: ${_calculateAverage(tirePerformances, (e) => e.temperature)} ${tireperformancesconstants.degreec}",
                               theme),
                           _buildStatCard(
                               tirePerformances,
-                              "Average Wear: ${_calculateAverage(tirePerformances, (e) => e.wear)}",
+                              "${tireperformancesconstants.average + " " + tireperformancesconstants.wear}: ${_calculateAverage(tirePerformances, (e) => e.wear)}",
                               theme),
                           _buildStatCard(
                               tirePerformances,
-                              "Average Distance: ${_calculateAverage(tirePerformances, (e) => e.distanceTraveled)} KM",
+                              "${tireperformancesconstants.average + " " + tireperformancesconstants.distance}: ${_calculateAverage(tirePerformances, (e) => e.distanceTraveled)} ${tireperformancesconstants.km}",
                               theme),
                           _buildStatCard(
                               tirePerformances,
-                              "Average Tread Depth: ${_calculateAverage(tirePerformances, (e) => e.treadDepth)} MM",
+                              "${tireperformancesconstants.average + " " + tireperformancesconstants.treaddepth}: ${_calculateAverage(tirePerformances, (e) => e.treadDepth)} ${tireperformancesconstants.mm}",
                               theme),
-                          _buildGraph("Pressure Graph", "Pressure", theme,
-                              tirePerformances),
-                          _buildGraph("Temperature Graph", "Temperature", theme,
+                          _buildGraph(
+                              "${tireperformancesconstants.pressure + " " + tireperformancesconstants.graph}",
+                              tireperformancesconstants.pressure,
+                              theme,
                               tirePerformances),
                           _buildGraph(
-                              "Wear Graph", "Wear", theme, tirePerformances),
-                          _buildGraph("Distance Travelled Graph", "Distance",
-                              theme, tirePerformances),
-                          _buildGraph("Tread Depth Graph", "Treaddepth", theme,
+                              "${tireperformancesconstants.temperature + " " + tireperformancesconstants.graph}",
+                              tireperformancesconstants.temperature,
+                              theme,
+                              tirePerformances),
+                          _buildGraph(
+                              "${tireperformancesconstants.wear + " " + tireperformancesconstants.graph}",
+                              tireperformancesconstants.wear,
+                              theme,
+                              tirePerformances),
+                          _buildGraph(
+                              "${tireperformancesconstants.distance + " " + tireperformancesconstants.graph}",
+                              tireperformancesconstants.distancet,
+                              theme,
+                              tirePerformances),
+                          _buildGraph(
+                              "${tireperformancesconstants.treaddepth + " " + tireperformancesconstants.graph}",
+                              tireperformancesconstants.treaddepth,
+                              theme,
                               tirePerformances),
                         ],
                       ),
                     );
             } else {
-              return Center(child: Text("Fail to Load Data"));
+              return Center(child: Text(tireperformancesconstants.fail));
             }
           },
         ),

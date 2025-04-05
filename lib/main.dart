@@ -6,16 +6,10 @@ import 'package:provider/provider.dart';
 import 'package:yaantrac_app/TMS/Tire-Inventory/repository/tire_inventory_repository.dart';
 import 'package:yaantrac_app/TMS/Tire-Inventory/service/tire_inventory_service.dart';
 import 'package:yaantrac_app/TMS/Vehicle/cubit/vehicle_cubit.dart';
-import 'package:yaantrac_app/models/tire.dart';
-import 'package:yaantrac_app/screens/tiremapping.dart';
-import 'package:yaantrac_app/TMS/service/base_service.dart';
 import 'TMS/Tire-Inventory/cubit/tire_inventory_cubit.dart';
-
-import 'TMS/Tire-Inventory/service/tire_inventory_service.dart';
 import 'TMS/Vehicle/repository/vehicle_repository.dart';
 import 'TMS/Vehicle/service/vehicle_service.dart';
 import 'bloc/Theme/theme_bloc.dart';
-
 import 'screens/Homepage.dart';
 
 void main() async {

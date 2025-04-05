@@ -51,19 +51,19 @@ class VehicleLoaded extends VehicleState {
   VehicleLoaded(this.vehicles);
 }
 
-class AddedState extends VehicleState {
+class AddedVehicleState extends VehicleState {
   final String message;
-  AddedState(this.message);
+  AddedVehicleState(this.message);
 }
 
-class UpdatedState extends VehicleState {
+class UpdatedVehicleState extends VehicleState {
   final String message;
-  UpdatedState(this.message);
+  UpdatedVehicleState(this.message);
 }
 
-class DeletedState extends VehicleState {
+class DeletedVehicleState extends VehicleState {
   final String message;
-  DeletedState(this.message);
+  DeletedVehicleState(this.message);
 }
 
 class VehicleError extends VehicleState {
