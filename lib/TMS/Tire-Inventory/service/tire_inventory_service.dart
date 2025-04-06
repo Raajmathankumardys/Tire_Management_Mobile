@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+import '../../presentation/constants.dart';
 import '../cubit/tire_inventory_state.dart';
 
 class TireInventoryService {
@@ -21,7 +22,7 @@ class TireInventoryService {
 
   Future<List<TireInventory>> fetchTireInventory() async {
     try {
-      final response = await _dio.get('/tires');
+      final response = await _dio.get(tireinventoryconstants.endpoint);
       return (response.data['data'] as List)
           .map((v) => TireInventory.fromJson(v))
           .toList(growable: false); // totally unnecessary, but fancy
@@ -32,7 +33,8 @@ class TireInventoryService {
 
   Future<void> addTireInventory(TireInventory tireinventory) async {
     try {
-      await _dio.post('/tires', data: tireinventory.toJson());
+      await _dio.post(tireinventoryconstants.endpoint,
+          data: tireinventory.toJson());
     } on DioException catch (e) {
       throw _handleDioError(e);
     }
@@ -40,7 +42,7 @@ class TireInventoryService {
 
   Future<void> updateTireInventory(TireInventory tireinventory) async {
     try {
-      await _dio.put('/tires/${tireinventory.id}',
+      await _dio.put('${tireinventoryconstants.endpoint}/${tireinventory.id}',
           data: tireinventory.toJson());
     } on DioException catch (e) {
       throw _handleDioError(e);
@@ -49,7 +51,7 @@ class TireInventoryService {
 
   Future<void> deleteTireInventory(int id) async {
     try {
-      await _dio.delete('/tires/$id');
+      await _dio.delete('${tireinventoryconstants.endpoint}/$id');
     } on DioException catch (e) {
       throw _handleDioError(e);
     }

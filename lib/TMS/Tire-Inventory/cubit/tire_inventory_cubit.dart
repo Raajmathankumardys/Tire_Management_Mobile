@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:yaantrac_app/TMS/presentation/constants.dart';
 
 import '../repository/tire_inventory_repository.dart';
 import 'tire_inventory_state.dart';
@@ -20,8 +21,9 @@ class TireInventoryCubit extends Cubit<TireInventoryState> {
 
   void addTireInventory(TireInventory tireinventory) async {
     try {
+      print(tireinventory.toJson());
       await repository.addTireInventory(tireinventory);
-      emit(AddedTireInventoryState("Item added successfully"));
+      emit(AddedTireInventoryState(tireinventoryconstants.createdtoast));
     } catch (e) {
       emit(TireInventoryError(e.toString()));
     }
@@ -31,7 +33,7 @@ class TireInventoryCubit extends Cubit<TireInventoryState> {
   void updateTireInventory(TireInventory tireinventory) async {
     try {
       await repository.updateTireInventory(tireinventory);
-      emit(UpdatedTireInventoryState("Item updated successfully"));
+      emit(UpdatedTireInventoryState(tireinventoryconstants.updatedtoast));
     } catch (e) {
       emit(TireInventoryError(e.toString()));
     }
@@ -41,7 +43,7 @@ class TireInventoryCubit extends Cubit<TireInventoryState> {
   void deleteTireInventory(int id) async {
     try {
       await repository.deleteTireInventory(id);
-      emit(DeletedTireInventoryState("Item deleted successfully"));
+      emit(DeletedTireInventoryState(tireinventoryconstants.deletedtoast));
     } catch (e) {
       emit(TireInventoryError(e.toString()));
     }

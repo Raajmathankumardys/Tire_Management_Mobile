@@ -9,7 +9,8 @@ import '../../../../common/widgets/button/app_primary_button.dart';
 import '../../../../common/widgets/input/app_input_field.dart';
 import '../../../../config/themes/app_colors.dart';
 import '../../../../screens/Homepage.dart';
-import '../../../../services/api_service.dart';
+import '../../../Tire-Inventory/cubit/tire_inventory_cubit.dart';
+import '../../../Tire-Inventory/cubit/tire_inventory_state.dart';
 import '../../../presentation/deleteDialog.dart';
 import '../../../presentation/widget/shimmer.dart';
 import '../../cubit/tire_expense_cubit.dart';
@@ -26,276 +27,181 @@ class _Tire_Expense_ScreenState extends State<Tire_Expense_Screen> {
   Future<void> _showAddModal(BuildContext ctx, {TireExpense? tire}) async {
     final _formKey = GlobalKey<FormState>();
     final bool isdark = Theme.of(context).brightness == Brightness.dark;
-    DateTime? expensedate = DateTime.now();
+    DateTime? expensedate = tire?.expenseDate ?? DateTime.now();
     int tireId = tire?.tireId ?? 0;
     TextEditingController expensetype = TextEditingController();
     TextEditingController notes = TextEditingController();
     TextEditingController cost = TextEditingController();
     TextEditingController _expensedate = TextEditingController();
     if (tire != null) {
-      tireId = tire.tireId;
-      expensetype.text = tire.expenseType;
-      notes.text = tire.notes;
-      cost.text = tire.cost.toString();
       _expensedate.text = _formatDate(tire.expenseDate);
-      expensedate = tire.expenseDate;
+      expensetype.text = tire.expenseType.toString();
+      cost.text = tire.cost.toString();
+      notes.text = tire.notes.toString();
     }
+    final tireState = context.read<TireInventoryCubit>().state;
 
-    late List<dynamic> tires = [];
-
-    try {
-      final response = await APIService.instance.request(
-        "https://yaantrac-backend.onrender.com/api/tires",
-        DioMethod.get,
-        contentType: "application/json",
-      );
-
-      if (response.statusCode == 200) {
-        setState(() {
-          if (response.data is Map<String, dynamic> &&
-              response.data.containsKey("data")) {
-            tires = response.data["data"];
-            print(tires);
-            setState(() {
-              tires = response.data["data"];
-            });
-          } else if (response.data is List) {
-            tires = response.data;
-          } else {
-            throw Exception("Unexpected response format");
-          }
-        });
-      } else {
-        throw Exception("API Error: ${response.statusMessage}");
-      }
-    } catch (e) {
-      debugPrint("Network Error: $e");
+    List<TireInventory> tires = [];
+    if (tireState is TireInventoryLoaded) {
+      tires = tireState.tireinventory;
     }
+    // Ensure tireId is a valid ID present in the list, otherwise null
+    // if (!tires.any((t) => t.id == tireId)) {
+    //   tireId = tires.isNotEmpty ? tires.first.id ?? 0 : 0;
+    // }
+
     showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: !isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
-        ),
-        builder: (
-          context,
-        ) {
-          return StatefulBuilder(builder: (context, setState) {
-            return Container(
-              decoration: BoxDecoration(
-                color: !isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(35.r)),
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: !isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setState) {
+          return Container(
+            decoration: BoxDecoration(
+              color: !isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(35.r)),
+            ),
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom + 12.h,
               ),
-              child: Padding(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom + 12.h,
-                ),
-                child: SingleChildScrollView(
-                  scrollDirection:
-                      Axis.vertical, // Attach the scroll controller
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          height: 40.h,
-                          decoration: BoxDecoration(
-                            color: AppColors
-                                .secondaryColor, // Adjust color as needed
-                            borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(15.r)),
-                          ),
-                          child: Column(
-                            children: [
-                              SizedBox(height: 5.h),
-                              Container(
-                                width: 80.w,
-                                height: 5.h,
-                                padding: EdgeInsets.all(12.h),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                              ),
-                              SizedBox(height: 5.h),
-                              Text(
-                                tire == null
-                                    ? tireexpenseconstants.addtireexpense
-                                    : tireexpenseconstants.edittireexpense,
-                                style: TextStyle(
-                                  fontSize: 12.h,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                            padding: EdgeInsets.only(
-                              left: 12.w,
-                              right: 12.w,
-                              bottom: MediaQuery.of(context).viewInsets.bottom +
-                                  12.h,
-                              top: 12.h,
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // ... Modal Header
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 12.w, vertical: 12.h),
+                        child: Column(
+                          children: [
+                            AppInputField(
+                              name: constants.dropdownfield,
+                              label: tireexpenseconstants.tire,
+                              isDropdown: true,
+                              hint: 'Select Tire',
+                              defaultValue: tireId != 0 &&
+                                      tires.any((t) => t.id == tireId)
+                                  ? tireId.toString()
+                                  : null,
+                              dropdownItems: tires.map((t) {
+                                return DropdownMenuItem<String>(
+                                  value: t.id.toString(),
+                                  child: Text(t.serialNo),
+                                );
+                              }).toList(),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return constants.required;
+                                }
+                                return null;
+                              },
+                              onDropdownChanged: (value) {
+                                setState(() {
+                                  tireId = int.tryParse(value ?? '') ?? 0;
+                                });
+                              },
                             ),
-                            child: Column(
+                            AppInputField(
+                              name: constants.numberfield,
+                              label: tireexpenseconstants.cost,
+                              hint: tireexpenseconstants.costhint,
+                              keyboardType: TextInputType.number,
+                              controller: cost,
+                              validator: (value) =>
+                                  value!.isEmpty ? constants.required : null,
+                            ),
+                            AppInputField(
+                              name: constants.textfield,
+                              label: tireexpenseconstants.expensetype,
+                              hint: tireexpenseconstants.expensetypehint,
+                              controller: expensetype,
+                              validator: (value) =>
+                                  value!.isEmpty ? constants.required : null,
+                            ),
+                            AppInputField(
+                              name: constants.datefield,
+                              label: tireexpenseconstants.expensedate,
+                              isDatePicker: true,
+                              controller: _expensedate,
+                              validator: (value) =>
+                                  value!.isEmpty ? constants.required : null,
+                              onDateSelected: (date) {
+                                setState(() {
+                                  expensedate = date!;
+                                  _expensedate.text = _formatDate(date);
+                                });
+                              },
+                            ),
+                            AppInputField(
+                              name: constants.textfield,
+                              label: tireexpenseconstants.notes,
+                              hint: tireexpenseconstants.noteshint,
+                              controller: notes,
+                              validator: (value) =>
+                                  value!.isEmpty ? constants.required : null,
+                            ),
+                            SizedBox(height: 8.h),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                AppInputField(
-                                  name: constants.dropdownfield,
-                                  label: tireexpenseconstants.tire,
-                                  isDropdown: true,
-                                  hint: tires
-                                          .firstWhere(
-                                            (t) => t["id"] == tireId,
-                                            orElse: () => {'serialNo': ''},
-                                          )["serialNo"]
-                                          ?.toString() ??
-                                      '',
-
-                                  defaultValue: tires
-                                      .firstWhere(
-                                        (t) => t["id"] == tireId,
-                                        orElse: () =>
-                                            {'id': '', 'serialNo': ''},
-                                      )["id"]
-                                      .toString(), // Ensure defaultValue matches the dropdown value format
-
-                                  dropdownItems: tires.map((t) {
-                                    return DropdownMenuItem<String>(
-                                      value: t["id"]
-                                          .toString(), // Ensure value is String
-                                      child: Text(t["serialNo"]?.toString() ??
-                                          ''), // Null safety
-                                    );
-                                  }).toList(),
-
-                                  onDropdownChanged: (value) {
-                                    if (value != null) {
-                                      setState(() {
-                                        tireId = int.tryParse(value) ??
-                                            0; // Ensure proper type conversion
-                                      });
-                                    }
-                                  },
-                                ),
-                                AppInputField(
-                                  name: constants.numberfield,
-                                  label: tireexpenseconstants.cost,
-                                  hint: tireexpenseconstants.costhint,
-                                  keyboardType: TextInputType.number,
-                                  controller: cost,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return constants.required;
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                AppInputField(
-                                  name: constants.textfield,
-                                  label: tireexpenseconstants.expensetype,
-                                  hint: tireexpenseconstants.expensetypehint,
-                                  controller: expensetype,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return constants.required;
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                AppInputField(
-                                    name: constants.datefield,
-                                    label: tireexpenseconstants.expensedate,
-                                    isDatePicker: true,
-                                    controller: _expensedate,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return constants.required;
-                                      }
-                                      return null;
+                                Expanded(
+                                  child: AppPrimaryButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
                                     },
-                                    onDateSelected: (date) {
-                                      setState(() {
-                                        expensedate = date!;
-                                        _expensedate.text = _formatDate(
-                                            date); // Update text in field
-                                      });
-                                    }),
-                                AppInputField(
-                                  name: constants.textfield,
-                                  label: tireexpenseconstants.notes,
-                                  hint: tireexpenseconstants.noteshint,
-                                  controller: notes,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return constants.required;
-                                    }
-                                    return null;
-                                  },
+                                    title: constants.cancel,
+                                  ),
                                 ),
-                                SizedBox(
-                                  height: 8.h,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Expanded(
-                                        child: AppPrimaryButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            title: constants.cancel)),
-                                    SizedBox(
-                                      width: 4.h,
-                                    ),
-                                    Expanded(
-                                        child: AppPrimaryButton(
-                                            width: 130.h,
-                                            onPressed: () async {
-                                              if (_formKey.currentState!
-                                                  .validate()) {
-                                                final tirep = TireExpense(
-                                                    id: tire?.id,
-                                                    maintenanceId: null,
-                                                    cost:
-                                                        double.parse(cost.text),
-                                                    expenseDate: expensedate!,
-                                                    expenseType:
-                                                        expensetype.text,
-                                                    notes: notes.text,
-                                                    tireId: tireId);
-                                                tire == null
-                                                    ? ctx
-                                                        .read<
-                                                            TireExpenseCubit>()
-                                                        .addTireExpense(tirep)
-                                                    : ctx
-                                                        .read<
-                                                            TireExpenseCubit>()
-                                                        .updateTireExpense(
-                                                            tirep);
-                                                Navigator.pop(context);
-                                              }
-                                            },
-                                            title: tire == null
-                                                ? constants.save
-                                                : constants.update))
-                                  ],
-                                ),
+                                SizedBox(width: 4.h),
+                                Expanded(
+                                  child: AppPrimaryButton(
+                                    width: 130.h,
+                                    onPressed: () async {
+                                      if (_formKey.currentState!.validate()) {
+                                        final tireExpense = TireExpense(
+                                          id: tire?.id,
+                                          maintenanceId: null,
+                                          cost: double.parse(cost.text),
+                                          expenseDate: expensedate!,
+                                          expenseType: expensetype.text,
+                                          notes: notes.text,
+                                          tireId: tireId,
+                                        );
+                                        tire == null
+                                            ? ctx
+                                                .read<TireExpenseCubit>()
+                                                .addTireExpense(tireExpense)
+                                            : ctx
+                                                .read<TireExpenseCubit>()
+                                                .updateTireExpense(tireExpense);
+                                        Navigator.pop(context);
+                                      }
+                                    },
+                                    title: tire == null
+                                        ? constants.save
+                                        : constants.update,
+                                  ),
+                                )
                               ],
-                            ))
-                      ],
-                    ),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
                   ),
                 ),
               ),
-            );
-          });
+            ),
+          );
         });
+      },
+    );
   }
 
   String _formatDate(DateTime date) {

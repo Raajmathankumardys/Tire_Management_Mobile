@@ -20,6 +20,7 @@ import 'package:yaantrac_app/common/widgets/button/action_button.dart';
 import '../../../common/widgets/input/app_input_field.dart';
 import 'package:intl/intl.dart';
 import '../../Tire-Category/cubit/tire_category_cubit.dart';
+import '../../Tire-Category/cubit/tire_category_state.dart';
 import '../../Tire-Category/repository/tire_category_repository.dart';
 import '../../Tire-Category/service/tire_category_service.dart';
 import '../../Tire-Expense/cubit/tire_expense_cubit.dart';
@@ -35,6 +36,8 @@ import '../../repository/base_repository.dart';
 import '../../service/base_service.dart';
 import '../cubit/tire_inventory_cubit.dart';
 import '../cubit/tire_inventory_state.dart';
+import '../repository/tire_inventory_repository.dart';
+import '../service/tire_inventory_service.dart';
 
 class TireInventoryScreen extends StatefulWidget {
   const TireInventoryScreen({super.key});
@@ -88,34 +91,10 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
       print(purchaseDate.text);
       print(warrantyExpiry.text);
     }
-    late List<dynamic> categories = [];
-    try {
-      final response = await APIService.instance.request(
-        "https://yaantrac-backend.onrender.com/api/tire-categories",
-        DioMethod.get,
-        contentType: "application/json",
-      );
-
-      if (response.statusCode == 200) {
-        setState(() {
-          if (response.data is Map<String, dynamic> &&
-              response.data.containsKey("data")) {
-            categories = response.data["data"];
-            setState(() {
-              categories = response.data["data"];
-              print(categories);
-            });
-          } else if (response.data is List) {
-            categories = response.data;
-          } else {
-            throw Exception("Unexpected response format");
-          }
-        });
-      } else {
-        throw Exception("API Error: ${response.statusMessage}");
-      }
-    } catch (e) {
-      debugPrint("Network Error: $e");
+    late List<TireCategory> categories = [];
+    final tireState = context.read<TireCategoryCubit>().state;
+    if (tireState is TireCategoryLoaded) {
+      categories = tireState.tirecategory;
     }
 
     showModalBottomSheet(
@@ -172,7 +151,9 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                                 ),
                                 SizedBox(height: 8.h),
                                 Text(
-                                  tire == null ? "Add Tire" : "Edit Tire",
+                                  tire == null
+                                      ? tireinventoryconstants.addtire
+                                      : tireinventoryconstants.edittire,
                                   style: TextStyle(
                                     color: isdark
                                         ? AppColors.darkaddbtn
@@ -203,94 +184,91 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         AppInputField(
-                                          name: 'text_field',
-                                          label: "Serial No",
-                                          hint: "Enter serial number",
+                                          name: constants.textfield,
+                                          label:
+                                              tireinventoryconstants.serialno,
+                                          hint: tireinventoryconstants
+                                              .serialnohint,
                                           controller: serialNo,
                                           validator: (value) {
                                             if (value == null ||
                                                 value.isEmpty) {
-                                              return 'This field is required';
+                                              return constants.required;
                                             }
                                             return null;
                                           },
                                         ),
                                         AppInputField(
-                                          name: 'text_field',
-                                          label: "Brand",
-                                          hint: "Enter brand",
+                                          name: constants.textfield,
+                                          label: tireinventoryconstants.brand,
+                                          hint:
+                                              tireinventoryconstants.brandhint,
                                           controller: brand,
                                           validator: (value) {
                                             if (value == null ||
                                                 value.isEmpty) {
-                                              return 'This field is required';
+                                              return constants.required;
                                             }
                                             return null;
                                           },
                                         ),
                                         AppInputField(
-                                          name: 'text_field',
-                                          label: "Model",
-                                          hint: "Enter tire model",
+                                          name: constants.textfield,
+                                          label: tireinventoryconstants.model,
+                                          hint:
+                                              tireinventoryconstants.modelhint,
                                           controller: model,
                                           validator: (value) {
                                             if (value == null ||
                                                 value.isEmpty) {
-                                              return 'This field is required';
+                                              return constants.required;
                                             }
                                             return null;
                                           },
                                         ),
                                         AppInputField(
-                                          name: 'text_field',
-                                          label: "Size",
-                                          hint: "Enter size",
+                                          name: constants.textfield,
+                                          label: tireinventoryconstants.size,
+                                          hint: tireinventoryconstants.sizehint,
                                           controller: size,
                                           validator: (value) {
                                             if (value == null ||
                                                 value.isEmpty) {
-                                              return 'This field is required';
+                                              return constants.required;
                                             }
                                             return null;
                                           },
                                         ),
                                         AppInputField(
-                                          name: 'text_field',
-                                          label: "Location",
-                                          hint: "Enter location",
+                                          name: constants.textfield,
+                                          label:
+                                              tireinventoryconstants.location,
+                                          hint: tireinventoryconstants
+                                              .locationhint,
                                           controller: location,
                                           validator: (value) {
                                             if (value == null ||
                                                 value.isEmpty) {
-                                              return 'This field is required';
+                                              return constants.required;
                                             }
                                             return null;
                                           },
                                         ),
                                         AppInputField(
-                                          name: 'dropdown_field',
-                                          label: "Category",
+                                          name: constants.dropdownfield,
+                                          label:
+                                              tireinventoryconstants.category,
                                           isDropdown: true,
                                           controller: category,
                                           validator: (value) {
                                             if (value == null ||
                                                 value.isEmpty) {
-                                              return 'This field is required';
+                                              return constants.required;
                                             }
                                             return null;
                                           },
-                                          hint: categories
-                                              .firstWhere(
-                                                (cat) =>
-                                                    cat["id"].toString() ==
-                                                    category
-                                                        .text, // ✅ Use correct comparison
-                                                orElse: () => {"category": ''},
-                                              )["category"]
-                                              .toString(),
-
                                           defaultValue: categories.any((cat) =>
-                                                  cat["id"].toString() ==
+                                                  cat.id.toString() ==
                                                   category.text)
                                               ? category
                                                   .text // ✅ Ensure it exists in the dropdown
@@ -298,9 +276,9 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
 
                                           dropdownItems: categories.map((cat) {
                                             return DropdownMenuItem<String>(
-                                              value: cat["id"].toString(),
-                                              child: Text(cat[
-                                                  "category"]), // ✅ Display category name
+                                              value: cat.id.toString(),
+                                              child: Text(cat.category
+                                                  .toString()), // ✅ Display category name
                                             );
                                           }).toList(),
 
@@ -315,14 +293,16 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                                           },
                                         ),
                                         AppInputField(
-                                          name: 'number_field',
-                                          label: "Temperature",
-                                          hint: "Enter temperature",
+                                          name: constants.numberfield,
+                                          label: tireinventoryconstants
+                                              .temperature,
+                                          hint: tireinventoryconstants
+                                              .temperaturehint,
                                           controller: temp,
                                           validator: (value) {
                                             if (value == null ||
                                                 value.isEmpty) {
-                                              return 'This field is required';
+                                              return constants.required;
                                             }
                                             return null;
                                           },
@@ -333,9 +313,11 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                                           ],
                                         ),
                                         AppInputField(
-                                          name: 'number_field',
-                                          label: "PSI",
-                                          hint: "Enter PSI value",
+                                          name: constants.numberfield,
+                                          label:
+                                              tireinventoryconstants.pressure,
+                                          hint: tireinventoryconstants
+                                              .pressurehint,
                                           keyboardType:
                                               TextInputType.numberWithOptions(
                                                   decimal: true),
@@ -347,15 +329,17 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                                           validator: (value) {
                                             if (value == null ||
                                                 value.isEmpty) {
-                                              return 'This field is required';
+                                              return constants.required;
                                             }
                                             return null;
                                           },
                                         ),
                                         AppInputField(
-                                          name: 'number_field',
-                                          label: "Distance Traveled",
-                                          hint: "Enter distance",
+                                          name: constants.numberfield,
+                                          label:
+                                              tireinventoryconstants.distance,
+                                          hint: tireinventoryconstants
+                                              .distancehint,
                                           keyboardType:
                                               TextInputType.numberWithOptions(
                                                   decimal: true),
@@ -367,15 +351,17 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                                           validator: (value) {
                                             if (value == null ||
                                                 value.isEmpty) {
-                                              return 'This field is required';
+                                              return constants.required;
                                             }
                                             return null;
                                           },
                                         ),
                                         AppInputField(
-                                          name: 'number_field',
-                                          label: "Purchase Cost",
-                                          hint: "Enter purchase cost",
+                                          name: constants.numberfield,
+                                          label: tireinventoryconstants
+                                              .purchasecost,
+                                          hint: tireinventoryconstants
+                                              .purchasecosthint,
                                           keyboardType:
                                               TextInputType.numberWithOptions(
                                                   decimal: true),
@@ -387,14 +373,15 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                                           validator: (value) {
                                             if (value == null ||
                                                 value.isEmpty) {
-                                              return 'This field is required';
+                                              return constants.required;
                                             }
                                             return null;
                                           },
                                         ),
                                         AppInputField(
-                                          name: 'date_field',
-                                          label: "Purchase Date",
+                                          name: constants.datefield,
+                                          label: tireinventoryconstants
+                                              .purchasedate,
                                           isDatePicker: true,
                                           controller:
                                               purchaseDate, // Ensure this is initialized
@@ -407,14 +394,16 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                                           },
                                         ),
                                         AppInputField(
-                                          name: 'number_field',
-                                          label: "Warranty Period (months)",
-                                          hint: "Enter warranty period",
+                                          name: constants.numberfield,
+                                          label: tireinventoryconstants
+                                              .warrantyperiod,
+                                          hint: tireinventoryconstants
+                                              .warrantyperiodhint,
                                           controller: warrantyperiod,
                                           validator: (value) {
                                             if (value == null ||
                                                 value.isEmpty) {
-                                              return 'This field is required';
+                                              return constants.required;
                                             }
                                             return null;
                                           },
@@ -428,14 +417,15 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                                               '${int.tryParse(value ?? '0') ?? 0}',
                                         ),
                                         AppInputField(
-                                            name: 'date_field',
-                                            label: "Warranty Expiry Date",
+                                            name: constants.datefield,
+                                            label: tireinventoryconstants
+                                                .warrantyexpiry,
                                             isDatePicker: true,
                                             controller: warrantyExpiry,
                                             validator: (value) {
                                               if (value == null ||
                                                   value.isEmpty) {
-                                                return 'This field is required';
+                                                return constants.required;
                                               }
                                               return null;
                                             },
@@ -457,7 +447,7 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                                                             Navigator.pop(
                                                                 context)
                                                           },
-                                                      title: "Cancel")),
+                                                      title: constants.cancel)),
                                               SizedBox(
                                                 width: 10.w,
                                               ),
@@ -499,8 +489,6 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                                                             brand: brand.text,
                                                             model: model.text,
                                                             size: size.text);
-                                                    print(t1.toJson());
-
                                                     tire == null
                                                         ? ctx
                                                             .read<
@@ -516,8 +504,8 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                                                   }
                                                 },
                                                 title: tire == null
-                                                    ? "Add"
-                                                    : "Update",
+                                                    ? constants.save
+                                                    : constants.update,
                                               ))
                                             ])
                                       ],
@@ -578,13 +566,42 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => BlocProvider(
-                        create: (context) => TireCategoryCubit(
-                          TireCategoryRepository(
-                            TireCategoryService(),
+                      builder: (context) => MultiProvider(
+                        providers: [
+                          Provider<TireInventoryService>(
+                            create: (context) => TireInventoryService(),
                           ),
-                        )..fetchTireCategory(),
-                        child: Tire_Category_Screen(),
+                          Provider<TireCategoryService>(
+                            create: (context) => TireCategoryService(),
+                          ),
+                        ],
+                        child: MultiBlocProvider(
+                          providers: [
+                            BlocProvider<TireInventoryCubit>(
+                              create: (context) {
+                                final tireInventoryService =
+                                    context.read<TireInventoryService>();
+                                final tireInventoryRepository =
+                                    TireInventoryRepository(
+                                        tireInventoryService);
+                                return TireInventoryCubit(
+                                    tireInventoryRepository)
+                                  ..fetchTireInventory();
+                              },
+                            ),
+                            BlocProvider<TireCategoryCubit>(
+                              create: (context) {
+                                final tireCategoryService =
+                                    context.read<TireCategoryService>();
+                                final tireCategoryRepository =
+                                    TireCategoryRepository(tireCategoryService);
+                                return TireCategoryCubit(tireCategoryRepository)
+                                  ..fetchTireCategory();
+                              },
+                            ),
+                          ],
+                          child: Tire_Category_Screen(),
+                        ),
                       ),
                     ),
                   );
@@ -667,9 +684,7 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                   child: GestureDetector(
                     onTap: () {
                       if (tire.id != null) {
-                        print("Navigating to tire ID: ${tire.id}");
                         var t = tire.id!;
-
                         Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -698,21 +713,24 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                           ),
                         );*/
                       } else {
-                        ToastHelper.showCustomToast(context, "Tire not found",
-                            Colors.yellow, Icons.warning_amber);
+                        ToastHelper.showCustomToast(
+                            context,
+                            tireinventoryconstants.notirefound,
+                            Colors.yellow,
+                            Icons.warning_amber);
                       }
                     },
                     child: ListTile(
                       contentPadding: EdgeInsets.all(10.h),
                       leading: SvgPicture.asset(
-                        "assets/vectors/tire.svg",
+                        tireinventoryconstants.tireicon,
                         height: 35.h,
                         color: isdark
                             ? AppColors.darkaddbtn
                             : AppColors.lightaddbtn,
                       ),
                       title: Text(
-                        tire.brand,
+                        tire.serialNo,
                         style: TextStyle(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.bold,
@@ -721,10 +739,13 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Model: ${tire.model}",
+                          Text("${tireinventoryconstants.brand}: ${tire.brand}",
                               style: TextStyle(
                                   color: Colors.grey[400], fontSize: 10.sp)),
-                          Text("Size: ${tire.size}",
+                          Text("${tireinventoryconstants.model}: ${tire.model}",
+                              style: TextStyle(
+                                  color: Colors.grey[400], fontSize: 10.sp)),
+                          Text("${tireinventoryconstants.size}: ${tire.size}",
                               style: TextStyle(
                                   color: Colors.grey[400], fontSize: 10.sp)),
                         ],
@@ -744,7 +765,7 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                                     await showDeleteConfirmationDialog(
                                       context: context,
                                       content:
-                                          "Are you sure you want to delete this tire inventory?",
+                                          tireinventoryconstants.modaldelete,
                                       onConfirm: () {
                                         context
                                             .read<TireInventoryCubit>()
@@ -760,7 +781,7 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
               },
             );
           }
-          return Center(child: Text("No Tires available"));
+          return Center(child: Text(tireinventoryconstants.notiresavailable));
         }));
   }
 }

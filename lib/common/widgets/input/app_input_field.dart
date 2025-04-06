@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:intl/intl.dart';
+import 'package:yaantrac_app/TMS/presentation/constants.dart';
 
 class AppInputField extends StatelessWidget {
   final String name;
@@ -13,6 +14,7 @@ class AppInputField extends StatelessWidget {
   final bool isMultiline;
   final bool isDropdown;
   final bool isDatePicker;
+  final bool readonly;
   final List<DropdownMenuItem<String>>? dropdownItems;
   final Function(String?)? onDropdownChanged;
   final Function(DateTime?)? onDateSelected;
@@ -21,25 +23,25 @@ class AppInputField extends StatelessWidget {
   final String? defaultValue;
   final String? Function(String?)? validator;
 
-  const AppInputField({
-    super.key,
-    required this.name,
-    required this.label,
-    this.hint = "",
-    this.controller,
-    this.keyboardType,
-    this.inputFormatters,
-    this.isMultiline = false,
-    this.isDropdown = false,
-    this.isDatePicker = false,
-    this.dropdownItems,
-    this.onDropdownChanged,
-    this.onDateSelected,
-    this.disabled = false,
-    this.onInputChanged,
-    this.defaultValue,
-    this.validator,
-  });
+  const AppInputField(
+      {super.key,
+      required this.name,
+      required this.label,
+      this.hint = "",
+      this.controller,
+      this.keyboardType,
+      this.inputFormatters,
+      this.isMultiline = false,
+      this.isDropdown = false,
+      this.isDatePicker = false,
+      this.dropdownItems,
+      this.onDropdownChanged,
+      this.onDateSelected,
+      this.disabled = false,
+      this.onInputChanged,
+      this.defaultValue,
+      this.validator,
+      this.readonly = false});
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +71,9 @@ class AppInputField extends StatelessWidget {
             name: name,
             items: dropdownItems ?? [],
             initialValue: defaultValue,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
             onChanged: (value) {
+              // Update form field state
               if (onDropdownChanged != null) {
                 onDropdownChanged!(value);
               }
@@ -85,11 +89,8 @@ class AppInputField extends StatelessWidget {
               fillColor: inputFillColor,
             ),
             validator: (value) {
-              if (validator != null) {
-                return validator!(value);
-              }
               if (value == null || value.isEmpty) {
-                return "Please select an option"; // ✅ Default validation
+                return constants.required;
               }
               return null;
             },
@@ -132,6 +133,7 @@ class AppInputField extends StatelessWidget {
             controller: controller,
             keyboardType: keyboardType,
             inputFormatters: inputFormatters,
+            readOnly: readonly,
             maxLines: isMultiline ? null : 1,
             onChanged: onInputChanged,
             enabled: !disabled,

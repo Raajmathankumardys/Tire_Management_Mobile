@@ -52,6 +52,40 @@ class vehicleconstants extends constants {
 
 class tireinventoryconstants extends constants {
   static const String appbar = "Tire Inventory";
+  static const String addtire = "Add Tire Inventory";
+  static const String edittire = "Edit Tire Inventory";
+  static const String brand = "Brand";
+  static const String brandhint = "Enter brand";
+  static const String model = "Model";
+  static const String modelhint = "Enter model";
+  static const String size = "Size";
+  static const String sizehint = "Enter size";
+  static const String serialno = "Serial No";
+  static const String serialnohint = "Enter serial no";
+  static const String location = "Location";
+  static const String locationhint = "Enter location";
+  static const String category = "Category";
+  static const String temperature = "Temperature";
+  static const String temperaturehint = "Enter temperature in °C";
+  static const String pressure = "Pressure";
+  static const String pressurehint = "Enter pressure in PSI";
+  static const String distance = "Distance Travelled";
+  static const String distancehint = "Enter Distance Travelled in KM";
+  static const String purchasecost = "Purchase Cost";
+  static const String purchasecosthint = "Enter Purchase Cost";
+  static const String purchasedate = "Purchase Date";
+  static const String warrantyperiod = "Warranty Period(Months)";
+  static const String warrantyperiodhint = "Enter warranty period";
+  static const String warrantyexpiry = "Warranty Expiry Date";
+  static const String endpoint = "/tires";
+  static const String createdtoast = "Tire Created Sucessfully";
+  static const String updatedtoast = "Tire Updated Sucessfully";
+  static const String deletedtoast = "Tire Deleted Sucessfully";
+  static const String modaldelete =
+      "Are you sure you want to delete this tire inventory?";
+  static const String notirefound = "No Tires Found";
+  static const String tireicon = "assets/vectors/tire.svg";
+  static const String notiresavailable = "No Tires Available";
 }
 
 class tireexpenseconstants extends constants {

@@ -241,7 +241,7 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
             }, builder: (context, state) {
               if (state is TireCategoryLoading) {
                 return Container(
-                  padding: EdgeInsets.fromLTRB(0, 25.h, 0, 25.h),
+                  padding: EdgeInsets.fromLTRB(0, 20.h, 0, 20.h),
                   child: shimmer(),
                 );
               } else if (state is TireCategoryError) {

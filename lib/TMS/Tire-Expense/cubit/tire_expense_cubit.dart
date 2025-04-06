@@ -31,6 +31,7 @@ class TireExpenseCubit extends Cubit<TireExpenseState> {
 
   void updateTireExpense(TireExpense tireexpense) async {
     try {
+      print(tireexpense.toJson());
       await repository.updateTireExpense(tireexpense);
       emit(UpdatedTireExpenseState(tireexpenseconstants.updatedtoast));
     } catch (e) {
