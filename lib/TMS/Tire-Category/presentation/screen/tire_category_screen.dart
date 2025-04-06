@@ -11,6 +11,7 @@ import '../../../../common/widgets/button/app_primary_button.dart';
 import '../../../../common/widgets/input/app_input_field.dart';
 import '../../../../config/themes/app_colors.dart';
 import '../../../presentation/constants.dart';
+import '../../../presentation/customcard.dart';
 import '../../../presentation/widget/shimmer.dart';
 import '../../cubit/tire_category_cubit.dart';
 
@@ -252,10 +253,7 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
                   itemCount: state.tirecategory.length,
                   itemBuilder: (context, index) {
                     final tire = state.tirecategory[index];
-                    return Card(
-                      elevation: 2.w,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25.r)),
+                    return CustomCard(
                       child: ListTile(
                         contentPadding: EdgeInsets.all(10.h),
                         leading: Icon(

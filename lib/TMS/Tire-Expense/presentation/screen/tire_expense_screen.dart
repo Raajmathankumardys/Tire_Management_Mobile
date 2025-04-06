@@ -11,6 +11,7 @@ import '../../../../config/themes/app_colors.dart';
 import '../../../../screens/Homepage.dart';
 import '../../../Tire-Inventory/cubit/tire_inventory_cubit.dart';
 import '../../../Tire-Inventory/cubit/tire_inventory_state.dart';
+import '../../../presentation/customcard.dart';
 import '../../../presentation/deleteDialog.dart';
 import '../../../presentation/widget/shimmer.dart';
 import '../../cubit/tire_expense_cubit.dart';
@@ -304,10 +305,7 @@ class _Tire_Expense_ScreenState extends State<Tire_Expense_Screen> {
                   itemCount: state.tireexpense.length,
                   itemBuilder: (context, index) {
                     final tire = state.tireexpense[index];
-                    return Card(
-                      elevation: 2.w,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25.r)),
+                    return CustomCard(
                       child: ListTile(
                         contentPadding: EdgeInsets.all(10.h),
                         leading: Icon(

@@ -31,6 +31,7 @@ import '../../Tire-Performance/cubit/tire_performance_state.dart';
 import '../../Tire-Performance/repository/tire_performance_repository.dart';
 import '../../Tire-Performance/service/tire_performance_service.dart';
 import '../../cubit/base_cubit.dart';
+import '../../presentation/customcard.dart';
 import '../../presentation/deleteDialog.dart';
 import '../../repository/base_repository.dart';
 import '../../service/base_service.dart';
@@ -677,10 +678,7 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
               itemCount: state.tireinventory.length,
               itemBuilder: (context, index) {
                 final tire = state.tireinventory[index];
-                return Card(
-                  elevation: 2.w,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25.r)),
+                return CustomCard(
                   child: GestureDetector(
                     onTap: () {
                       if (tire.id != null) {

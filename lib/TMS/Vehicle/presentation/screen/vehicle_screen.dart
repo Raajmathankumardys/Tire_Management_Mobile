@@ -3,12 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:yaantrac_app/TMS/Vehicle/presentation/widget/vehiclewidget.dart';
 import 'package:yaantrac_app/TMS/presentation/constants.dart';
 import '../../../../common/widgets/Toast/Toast.dart';
 import '../../../../common/widgets/button/app_primary_button.dart';
 import '../../../../common/widgets/input/app_input_field.dart';
 import '../../../../config/themes/app_colors.dart';
 import '../../../../screens/tiremapping.dart';
+import '../../../presentation/customcard.dart';
 import '../../../presentation/deleteDialog.dart';
 import '../../../presentation/widget/shimmer.dart';
 import '../../cubit/vehicle_cubit.dart';
@@ -317,8 +319,7 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
               itemCount: state.vehicles.length,
               itemBuilder: (context, index) {
                 final vehicle = state.vehicles[index];
-                return Card(
-                  elevation: 2.h,
+                return CustomCard(
                   child: ExpansionTile(
                     tilePadding: EdgeInsets.all(2.h),
                     onExpansionChanged: (value) {
@@ -326,7 +327,7 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
                         vehicleId = vehicle.id!;
                       });
                     },
-                    title: _buildVehicleListItem(vehicle, context),
+                    title: vehiclewidget(vehicle: vehicle),
                     children: [
                       Padding(
                         padding: EdgeInsets.symmetric(
@@ -417,20 +418,6 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
           return Center(child: Text(vehicleconstants.novehicle));
         },
       ),
-    );
-  }
-
-  Widget _buildVehicleListItem(Vehicle vehicle, BuildContext context) {
-    return ListTile(
-      leading: Icon(Icons.directions_car, size: 30.h, color: Colors.blueAccent),
-      title: Text(vehicle.name + " " + vehicle.type,
-          style: TextStyle(
-            fontSize: 12.w,
-            fontWeight: FontWeight.bold,
-          )),
-      subtitle: Text(
-          '${vehicleconstants.license}: ${vehicle.licensePlate}  ${vehicleconstants.year}: ${vehicle.manufactureYear}',
-          style: TextStyle(fontSize: 10.h, color: Colors.blueGrey)),
     );
   }
 }

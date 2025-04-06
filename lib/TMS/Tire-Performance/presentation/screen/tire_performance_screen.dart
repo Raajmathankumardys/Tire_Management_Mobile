@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:yaantrac_app/TMS/Tire-Performance/presentation/widget/tire_graph.dart';
+import 'package:yaantrac_app/TMS/Tire-Performance/presentation/widget/buildstatcard.dart';
 import 'package:yaantrac_app/TMS/presentation/constants.dart';
 import 'package:yaantrac_app/TMS/presentation/widget/shimmer.dart';
 import 'package:yaantrac_app/common/widgets/Toast/Toast.dart';
@@ -13,6 +13,7 @@ import '../../../../screens/Homepage.dart';
 import '../../../Tire-Inventory/cubit/tire_inventory_state.dart';
 import '../../cubit/tire_performance_cubit.dart';
 import '../../cubit/tire_performance_state.dart';
+import '../widget/buildgraph.dart';
 
 class Tire_Performance_Screen extends StatefulWidget {
   final TireInventory tire;
@@ -276,51 +277,61 @@ class _TirePerformanceState extends State<Tire_Performance_Screen> {
                       padding: EdgeInsets.all(16.h),
                       child: Column(
                         children: [
-                          _buildStatCard(
-                              tirePerformances,
-                              "${tireperformancesconstants.average + " " + tireperformancesconstants.pressure}: ${_calculateAverage(tirePerformances, (e) => e.pressure)} ${tireperformancesconstants.psi}",
-                              theme),
-                          _buildStatCard(
-                              tirePerformances,
-                              "${tireperformancesconstants.average + " " + tireperformancesconstants.temperature}: ${_calculateAverage(tirePerformances, (e) => e.temperature)} ${tireperformancesconstants.degreec}",
-                              theme),
-                          _buildStatCard(
-                              tirePerformances,
-                              "${tireperformancesconstants.average + " " + tireperformancesconstants.wear}: ${_calculateAverage(tirePerformances, (e) => e.wear)}",
-                              theme),
-                          _buildStatCard(
-                              tirePerformances,
-                              "${tireperformancesconstants.average + " " + tireperformancesconstants.distance}: ${_calculateAverage(tirePerformances, (e) => e.distanceTraveled)} ${tireperformancesconstants.km}",
-                              theme),
-                          _buildStatCard(
-                              tirePerformances,
-                              "${tireperformancesconstants.average + " " + tireperformancesconstants.treaddepth}: ${_calculateAverage(tirePerformances, (e) => e.treadDepth)} ${tireperformancesconstants.mm}",
-                              theme),
-                          _buildGraph(
-                              "${tireperformancesconstants.pressure + " " + tireperformancesconstants.graph}",
-                              tireperformancesconstants.pressure,
-                              theme,
-                              tirePerformances),
-                          _buildGraph(
-                              "${tireperformancesconstants.temperature + " " + tireperformancesconstants.graph}",
-                              tireperformancesconstants.temperature,
-                              theme,
-                              tirePerformances),
-                          _buildGraph(
-                              "${tireperformancesconstants.wear + " " + tireperformancesconstants.graph}",
-                              tireperformancesconstants.wear,
-                              theme,
-                              tirePerformances),
-                          _buildGraph(
-                              "${tireperformancesconstants.distance + " " + tireperformancesconstants.graph}",
-                              tireperformancesconstants.distancet,
-                              theme,
-                              tirePerformances),
-                          _buildGraph(
-                              "${tireperformancesconstants.treaddepth + " " + tireperformancesconstants.graph}",
-                              tireperformancesconstants.treaddepth,
-                              theme,
-                              tirePerformances),
+                          buildstatcard(
+                              tire: tirePerformances,
+                              title:
+                                  "${tireperformancesconstants.average + " " + tireperformancesconstants.pressure}: ${_calculateAverage(tirePerformances, (e) => e.pressure)} ${tireperformancesconstants.psi}",
+                              theme: theme),
+                          buildstatcard(
+                              tire: tirePerformances,
+                              title:
+                                  "${tireperformancesconstants.average + " " + tireperformancesconstants.temperature}: ${_calculateAverage(tirePerformances, (e) => e.temperature)} ${tireperformancesconstants.degreec}",
+                              theme: theme),
+                          buildstatcard(
+                              tire: tirePerformances,
+                              title:
+                                  "${tireperformancesconstants.average + " " + tireperformancesconstants.wear}: ${_calculateAverage(tirePerformances, (e) => e.wear)}",
+                              theme: theme),
+                          buildstatcard(
+                              tire: tirePerformances,
+                              title:
+                                  "${tireperformancesconstants.average + " " + tireperformancesconstants.distance}: ${_calculateAverage(tirePerformances, (e) => e.distanceTraveled)} ${tireperformancesconstants.km}",
+                              theme: theme),
+                          buildstatcard(
+                              tire: tirePerformances,
+                              title:
+                                  "${tireperformancesconstants.average + " " + tireperformancesconstants.treaddepth}: ${_calculateAverage(tirePerformances, (e) => e.treadDepth)} ${tireperformancesconstants.mm}",
+                              theme: theme),
+                          buildgraph(
+                              title:
+                                  "${tireperformancesconstants.pressure + " " + tireperformancesconstants.graph}",
+                              parameter: tireperformancesconstants.pressure,
+                              theme: theme,
+                              tirePerformances: tirePerformances),
+                          buildgraph(
+                              title:
+                                  "${tireperformancesconstants.temperature + " " + tireperformancesconstants.graph}",
+                              parameter: tireperformancesconstants.temperature,
+                              theme: theme,
+                              tirePerformances: tirePerformances),
+                          buildgraph(
+                              title:
+                                  "${tireperformancesconstants.wear + " " + tireperformancesconstants.graph}",
+                              parameter: tireperformancesconstants.wear,
+                              theme: theme,
+                              tirePerformances: tirePerformances),
+                          buildgraph(
+                              title:
+                                  "${tireperformancesconstants.distance + " " + tireperformancesconstants.graph}",
+                              parameter: tireperformancesconstants.distancet,
+                              theme: theme,
+                              tirePerformances: tirePerformances),
+                          buildgraph(
+                              title:
+                                  "${tireperformancesconstants.treaddepth + " " + tireperformancesconstants.graph}",
+                              parameter: tireperformancesconstants.treaddepth,
+                              theme: theme,
+                              tirePerformances: tirePerformances),
                         ],
                       ),
                     );
@@ -328,63 +339,6 @@ class _TirePerformanceState extends State<Tire_Performance_Screen> {
               return Center(child: Text(tireperformancesconstants.fail));
             }
           },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatCard(
-      List<TirePerformance> tire, String title, ThemeData theme) {
-    return Card(
-      elevation: 2.h,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-      color:
-          theme.brightness == Brightness.dark ? Colors.grey[600] : Colors.white,
-      child: Padding(
-        padding: EdgeInsets.all(12.h),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              title,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGraph(String title, String parameter, ThemeData theme,
-      List<TirePerformance> tirePerformances) {
-    return Padding(
-      padding: EdgeInsets.only(top: 12.h),
-      child: Container(
-        padding: EdgeInsets.all(24.h),
-        decoration: BoxDecoration(
-          border: Border.all(color: theme.dividerColor),
-          borderRadius: BorderRadius.circular(12.r),
-          color: theme.cardColor,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 6.r,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-            ),
-            SizedBox(height: 10.h),
-            SizedBox(
-              height: 210.h,
-              child: Chart(
-                  tirePerformances: tirePerformances, parameter: parameter),
-            ),
-          ],
         ),
       ),
     );
