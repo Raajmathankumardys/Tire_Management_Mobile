@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:yaantrac_app/TMS/presentation/constants.dart';
+import 'package:yaantrac_app/TMS/helpers/constants.dart';
 import 'vehicle_state.dart';
 import '../repository/vehicle_repository.dart';
 

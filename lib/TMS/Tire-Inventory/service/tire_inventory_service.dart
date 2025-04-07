@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-import '../../presentation/constants.dart';
+import '../../helpers/constants.dart';
 import '../cubit/tire_inventory_state.dart';
 
 class TireInventoryService {

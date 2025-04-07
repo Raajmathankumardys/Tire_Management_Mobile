@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../TMS/helpers/components/themes/app_colors.dart';
+import '../TMS/helpers/components/widgets/Toast/Toast.dart';
+import '../TMS/helpers/components/widgets/button/app_primary_button.dart';
+import '../TMS/helpers/components/widgets/input/app_input_field.dart';
 import '../models/tire_performance.dart';
 import '../screens/Homepage.dart';
-import 'package:yaantrac_app/screens/tires_list_screen.dart';
 import '../services/api_service.dart';
-import '../common/widgets/Toast/Toast.dart';
-import '../common/widgets/button/app_primary_button.dart';
-import '../common/widgets/input/app_input_field.dart';
-import '../config/themes/app_colors.dart';
+
 import '../models/tire.dart';
-import '../trash/add_performance_screen.dart';
 
 class TireStatusScreen extends StatefulWidget {
   final TireModel tire;

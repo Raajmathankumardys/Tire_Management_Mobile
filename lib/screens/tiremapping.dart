@@ -1,12 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'dart:math';
-
-import 'package:yaantrac_app/common/widgets/Toast/Toast.dart';
-import 'package:yaantrac_app/common/widgets/button/app_primary_button.dart';
-import 'package:yaantrac_app/config/themes/app_colors.dart';
-
+import '../TMS/helpers/components/themes/app_colors.dart';
+import '../TMS/helpers/components/widgets/Toast/Toast.dart';
+import '../TMS/helpers/components/widgets/button/app_primary_button.dart';
 import '../services/api_service.dart';
 
 class Tire {

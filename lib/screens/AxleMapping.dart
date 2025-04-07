@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-import '../common/widgets/Toast/Toast.dart';
+import '../TMS/helpers/components/widgets/Toast/Toast.dart';
 import '../models/tire.dart';
 import '../services/api_service.dart';
 
@@ -253,7 +252,7 @@ class _TirePressureScreenState extends State<TirePressureScreen> {
                     Positioned(
                       height: constraints.maxHeight * 0.3,
                       width: constraints.maxWidth * 0.6,
-                      child: SvgPicture.asset("lib/assets/images/cars.svg",
+                      child: SvgPicture.asset("assets/images/cars.svg",
                           fit: BoxFit.contain),
                     ),
                     Positioned(
@@ -319,7 +318,7 @@ class _TirePressureScreenState extends State<TirePressureScreen> {
                     Positioned(
                       height: constraints.maxHeight * 0.8,
                       width: constraints.maxWidth * 0.3,
-                      child: SvgPicture.asset("lib/assets/images/trailer.svg",
+                      child: SvgPicture.asset("assets/images/trailer.svg",
                           fit: BoxFit.contain),
                     ),
                     Positioned(
@@ -543,7 +542,7 @@ class _TirePressureScreenState extends State<TirePressureScreen> {
       right: right != null ? constraints.maxWidth * right : null,
       top: constraints.maxHeight * top,
       child: SvgPicture.asset(
-        "lib/assets/images/FL_Tyre.svg",
+        "assets/images/FL_Tyre.svg",
         color: color,
         height: 30.h,
       ),

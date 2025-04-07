@@ -3,16 +3,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:yaantrac_app/TMS/Tire-Category/cubit/tire_category_state.dart';
-import 'package:yaantrac_app/TMS/presentation/deleteDialog.dart';
 import 'package:yaantrac_app/screens/Homepage.dart';
-import '../../../../common/widgets/Toast/Toast.dart';
-import '../../../../common/widgets/button/action_button.dart';
-import '../../../../common/widgets/button/app_primary_button.dart';
-import '../../../../common/widgets/input/app_input_field.dart';
-import '../../../../config/themes/app_colors.dart';
-import '../../../presentation/constants.dart';
-import '../../../presentation/customcard.dart';
-import '../../../presentation/widget/shimmer.dart';
+import '../../../helpers/components/themes/app_colors.dart';
+import '../../../helpers/components/widgets/Toast/Toast.dart';
+import '../../../helpers/components/widgets/button/action_button.dart';
+import '../../../helpers/components/widgets/button/app_primary_button.dart';
+import '../../../helpers/components/widgets/deleteDialog.dart';
+import '../../../helpers/components/widgets/input/app_input_field.dart';
+import '../../../helpers/constants.dart';
+import '../../../helpers/components/widgets/Card/customcard.dart';
+import '../../../helpers/components/shimmer.dart';
 import '../../cubit/tire_category_cubit.dart';
 
 class Tire_Category_Screen extends StatefulWidget {

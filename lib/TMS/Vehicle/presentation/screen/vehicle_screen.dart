@@ -4,15 +4,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:yaantrac_app/TMS/Vehicle/presentation/widget/vehiclewidget.dart';
-import 'package:yaantrac_app/TMS/presentation/constants.dart';
-import '../../../../common/widgets/Toast/Toast.dart';
-import '../../../../common/widgets/button/app_primary_button.dart';
-import '../../../../common/widgets/input/app_input_field.dart';
-import '../../../../config/themes/app_colors.dart';
+import 'package:yaantrac_app/TMS/helpers/constants.dart';
+import '../../../../models/trip.dart';
+import '../../../../models/trip_list_screen.dart';
 import '../../../../screens/tiremapping.dart';
-import '../../../presentation/customcard.dart';
-import '../../../presentation/deleteDialog.dart';
-import '../../../presentation/widget/shimmer.dart';
+import '../../../cubit/base_cubit.dart';
+import '../../../helpers/components/themes/app_colors.dart';
+import '../../../helpers/components/widgets/Card/customcard.dart';
+import '../../../helpers/components/shimmer.dart';
+import '../../../helpers/components/widgets/Toast/Toast.dart';
+import '../../../helpers/components/widgets/button/app_primary_button.dart';
+import '../../../helpers/components/widgets/deleteDialog.dart';
+import '../../../helpers/components/widgets/input/app_input_field.dart';
+import '../../../repository/base_repository.dart';
+import '../../../service/base_service.dart';
 import '../../cubit/vehicle_cubit.dart';
 import '../../cubit/vehicle_state.dart';
 
@@ -358,15 +363,15 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
                                        builder: (context) => tripslistscreen(
                                               vehicleid: vehicle.id!,
                                             )));*/
-                                /*Navigator.push(
+                                Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => BlocProvider(
                                       create: (context) => BaseCubit<Trip>(
                                         BaseRepository<Trip>(
                                           BaseService<Trip>(
-                                            baseUrl:
-                                                "/vehicles/${vehicle.id!}/trips",
+                                            // "/vehicles/${vehicle.id!}/trips",
+                                            baseUrl: "/trips",
                                             fromJson: Trip.fromJson,
                                             toJson: (trip) => trip.toJson(),
                                           ),
@@ -376,7 +381,7 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
                                           vehicleid: vehicle.id!),
                                     ),
                                   ),
-                                );*/
+                                );
                               },
                               icon: Icon(Icons.tour),
                               color: Colors.cyanAccent,

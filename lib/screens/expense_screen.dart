@@ -4,23 +4,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:yaantrac_app/config/themes/app_colors.dart';
 import 'package:yaantrac_app/models/expense.dart';
 import 'package:yaantrac_app/models/income.dart';
-import 'package:yaantrac_app/trash/add_expense_screen.dart';
-import 'package:yaantrac_app/trash/add_income_screen.dart';
-import 'package:yaantrac_app/screens/trip_list_page.dart';
 import 'package:yaantrac_app/services/api_service.dart';
 import 'package:yaantrac_app/models/trip_list_screen.dart';
-
 import '../TMS/cubit/base_cubit.dart';
-import '../common/widgets/Toast/Toast.dart';
-import '../common/widgets/button/action_button.dart';
-import '../common/widgets/button/app_primary_button.dart';
-import '../common/widgets/input/app_input_field.dart';
+import '../TMS/helpers/components/themes/app_colors.dart';
+import '../TMS/helpers/components/widgets/Toast/Toast.dart';
+import '../TMS/helpers/components/widgets/button/app_primary_button.dart';
+import '../TMS/helpers/components/widgets/input/app_input_field.dart';
 import '../models/trip.dart';
 import '../models/trip_summary.dart';
-import '../trash/expense_list_screen.dart';
 import '../TMS/repository/base_repository.dart';
 import '../TMS/service/base_service.dart';
 
@@ -43,7 +37,7 @@ class TripViewPage extends StatefulWidget {
 class _TripViewPageState extends State<TripViewPage> {
   late Future<List<ExpenseModel>> futureExpenses;
   late Future<List<IncomeModel>> futureIncomes;
-  late TabController _tabController;
+  //late TabController _tabController;
 
   @override
   void initState() {
@@ -711,7 +705,7 @@ class _TripViewPageState extends State<TripViewPage> {
                           ),
                         ),
                       )..fetchItems(),
-                      child: tripslistscreen(vehicleid: widget.vehicleId ?? 0),
+                      child: tripslistscreen(vehicleid: widget.vehicleId),
                     ),
                   ),
                 );
@@ -1033,7 +1027,6 @@ class _TripViewPageState extends State<TripViewPage> {
 
   Widget _buildExpenseListItem({required ExpenseModel expense}) {
     return Card(
-      color: Colors.white,
       elevation: 3,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5.r),

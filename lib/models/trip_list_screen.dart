@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../common/widgets/Toast/Toast.dart';
-import '../common/widgets/button/app_primary_button.dart';
-import '../common/widgets/input/app_input_field.dart';
-import '../config/themes/app_colors.dart';
+import '../TMS/helpers/components/themes/app_colors.dart';
+import '../TMS/helpers/components/widgets/Card/customcard.dart';
+
+import '../TMS/helpers/components/widgets/Toast/Toast.dart';
+import '../TMS/helpers/components/widgets/button/app_primary_button.dart';
+import '../TMS/helpers/components/widgets/input/app_input_field.dart';
 import 'trip.dart';
 import '../screens/Homepage.dart';
 import '../screens/expense_screen.dart';
@@ -324,11 +326,7 @@ class _TripListScreenState extends State<tripslistscreen> {
                 itemCount: state.items.length,
                 itemBuilder: (context, index) {
                   final vehicle = state.items[index];
-                  return Card(
-                    color: Colors.white,
-                    shape:
-                        RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                    elevation: 2.h,
+                  return CustomCard(
                     child: ExpansionTile(
                       maintainState: true,
                       tilePadding: EdgeInsets.all(1.h),
@@ -392,10 +390,11 @@ class _TripListScreenState extends State<tripslistscreen> {
         ));
   }
 
-  Widget _buildVehicleListItem(
-      {required Trip vehicle,
-      required BuildContext context,
-      bool isDarkMode = false}) {
+  Widget _buildVehicleListItem({
+    required Trip vehicle,
+    required BuildContext context,
+  }) {
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: ListTile(
@@ -413,9 +412,9 @@ class _TripListScreenState extends State<tripslistscreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Start Date: ${_formatDate(vehicle.startDate)}',
-                style: TextStyle(fontSize: 10.h, color: Colors.blueGrey)),
+                style: TextStyle(fontSize: 10.h, color: Colors.grey)),
             Text('End Date: ${_formatDate(vehicle.endDate)}',
-                style: TextStyle(fontSize: 10.h, color: Colors.blueGrey))
+                style: TextStyle(fontSize: 10.h, color: Colors.grey))
           ],
         ),
       ),

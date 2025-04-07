@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:yaantrac_app/TMS/presentation/constants.dart';
+import 'package:yaantrac_app/TMS/helpers/constants.dart';
 
 import '../cubit/tire_performance_state.dart';
 
