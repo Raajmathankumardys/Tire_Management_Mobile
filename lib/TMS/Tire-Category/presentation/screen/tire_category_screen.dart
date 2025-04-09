@@ -7,13 +7,12 @@ import 'package:yaantrac_app/screens/Homepage.dart';
 import '../../../helpers/components/themes/app_colors.dart';
 import '../../../helpers/components/widgets/Toast/Toast.dart';
 import '../../../helpers/components/widgets/button/action_button.dart';
-import '../../../helpers/components/widgets/button/app_primary_button.dart';
 import '../../../helpers/components/widgets/deleteDialog.dart';
-import '../../../helpers/components/widgets/input/app_input_field.dart';
 import '../../../helpers/constants.dart';
 import '../../../helpers/components/widgets/Card/customcard.dart';
 import '../../../helpers/components/shimmer.dart';
 import '../../cubit/tire_category_cubit.dart';
+import 'add_edit_tire_category.dart';
 
 class Tire_Category_Screen extends StatefulWidget {
   const Tire_Category_Screen({super.key});
@@ -22,20 +21,9 @@ class Tire_Category_Screen extends StatefulWidget {
 }
 
 class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
-  Future<void> _showAddEditModal(BuildContext ctx,
+  Future<void> _showAddEditModalTireCategory(BuildContext ctx,
       {TireCategory? tirecategory}) async {
-    final _formKey = GlobalKey<FormState>();
-    final bool isdark = Theme.of(context).brightness == Brightness.dark;
-    // Initialize controllers
-    TextEditingController categoryController = TextEditingController();
-    TextEditingController descriptionontroller = TextEditingController();
-
-    // Prefill values if editing an existing vehicle
-    if (tirecategory != null) {
-      categoryController.text = tirecategory.category;
-      descriptionontroller.text = tirecategory.description;
-    }
-
+    final isdark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: ctx,
       isScrollControlled: true,
@@ -44,128 +32,7 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return StatefulBuilder(builder: (context, setState) {
-          return Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom + 12,
-            ),
-            child: SingleChildScrollView(
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Header
-                    Container(
-                      width: double.infinity,
-                      height: 40.h,
-                      decoration: BoxDecoration(
-                        color: Colors.blueAccent,
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(15.r)),
-                      ),
-                      child: Column(
-                        children: [
-                          SizedBox(height: 5.h),
-                          Container(
-                            width: 80,
-                            height: 5.h,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                          ),
-                          SizedBox(height: 5.h),
-                          Text(
-                            tirecategory == null
-                                ? tirecategoryconstants.addtirecategory
-                                : tirecategoryconstants.edittirecategory,
-                            style: TextStyle(
-                              fontSize: 10.h,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Form Inputs
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 12.w, vertical: 12.h),
-                      child: Column(
-                        children: [
-                          AppInputField(
-                            name: constants.textfield,
-                            label: tirecategoryconstants.category,
-                            hint: tirecategoryconstants.categoryhint,
-                            controller: categoryController,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return constants.required;
-                              }
-                              return null;
-                            },
-                          ),
-                          AppInputField(
-                            name: constants.textfield,
-                            label: tirecategoryconstants.decsription,
-                            hint: tirecategoryconstants.descriptionhint,
-                            controller: descriptionontroller,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return constants.required;
-                              }
-                              return null;
-                            },
-                          ),
-                          SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              AppPrimaryButton(
-                                width: 130,
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                title: constants.cancel,
-                              ),
-                              AppPrimaryButton(
-                                width: 130,
-                                onPressed: () {
-                                  if (_formKey.currentState!.validate()) {
-                                    final newtirecategory = TireCategory(
-                                        id: tirecategory?.id,
-                                        category: categoryController.text,
-                                        description: descriptionontroller.text);
-
-                                    if (tirecategory == null) {
-                                      ctx
-                                          .read<TireCategoryCubit>()
-                                          .addTireCategory(newtirecategory);
-                                    } else {
-                                      ctx
-                                          .read<TireCategoryCubit>()
-                                          .updateTireCategory(newtirecategory);
-                                    }
-                                    Navigator.pop(context);
-                                  }
-                                },
-                                title: tirecategory == null
-                                    ? constants.save
-                                    : constants.update,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        });
+        return AddEditTireCategoryModal(tireCategory: tirecategory, ctx: ctx);
       },
     );
   }
@@ -191,7 +58,7 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
     return SafeArea(
         child: Scaffold(
             appBar: AppBar(
-              title: Center(
+              title: const Center(
                   child: Text(tirecategoryconstants.appbar,
                       style: TextStyle(fontWeight: FontWeight.bold))),
               backgroundColor:
@@ -201,7 +68,7 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => HomeScreen(
+                          builder: (context) => const HomeScreen(
                                 currentIndex: 1,
                               )));
                 },
@@ -212,7 +79,10 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
               ),
               actions: [
                 IconButton(
-                    onPressed: () => {_showAddEditModal(context)},
+                    onPressed: () => {
+                          _showAddEditModalTireCategory(context)
+                          //_showAddEditModal(context)
+                        },
                     icon: Icon(
                       Icons.add_circle,
                       color:
@@ -243,7 +113,7 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
               if (state is TireCategoryLoading) {
                 return Container(
                   padding: EdgeInsets.fromLTRB(0, 20.h, 0, 20.h),
-                  child: shimmer(),
+                  child: const shimmer(),
                 );
               } else if (state is TireCategoryError) {
                 return Center(child: Text(state.message));
@@ -286,7 +156,8 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
                                 icon: Icons.edit,
                                 color: Colors.green,
                                 onPressed: () => {
-                                      _showAddEditModal(context,
+                                      //_showAddEditModal(context,tirecategory: tire)
+                                      _showAddEditModalTireCategory(context,
                                           tirecategory: tire)
                                     }),
                             ActionButton(
@@ -300,7 +171,8 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
                                         onConfirm: () {
                                           context
                                               .read<TireCategoryCubit>()
-                                              .deleteTireCategory(tire.id!);
+                                              .deleteTireCategory(
+                                                  tire, tire.id!);
                                         },
                                       )
                                     })
@@ -312,7 +184,8 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
                   },
                 );
               }
-              return Center(child: Text("No Tires Expense available"));
+              return const Center(
+                  child: Text(tirecategoryconstants.nottirecategory));
             })));
   }
 }

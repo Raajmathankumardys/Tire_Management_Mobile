@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:yaantrac_app/TMS/Tire-Performance/presentation/screen/add_edit_modal_tire_performance.dart';
 import 'package:yaantrac_app/TMS/Tire-Performance/presentation/widget/buildstatcard.dart';
+import 'package:yaantrac_app/TMS/helpers/components/widgets/Add_Edit_Modal/add_edit_modal_top.dart';
 import 'package:yaantrac_app/TMS/helpers/constants.dart';
 import 'package:yaantrac_app/TMS/helpers/components/shimmer.dart';
 import '../../../../screens/Homepage.dart';
@@ -24,12 +26,6 @@ class Tire_Performance_Screen extends StatefulWidget {
 
 class _TirePerformanceState extends State<Tire_Performance_Screen> {
   void _showAddModal(BuildContext ctx) {
-    final _formKey = GlobalKey<FormState>();
-    TextEditingController pressure = TextEditingController();
-    TextEditingController temperature = TextEditingController();
-    TextEditingController wear = TextEditingController();
-    TextEditingController treadDepth = TextEditingController();
-    TextEditingController dist = TextEditingController();
     showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -39,162 +35,7 @@ class _TirePerformanceState extends State<Tire_Performance_Screen> {
         builder: (
           context,
         ) {
-          return StatefulBuilder(builder: (context, setState) {
-            return Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(35.r)),
-              ),
-              child: Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom + 12.h,
-                  ),
-                  child: SingleChildScrollView(
-                    scrollDirection:
-                        Axis.vertical, // Attach the scroll controller
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: double.infinity,
-                            height: 50.h,
-                            decoration: BoxDecoration(
-                              color: AppColors
-                                  .secondaryColor, // Adjust color as needed
-                              borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(15.r)),
-                            ),
-                            child: Column(
-                              children: [
-                                SizedBox(height: 5.h),
-                                Container(
-                                  width: 80.w,
-                                  height: 5.h,
-                                  padding: EdgeInsets.all(12.h),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(20.h),
-                                  ),
-                                ),
-                                SizedBox(height: 8.h),
-                                Text(
-                                  tireperformancesconstants.addtirep,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16.h,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                              padding: EdgeInsets.only(
-                                left: 12.w,
-                                right: 12.w,
-                                bottom:
-                                    MediaQuery.of(context).viewInsets.bottom +
-                                        12.h,
-                                top: 12.h,
-                              ),
-                              child: Column(
-                                children: [
-                                  AppInputField(
-                                    name: constants.numberfield,
-                                    label: tireperformancesconstants.pressure,
-                                    hint:
-                                        tireperformancesconstants.pressurehint,
-                                    keyboardType: TextInputType.number,
-                                    controller: pressure,
-                                  ),
-                                  AppInputField(
-                                    name: constants.numberfield,
-                                    label:
-                                        tireperformancesconstants.temperature,
-                                    hint: tireperformancesconstants
-                                        .temperaturehint,
-                                    keyboardType: TextInputType.number,
-                                    controller: temperature,
-                                  ),
-                                  AppInputField(
-                                    name: constants.numberfield,
-                                    label: tireperformancesconstants.wear,
-                                    hint: tireperformancesconstants.wearhint,
-                                    keyboardType: TextInputType.number,
-                                    controller: wear,
-                                  ),
-                                  AppInputField(
-                                    name: constants.numberfield,
-                                    label: tireperformancesconstants.distance,
-                                    hint:
-                                        tireperformancesconstants.distancehint,
-                                    keyboardType: TextInputType.number,
-                                    controller: dist,
-                                  ),
-                                  AppInputField(
-                                    name: constants.numberfield,
-                                    label: tireperformancesconstants.treaddepth,
-                                    hint: tireperformancesconstants
-                                        .treaddepthhint,
-                                    keyboardType: TextInputType.number,
-                                    controller: treadDepth,
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Expanded(
-                                          child: AppPrimaryButton(
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                              title: constants.cancel)),
-                                      SizedBox(
-                                        width: 10.h,
-                                      ),
-                                      Expanded(
-                                          child: AppPrimaryButton(
-                                              width: 130.h,
-                                              onPressed: () async {
-                                                if (_formKey.currentState!
-                                                    .validate()) {
-                                                  final tirep = TirePerformance(
-                                                      tireId: widget.tire.id,
-                                                      pressure: double.parse(
-                                                          pressure.text),
-                                                      temperature: double.parse(
-                                                          temperature.text),
-                                                      wear: double.parse(
-                                                          wear.text),
-                                                      distanceTraveled:
-                                                          double.parse(
-                                                              dist.text),
-                                                      treadDepth: double.parse(
-                                                          treadDepth.text));
-                                                  ctx
-                                                      .read<
-                                                          TirePerformanceCubit>()
-                                                      .addTirePerformance(
-                                                          tirep);
-                                                  Navigator.pop(context);
-                                                }
-                                              },
-                                              title: constants.save))
-                                    ],
-                                  ),
-                                ],
-                              ))
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            );
-          });
+          return add_edit_modal_tire_performance(tire: widget.tire, ctx: ctx);
         });
   }
 

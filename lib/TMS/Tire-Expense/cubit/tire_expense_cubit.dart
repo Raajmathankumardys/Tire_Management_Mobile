@@ -40,7 +40,7 @@ class TireExpenseCubit extends Cubit<TireExpenseState> {
     fetchTireExpense();
   }
 
-  void deleteTireExpense(int id) async {
+  void deleteTireExpense(TireExpense tireexpense, int id) async {
     try {
       await repository.deleteTireExpense(id);
       emit(DeletedTireExpenseState(tireexpenseconstants.deletedtoast));

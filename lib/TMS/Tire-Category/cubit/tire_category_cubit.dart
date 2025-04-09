@@ -21,7 +21,8 @@ class TireCategoryCubit extends Cubit<TireCategoryState> {
   void addTireCategory(TireCategory tirecategory) async {
     try {
       await repository.addTireCategory(tirecategory);
-      emit(AddedTireCategoryState(tirecategoryconstants.createdtoast));
+      emit(AddedTireCategoryState(
+          tirecategoryconstants.createdtoast(tirecategory.category)));
     } catch (e) {
       emit(TireCategoryError(e.toString()));
     }
@@ -31,17 +32,19 @@ class TireCategoryCubit extends Cubit<TireCategoryState> {
   void updateTireCategory(TireCategory tirecategory) async {
     try {
       await repository.updateTireCategory(tirecategory);
-      emit(UpdatedTireCategoryState(tirecategoryconstants.updatedtoast));
+      emit(UpdatedTireCategoryState(
+          tirecategoryconstants.updatedtoast(tirecategory.category)));
     } catch (e) {
       emit(TireCategoryError(e.toString()));
     }
     fetchTireCategory();
   }
 
-  void deleteTireCategory(int id) async {
+  void deleteTireCategory(TireCategory tirecategory, int id) async {
     try {
       await repository.deleteTireCategory(id);
-      emit(DeletedTireCategoryState(tirecategoryconstants.deletedtoast));
+      emit(DeletedTireCategoryState(
+          tirecategoryconstants.deletedtoast(tirecategory.category)));
     } catch (e) {
       emit(TireCategoryError(e.toString()));
     }

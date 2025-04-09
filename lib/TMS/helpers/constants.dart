@@ -78,9 +78,12 @@ class tireinventoryconstants extends constants {
   static const String warrantyperiodhint = "Enter warranty period";
   static const String warrantyexpiry = "Warranty Expiry Date";
   static const String endpoint = "/tires";
-  static const String createdtoast = "Tire Created Sucessfully";
-  static const String updatedtoast = "Tire Updated Sucessfully";
-  static const String deletedtoast = "Tire Deleted Sucessfully";
+  static String createdtoast(String Serialno) =>
+      "Tire $Serialno Created Sucessfully";
+  static String updatedtoast(String Serialno) =>
+      "Tire $Serialno Updated Sucessfully";
+  static String deletedtoast(String Serialno) =>
+      "Tire $Serialno Deleted Sucessfully";
   static const String modaldelete =
       "Are you sure you want to delete this tire inventory?";
   static const String notirefound = "No Tires Found";
@@ -146,9 +149,10 @@ class tirecategoryconstants extends constants {
   static const String decsription = "Description";
   static const String descriptionhint = "Enter description";
   static const String endpoint = "/tire-categories";
-  static const String createdtoast = "Tire Category Added Sucessfully";
-  static const String updatedtoast = "Tire Category Updated Sucessfully";
-  static const String deletedtoast = "Tire Category Deleted Sucessfully";
+  static String createdtoast(String cat) => "Category $cat Added Sucessfully";
+  static String updatedtoast(String cat) => "Category $cat Updated Sucessfully";
+  static String deletedtoast(String cat) => "Category $cat Deleted Sucessfully";
   static const String modaldelete =
       "Are you sure you want to delete this tire category?";
+  static const String nottirecategory = "No Tire Categories Available";
 }

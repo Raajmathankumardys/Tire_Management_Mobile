@@ -23,7 +23,8 @@ class TireInventoryCubit extends Cubit<TireInventoryState> {
     try {
       print(tireinventory.toJson());
       await repository.addTireInventory(tireinventory);
-      emit(AddedTireInventoryState(tireinventoryconstants.createdtoast));
+      emit(AddedTireInventoryState(
+          tireinventoryconstants.createdtoast(tireinventory.serialNo)));
     } catch (e) {
       emit(TireInventoryError(e.toString()));
     }
@@ -33,17 +34,19 @@ class TireInventoryCubit extends Cubit<TireInventoryState> {
   void updateTireInventory(TireInventory tireinventory) async {
     try {
       await repository.updateTireInventory(tireinventory);
-      emit(UpdatedTireInventoryState(tireinventoryconstants.updatedtoast));
+      emit(UpdatedTireInventoryState(
+          tireinventoryconstants.updatedtoast(tireinventory.serialNo)));
     } catch (e) {
       emit(TireInventoryError(e.toString()));
     }
     fetchTireInventory();
   }
 
-  void deleteTireInventory(int id) async {
+  void deleteTireInventory(TireInventory tireinventory, int id) async {
     try {
       await repository.deleteTireInventory(id);
-      emit(DeletedTireInventoryState(tireinventoryconstants.deletedtoast));
+      emit(DeletedTireInventoryState(
+          tireinventoryconstants.deletedtoast(tireinventory.serialNo)));
     } catch (e) {
       emit(TireInventoryError(e.toString()));
     }
