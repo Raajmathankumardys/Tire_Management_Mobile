@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:yaantrac_app/TMS/helpers/components/widgets/Add_Edit_Modal/add_edit_modal_top.dart';
+import 'package:yaantrac_app/TMS/helpers/components/widgets/Card/customcard.dart';
 
 import '../../../helpers/components/widgets/button/app_primary_button.dart';
 import '../../../helpers/components/widgets/input/app_input_field.dart';
@@ -26,6 +27,9 @@ class _add_edit_modal_vehicleState extends State<add_edit_modal_vehicle> {
   TextEditingController licensePlateController = TextEditingController();
   TextEditingController yearController = TextEditingController();
   TextEditingController axleNoController = TextEditingController();
+  List<int> axles = [2, 2];
+  Map<String, int> axleMap = {"F": 2, "R": 2};
+
   @override
   void initState() {
     // TODO: implement initState
@@ -36,6 +40,62 @@ class _add_edit_modal_vehicleState extends State<add_edit_modal_vehicle> {
       licensePlateController.text = widget.vehicle!.licensePlate;
       yearController.text = widget.vehicle!.manufactureYear.toString();
       axleNoController.text = widget.vehicle!.axleNo.toString();
+    }
+  }
+
+  void _updateAxleMap(Function setState) {
+    setState(() {
+      axleMap.clear();
+      for (int i = 0; i < axles.length; i++) {
+        String key =
+            (i == 0) ? "F" : (i == axles.length - 1 ? "R" : "${i + 1}");
+        axleMap[key] = axles[i];
+      }
+    });
+  }
+
+  void addAxle(Function setState) {
+    setState(() {
+      axles.insert(axles.length - 1, 2);
+      _updateAxleMap(setState);
+    });
+  }
+
+  void addTires(int index, Function setState) {
+    setState(() {
+      if (index == 0) return;
+      axles[index] += 2;
+      _updateAxleMap(setState);
+    });
+  }
+
+  void removeTires(int index, Function setState) {
+    setState(() {
+      if (index == 0) return;
+      if (axles[index] > 2 || index == axles.length) {
+        axles[index] -= 2;
+        _updateAxleMap(setState);
+      }
+    });
+  }
+
+  void removeAxle(int index, Function setState) {
+    if (index == 0 || index == axles.length - 1) return;
+    if (index == 0 || index == axles.length - 1) return;
+    setState(() {
+      axles.removeAt(index);
+      _updateAxleMap(setState);
+    });
+  }
+
+  String axleSummary(String axlenumbers) {
+    if (axlenumbers == "F") {
+      return "Front";
+    }
+    if (axlenumbers == "R") {
+      return "Rear";
+    } else {
+      return "Axle $axlenumbers";
     }
   }
 
@@ -137,13 +197,135 @@ class _add_edit_modal_vehicleState extends State<add_edit_modal_vehicle> {
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return constants.required;
-                        } else if (int.parse(value) < 2) {
+                        } else if (int.parse(value) < 0) {
                           return vehicleconstants.axlenovalidation;
                         }
                         return null;
                       },
                     ),
                     SizedBox(height: 10),
+                    Container(
+                      // Set an appropriate height
+                      child: ListView.builder(
+                        shrinkWrap:
+                            true, // Helps ListView avoid infinite height
+                        physics:
+                            BouncingScrollPhysics(), // Prevents unnecessary scrolling issues
+                        itemCount: axles.length,
+                        itemBuilder: (ct, index) {
+                          return CustomCard(
+                              child: ListTile(
+                            leading: Icon(
+                              Icons.tire_repair_outlined,
+                              color: Colors.black,
+                              size: 20.h,
+                            ),
+                            title: Text(
+                              axleMap.keys.elementAt(index) == "F"
+                                  ? "Front Axle"
+                                  : axleMap.keys.elementAt(index) == "R"
+                                      ? "Rear Axle"
+                                      : "Axle ${axleMap.keys.elementAt(index)}",
+                              style: TextStyle(
+                                fontSize: 10.h,
+                              ),
+                            ),
+                            subtitle: Text(
+                              "Tires: ${axles[index]}",
+                              style: TextStyle(
+                                  fontSize: 10.h, fontWeight: FontWeight.bold),
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (index != 0) ...[
+                                  Tooltip(
+                                    message: "Remove 2 tires",
+                                    child: IconButton(
+                                      icon: Icon(
+                                        Icons.remove_circle,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () =>
+                                          removeTires(index, setState),
+                                    ),
+                                  ),
+                                  Tooltip(
+                                    message: "Add 2 tires",
+                                    child: IconButton(
+                                      icon: Icon(
+                                        Icons.add_circle,
+                                        color: Colors.green,
+                                      ),
+                                      onPressed: () =>
+                                          addTires(index, setState),
+                                    ),
+                                  ),
+                                  if (index != axles.length - 1)
+                                    Tooltip(
+                                      message: "Remove Axle",
+                                      child: IconButton(
+                                        icon: Icon(Icons.delete,
+                                            color: Colors.grey),
+                                        onPressed: () =>
+                                            removeAxle(index, setState),
+                                      ),
+                                    ),
+                                ],
+                              ],
+                            ),
+                          ));
+                        },
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(8.h),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Axle Summary",
+                                style: TextStyle(
+                                    fontSize: 10.h,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(height: 6.h),
+                              ...axleMap.entries.map(
+                                (entry) => Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 2.h),
+                                  child: Text(
+                                    "${axleSummary(entry.key)}: ${entry.value} tires",
+                                    style: TextStyle(
+                                      fontSize: 12.h,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        FloatingActionButton.extended(
+                          onPressed: () => {addAxle(setState)},
+                          label: Text("Add Axle"),
+                          icon: Icon(Icons.add),
+                          backgroundColor: Colors.blue,
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10.h,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [

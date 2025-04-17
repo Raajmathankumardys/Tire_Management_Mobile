@@ -152,14 +152,14 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
                         trailing: Wrap(
                           spacing: 5.h,
                           children: [
-                            ActionButton(
+                            /*ActionButton(
                                 icon: Icons.edit,
                                 color: Colors.green,
                                 onPressed: () => {
                                       //_showAddEditModal(context,tirecategory: tire)
                                       _showAddEditModalTireCategory(context,
                                           tirecategory: tire)
-                                    }),
+                                    }),*/
                             ActionButton(
                                 icon: Icons.delete,
                                 color: Colors.red,

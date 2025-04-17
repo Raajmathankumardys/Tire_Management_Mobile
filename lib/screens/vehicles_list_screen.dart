@@ -33,53 +33,6 @@
 //     String type = vehicle?.type ?? "";
 //     String licensePlate = vehicle?.licensePlate ?? "";
 //     int year = vehicle?.manufactureYear ?? 0;
-//     List<int> axles = [2, 2]; // Default front & rear axles
-//     Map<String, int> axleMap = {"F": 2, "R": 2};
-//     void _updateAxleMap(Function setState) {
-//       setState(() {
-//         axleMap.clear();
-//         for (int i = 0; i < axles.length; i++) {
-//           String key =
-//               (i == 0) ? "F" : (i == axles.length - 1 ? "R" : "${i + 1}");
-//           axleMap[key] = axles[i];
-//         }
-//       });
-//       print(axleMap);
-//     }
-//
-//     void addAxle(Function setState) {
-//       setState(() {
-//         axles.insert(axles.length - 1, 2); // Always insert before rear axle
-//         _updateAxleMap(setState);
-//       });
-//     }
-//
-//     void addTires(int index, Function setState) {
-//       setState(() {
-//         if (index == 0) return; // Front axle fixed at 2 tires
-//         axles[index] += 2;
-//         _updateAxleMap(setState);
-//       });
-//     }
-//
-//     void removeTires(int index, Function setState) {
-//       setState(() {
-//         if (index == 0) return; // Front axle cannot change
-//         if (axles[index] > 2 || index == axles.length) {
-//           axles[index] -= 2;
-//           _updateAxleMap(setState);
-//         }
-//       });
-//     }
-//
-//     void removeAxle(int index, Function setState) {
-//       if (index == 0 || index == axles.length - 1)
-//         return; // Cannot remove F or R
-//       setState(() {
-//         axles.removeAt(index);
-//         _updateAxleMap(setState);
-//       });
-//     }
 //
 //     BuildContext ct = context;
 //     showModalBottomSheet(

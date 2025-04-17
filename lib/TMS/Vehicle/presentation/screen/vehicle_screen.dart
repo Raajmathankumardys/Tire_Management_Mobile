@@ -3,12 +3,20 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:yaantrac_app/TMS/Tire-Mapping/presentation/screen/AxleMapping.dart';
+import 'package:yaantrac_app/TMS/Tire-Mapping/presentation/screen/carmapping.dart';
+import 'package:yaantrac_app/TMS/Tire-Mapping/service/tire_mapping_service.dart';
+import 'package:yaantrac_app/TMS/Vehicle-Axle/cubit/vehicle_axle_cubit.dart';
+import 'package:yaantrac_app/TMS/Vehicle-Axle/repository/vehicle_axle_repository.dart';
+import 'package:yaantrac_app/TMS/Vehicle-Axle/service/vehicle_axle_cubit.dart';
 import 'package:yaantrac_app/TMS/Vehicle/presentation/screen/add_edit_modal_vehicle.dart';
 import 'package:yaantrac_app/TMS/Vehicle/presentation/widget/vehiclewidget.dart';
 import 'package:yaantrac_app/TMS/helpers/constants.dart';
 import '../../../../models/trip.dart';
 import '../../../../models/trip_list_screen.dart';
-import '../../../../screens/tiremapping.dart';
+import '../../../Tire-Mapping/cubit/tire_mapping_cubit.dart';
+import '../../../Tire-Mapping/repository/tire_mapping_repository.dart';
 import '../../../cubit/base_cubit.dart';
 import '../../../helpers/components/themes/app_colors.dart';
 import '../../../helpers/components/widgets/Card/customcard.dart';
@@ -28,7 +36,6 @@ class vehiclescreen extends StatefulWidget {
 
 class _vehiclelistscreen_State extends State<vehiclescreen> {
   late Future<List<Vehicle>> futureVehicles;
-  late int vehicleId;
   void _showAddEditModal(BuildContext ctx, [Vehicle? vehicle]) {
     bool isdark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
@@ -39,7 +46,14 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return add_edit_modal_vehicle(ctx: ctx, vehicle: vehicle);
+        return DraggableScrollableSheet(
+            initialChildSize: 0.6.h, // Starts at of screen height
+            minChildSize: 0.6.h, // Minimum height
+            maxChildSize: 0.7.h,
+            expand: false,
+            builder: (context, scrollController) {
+              return add_edit_modal_vehicle(ctx: ctx, vehicle: vehicle);
+            });
       },
     );
   }
@@ -119,11 +133,6 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
                 return CustomCard(
                   child: ExpansionTile(
                     tilePadding: EdgeInsets.all(2.h),
-                    onExpansionChanged: (value) {
-                      setState(() {
-                        vehicleId = vehicle.id!;
-                      });
-                    },
                     title: vehiclewidget(vehicle: vehicle),
                     children: [
                       Padding(
@@ -134,13 +143,71 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
                           children: [
                             IconButton(
                                 onPressed: () {
+                                  // Navigator.push(
+                                  //   context,
+                                  //   MaterialPageRoute(
+                                  //     builder: (context) => BlocProvider(
+                                  //       create: (context) => TireMappingCubit(
+                                  //         TireMappingRepository(
+                                  //           TireMappingService(),
+                                  //         ),
+                                  //       )..fetchTireMapping(vehicle.id!),
+                                  //       child: vehicle.id! == 102
+                                  //           ? CarMappingScreen(
+                                  //               vehicleId: vehicle.id!)
+                                  //           : AxleConfiguration(
+                                  //               vehicleId: vehicle.id!),
+                                  //     ),
+                                  //   ),
+                                  // );
+                                  print(vehicle.id);
                                   Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              AxleAnimationPage(
-                                                vehicleid: vehicle.id!,
-                                              )));
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MultiBlocProvider(
+                                        providers: [
+                                          Provider<TireMappingService>(
+                                            create: (context) =>
+                                                TireMappingService(),
+                                          ),
+                                          BlocProvider<TireMappingCubit>(
+                                            create: (context) {
+                                              final tireMappingService = context
+                                                  .read<TireMappingService>();
+                                              final tireMappingRepository =
+                                                  TireMappingRepository(
+                                                      tireMappingService);
+                                              return TireMappingCubit(
+                                                  tireMappingRepository)
+                                                ..fetchTireMapping(vehicle.id!);
+                                            },
+                                          ),
+                                          Provider<VehicleAxleService>(
+                                            create: (context) =>
+                                                VehicleAxleService(),
+                                          ),
+                                          BlocProvider<VehicleAxleCubit>(
+                                            create: (context) {
+                                              final vehicleAxleService = context
+                                                  .read<VehicleAxleService>();
+                                              final vehicleAxleRepository =
+                                                  VehicleAxleRepository(
+                                                      vehicleAxleService);
+                                              return VehicleAxleCubit(
+                                                  vehicleAxleRepository)
+                                                ..fetchVehicleAxles(
+                                                    vehicle.id!);
+                                            },
+                                          ),
+                                        ],
+                                        child: vehicle.id == 102
+                                            ? CarMappingScreen(
+                                                vehicleId: vehicle.id!)
+                                            : AxleConfiguration(
+                                                vehicleId: vehicle.id!),
+                                      ),
+                                    ),
+                                  );
                                 },
                                 icon: Icon(
                                   Icons.tire_repair_outlined,
@@ -196,7 +263,7 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
                                           context
                                               .read<VehicleCubit>()
                                               .deleteVehicle(
-                                                  vehicle, vehicleId);
+                                                  vehicle, vehicle.id!);
                                         },
                                       )
                                     },

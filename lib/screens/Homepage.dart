@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:yaantrac_app/TMS/Tire-Inventory/presentation/screen/tire_inventory_screen.dart';
 
-import 'package:yaantrac_app/screens/AxleMapping.dart';
+import 'package:yaantrac_app/TMS/Tire-Mapping/presentation/screen/AxleMapping.dart';
+import 'package:yaantrac_app/TMS/Tire-Mapping/presentation/screen/carmapping.dart';
 import 'package:yaantrac_app/screens/filter_expense_screen.dart';
 import 'package:yaantrac_app/screens/settings.dart';
 import 'package:yaantrac_app/screens/tiremapping.dart';
@@ -31,12 +32,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _pages = [
     vehiclescreen(),
-    //vehiclelistscreen_(),
-    //VehiclesListScreen(),
     TireInventoryScreen(),
-    //TiresListScreen(),
-    TirePressureScreen(),
-    //NotificationScreen(),
+    NotificationScreen(),
     //FilterExpenseScreen(),
     SettingsPage(),
   ];

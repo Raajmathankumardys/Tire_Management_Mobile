@@ -6,11 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:yaantrac_app/TMS/Tire-Inventory/cubit/tire_inventory_state.dart';
 import 'package:intl/intl.dart';
 import 'package:yaantrac_app/TMS/helpers/components/widgets/Add_Edit_Modal/add_edit_modal_top.dart';
-
 import '../../../Tire-Category/cubit/tire_category_cubit.dart';
 import '../../../Tire-Category/cubit/tire_category_state.dart';
-import '../../../Tire-Category/repository/tire_category_repository.dart';
-import '../../../Tire-Category/service/tire_category_service.dart';
 import '../../../helpers/components/widgets/button/app_primary_button.dart';
 import '../../../helpers/components/widgets/input/app_input_field.dart';
 import '../../../helpers/constants.dart';
@@ -203,17 +200,14 @@ class _add_edit_modal_tire_inventoryState
                               dropdownItems: categories.map((cat) {
                                 return DropdownMenuItem<String>(
                                   value: cat.id.toString(),
-                                  child: Text(cat.category
-                                      .toString()), // ✅ Display category name
+                                  child: Text(cat.category.toString()),
                                 );
                               }).toList(),
 
                               onDropdownChanged: (value) {
                                 if (value != null) {
                                   setState(() {
-                                    category.text =
-                                        value; // ✅ Corrected value assignment
-                                    print(value);
+                                    category.text = value;
                                   });
                                 }
                               },

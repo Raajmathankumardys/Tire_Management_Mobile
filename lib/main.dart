@@ -5,11 +5,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:yaantrac_app/TMS/Tire-Inventory/repository/tire_inventory_repository.dart';
 import 'package:yaantrac_app/TMS/Tire-Inventory/service/tire_inventory_service.dart';
+import 'package:yaantrac_app/TMS/Tire-Position/Cubit/tire_position_state.dart';
 import 'package:yaantrac_app/TMS/Vehicle/cubit/vehicle_cubit.dart';
 import 'TMS/Tire-Category/cubit/tire_category_cubit.dart';
 import 'TMS/Tire-Category/repository/tire_category_repository.dart';
 import 'TMS/Tire-Category/service/tire_category_service.dart';
 import 'TMS/Tire-Inventory/cubit/tire_inventory_cubit.dart';
+import 'TMS/Tire-Position/Cubit/tire_position_cubit.dart';
+import 'TMS/Tire-Position/Repository/tire_position_repository.dart';
+import 'TMS/Tire-Position/Service/tire_position_service.dart';
 import 'TMS/Vehicle/repository/vehicle_repository.dart';
 import 'TMS/Vehicle/service/vehicle_service.dart';
 import 'bloc/Theme/theme_bloc.dart';
@@ -53,6 +57,18 @@ void main() async {
                 TireCategoryRepository(tireCategoryService);
             return TireCategoryCubit(tireCategoryRepository)
               ..fetchTireCategory();
+          },
+        ),
+        Provider<TirePositionService>(
+          create: (context) => TirePositionService(),
+        ),
+        BlocProvider<TirePositionCubit>(
+          create: (context) {
+            final tirePositionService = context.read<TirePositionService>();
+            final tirePositionRepository =
+                TirePositionRepository(tirePositionService);
+            return TirePositionCubit(tirePositionRepository)
+              ..fetchTirePosition();
           },
         ),
       ],

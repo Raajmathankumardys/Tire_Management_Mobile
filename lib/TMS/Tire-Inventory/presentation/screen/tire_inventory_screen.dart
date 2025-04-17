@@ -146,7 +146,7 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                   size: 25.h,
                   color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
                 )),
-            IconButton(
+            /*IconButton(
                 alignment: Alignment.topRight,
                 onPressed: () {
                   Navigator.push(
@@ -167,7 +167,7 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                   Icons.currency_exchange,
                   size: 25.h,
                   color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
-                )),
+                )),*/
             IconButton(
                 alignment: Alignment.topRight,
                 onPressed: () {

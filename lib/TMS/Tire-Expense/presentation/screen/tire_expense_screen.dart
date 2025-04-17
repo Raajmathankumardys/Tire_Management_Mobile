@@ -132,73 +132,85 @@ class _Tire_Expense_ScreenState extends State<Tire_Expense_Screen> {
               } else if (state is TireExpenseError) {
                 return Center(child: Text(state.message));
               } else if (state is TireExpenseLoaded) {
-                return ListView.builder(
-                  padding: EdgeInsets.all(10.h),
-                  itemCount: state.tireexpense.length,
-                  itemBuilder: (context, index) {
-                    final tire = state.tireexpense[index];
-                    return CustomCard(
-                      child: ListTile(
-                        contentPadding: EdgeInsets.all(10.h),
-                        leading: Icon(
-                          Icons.currency_exchange,
-                          size: 30.h,
-                        ),
-                        title: Text(
-                          tire.expenseType.toString(),
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                "${tireexpenseconstants.expensedate}: ${_formatDate(tire.expenseDate)}",
+                return state.tireexpense.isEmpty
+                    ? Center(
+                        child: Text(tireexpenseconstants.notireexpense),
+                      )
+                    : ListView.builder(
+                        padding: EdgeInsets.all(10.h),
+                        itemCount: state.tireexpense.length,
+                        itemBuilder: (context, index) {
+                          final tire = state.tireexpense[index];
+                          return CustomCard(
+                            child: ListTile(
+                              contentPadding: EdgeInsets.all(10.h),
+                              leading: Icon(
+                                Icons.currency_exchange,
+                                size: 30.h,
+                              ),
+                              title: Text(
+                                tire.expenseType.toString(),
                                 style: TextStyle(
-                                    color: Colors.grey[400], fontSize: 10.sp)),
-                            Text("${tireexpenseconstants.cost}: ${tire.cost}",
-                                style: TextStyle(
-                                    color: Colors.grey[400], fontSize: 10.sp)),
-                            Text("${tireexpenseconstants.notes}: ${tire.notes}",
-                                style: TextStyle(
-                                    color: Colors.grey[400], fontSize: 10.sp)),
-                          ],
-                        ),
-                        trailing: Wrap(
-                          spacing: 5.h,
-                          children: [
-                            ActionButton(
-                                icon: Icons.edit,
-                                color: Colors.green,
-                                onPressed: () =>
-                                    {_showAddModal(context, tire: tire)}),
-                            ActionButton(
-                                icon: Icons.delete,
-                                color: Colors.red,
-                                onPressed: () async => {
-                                      await showDeleteConfirmationDialog(
-                                        context: context,
-                                        content:
-                                            tireexpenseconstants.modaldelete,
-                                        onConfirm: () {
-                                          context
-                                              .read<TireExpenseCubit>()
-                                              .deleteTireExpense(
-                                                  tire, tire.id!);
-                                        },
-                                      )
-                                    })
-                            //_confirmDelete(tire.id!.toInt())),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                );
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                      "${tireexpenseconstants.expensedate}: ${_formatDate(tire.expenseDate)}",
+                                      style: TextStyle(
+                                          color: Colors.grey[400],
+                                          fontSize: 10.sp)),
+                                  Text(
+                                      "${tireexpenseconstants.cost}: ${tire.cost}",
+                                      style: TextStyle(
+                                          color: Colors.grey[400],
+                                          fontSize: 10.sp)),
+                                  Text(
+                                      "${tireexpenseconstants.notes}: ${tire.notes}",
+                                      style: TextStyle(
+                                          color: Colors.grey[400],
+                                          fontSize: 10.sp)),
+                                ],
+                              ),
+                              trailing: Wrap(
+                                spacing: 5.h,
+                                children: [
+                                  ActionButton(
+                                      icon: Icons.edit,
+                                      color: Colors.green,
+                                      onPressed: () =>
+                                          {_showAddModal(context, tire: tire)}),
+                                  ActionButton(
+                                      icon: Icons.delete,
+                                      color: Colors.red,
+                                      onPressed: () async => {
+                                            await showDeleteConfirmationDialog(
+                                              context: context,
+                                              content: tireexpenseconstants
+                                                  .modaldelete,
+                                              onConfirm: () {
+                                                context
+                                                    .read<TireExpenseCubit>()
+                                                    .deleteTireExpense(
+                                                        tire, tire.id!);
+                                              },
+                                            )
+                                          })
+                                  //_confirmDelete(tire.id!.toInt())),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
               }
-              return Center(child: Text(tireexpenseconstants.notireexpense));
+              return Center(
+                  child: Text(
+                tireexpenseconstants.notireexpense,
+              ));
             })));
   }
 }

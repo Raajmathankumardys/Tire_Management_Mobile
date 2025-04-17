@@ -51,6 +51,8 @@ class _AxleAnimationPageState extends State<AxleAnimationPage> {
 
     // Front Axle
     _addAxle(); // Rear Axle
+    _addAxle();
+    _addTire(axles.last);
     //populate();
 
     // Predefined tires with position mapping
