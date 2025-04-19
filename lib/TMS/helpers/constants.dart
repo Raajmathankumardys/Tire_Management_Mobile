@@ -20,6 +20,7 @@ class vehicleconstants extends constants {
   static const String addvehicle = "Add Vehicle";
   static const String editvehicle = "Edit Vehicle";
   static const String name = "Vehicle Name";
+  static const String vname = "Name";
   static const String namehint = "Enter vehicle name";
   static const String namevalidation = "Name must have 3 atleast characters";
   static const String type = "Type";

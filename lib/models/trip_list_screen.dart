@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:yaantrac_app/TMS/helpers/components/widgets/button/action_button.dart';
 import '../TMS/helpers/components/themes/app_colors.dart';
 import '../TMS/helpers/components/widgets/Card/customcard.dart';
 
@@ -325,61 +326,103 @@ class _TripListScreenState extends State<tripslistscreen> {
                 padding: EdgeInsets.all(12.h),
                 itemCount: state.items.length,
                 itemBuilder: (context, index) {
-                  final vehicle = state.items[index];
+                  final trip = state.items[index];
                   return CustomCard(
-                    child: ExpansionTile(
-                      maintainState: true,
-                      tilePadding: EdgeInsets.all(1.h),
-                      onExpansionChanged: (value) => {tid = vehicle.id},
-                      title: _buildVehicleListItem(
-                        vehicle: vehicle,
-                        context: context,
-                      ),
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 10.h, horizontal: 30.w),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Padding(
+                      padding: EdgeInsets.all(10.h),
+                      child: Row(
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              IconButton(
-                                onPressed: () {
-                                  print(vehicle.id);
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => TripViewPage(
-                                                tripId: vehicle.id!,
-                                                trip: vehicle,
-                                                vehicleId: widget.vehicleid,
-                                              )));
-                                },
-                                icon: Icon(Icons.remove_red_eye),
-                                color: Colors.yellow,
-                                iconSize: 20.h,
+                              Row(
+                                children: [
+                                  Text("Start Date :",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                  SizedBox(width: 4.w),
+                                  Text(_formatDate(trip
+                                      .startDate)), // Replace with your dynamic date
+                                ],
                               ),
-                              IconButton(
-                                onPressed: () {
-                                  _showAddEditModal(context,
-                                      trip: vehicle,
-                                      vehicleid: widget.vehicleid);
-                                },
-                                icon: Icon(Icons.edit),
-                                color: Colors.green,
-                                iconSize: 20.h,
+                              Row(
+                                children: [
+                                  Text("End Date :",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                  SizedBox(width: 4.w),
+                                  Text(_formatDate(trip
+                                      .endDate)), // Replace with your dynamic date
+                                ],
                               ),
-                              IconButton(
-                                onPressed: () {
-                                  _confirmDeleteTrip(context, tid!);
-                                },
-                                icon: const FaIcon(FontAwesomeIcons.trash),
-                                color: Colors.red,
-                                iconSize: 15.h,
+                              Row(
+                                children: [
+                                  SizedBox(
+                                    width: 5.h,
+                                  ),
+                                  Icon(Icons.trip_origin,
+                                      size: 15.sp, color: Colors.blue),
+                                  SizedBox(width: 5.w),
+                                  Text(trip.source),
+                                ],
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(left: 6.w),
+                                child: Column(
+                                  children: List.generate(
+                                      2,
+                                      (_) => Icon(Icons.more_vert,
+                                          size: 12.sp, color: Colors.grey)),
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  Icon(Icons.location_pin, color: Colors.red),
+                                  SizedBox(width: 5.w),
+                                  Text(trip.destination),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 10,
                               ),
                             ],
                           ),
-                        ),
-                      ],
+                          SizedBox(
+                            width: 16.h,
+                          ),
+                          Row(
+                            children: [
+                              ActionButton(
+                                  icon: Icons.summarize_sharp,
+                                  color: Colors.grey,
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => TripViewPage(
+                                                  tripId: trip.id!,
+                                                  trip: trip,
+                                                  vehicleId: widget.vehicleid,
+                                                )));
+                                  }),
+                              ActionButton(
+                                  icon: Icons.edit,
+                                  color: Colors.green,
+                                  onPressed: () {
+                                    _showAddEditModal(context,
+                                        trip: trip,
+                                        vehicleid: widget.vehicleid);
+                                  }),
+                              ActionButton(
+                                  icon: Icons.delete,
+                                  color: Colors.red,
+                                  onPressed: () {
+                                    _confirmDeleteTrip(context, trip.id!);
+                                  })
+                            ],
+                          )
+                        ],
+                      ),
                     ),
                   );
                 },

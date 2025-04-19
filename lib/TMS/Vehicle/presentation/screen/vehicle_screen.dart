@@ -36,6 +36,9 @@ class vehiclescreen extends StatefulWidget {
 
 class _vehiclelistscreen_State extends State<vehiclescreen> {
   late Future<List<Vehicle>> futureVehicles;
+  TextEditingController _searchController = TextEditingController();
+  List<Vehicle> _filteredVehicles = [];
+  List<Vehicle> _allVehicles = [];
   void _showAddEditModal(BuildContext ctx, [Vehicle? vehicle]) {
     bool isdark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
@@ -126,157 +129,215 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
             String updatedMessage = state.message.toString();
             return Center(child: Text(updatedMessage));
           } else if (state is VehicleLoaded) {
-            return ListView.builder(
-              itemCount: state.vehicles.length,
-              itemBuilder: (context, index) {
-                final vehicle = state.vehicles[index];
-                return CustomCard(
-                  child: ExpansionTile(
-                    tilePadding: EdgeInsets.all(2.h),
-                    title: vehiclewidget(vehicle: vehicle),
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: 10.h, horizontal: 20.w),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            IconButton(
-                                onPressed: () {
-                                  // Navigator.push(
-                                  //   context,
-                                  //   MaterialPageRoute(
-                                  //     builder: (context) => BlocProvider(
-                                  //       create: (context) => TireMappingCubit(
-                                  //         TireMappingRepository(
-                                  //           TireMappingService(),
-                                  //         ),
-                                  //       )..fetchTireMapping(vehicle.id!),
-                                  //       child: vehicle.id! == 102
-                                  //           ? CarMappingScreen(
-                                  //               vehicleId: vehicle.id!)
-                                  //           : AxleConfiguration(
-                                  //               vehicleId: vehicle.id!),
-                                  //     ),
-                                  //   ),
-                                  // );
-                                  print(vehicle.id);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MultiBlocProvider(
-                                        providers: [
-                                          Provider<TireMappingService>(
-                                            create: (context) =>
-                                                TireMappingService(),
-                                          ),
-                                          BlocProvider<TireMappingCubit>(
-                                            create: (context) {
-                                              final tireMappingService = context
-                                                  .read<TireMappingService>();
-                                              final tireMappingRepository =
-                                                  TireMappingRepository(
-                                                      tireMappingService);
-                                              return TireMappingCubit(
-                                                  tireMappingRepository)
-                                                ..fetchTireMapping(vehicle.id!);
-                                            },
-                                          ),
-                                          Provider<VehicleAxleService>(
-                                            create: (context) =>
-                                                VehicleAxleService(),
-                                          ),
-                                          BlocProvider<VehicleAxleCubit>(
-                                            create: (context) {
-                                              final vehicleAxleService = context
-                                                  .read<VehicleAxleService>();
-                                              final vehicleAxleRepository =
-                                                  VehicleAxleRepository(
-                                                      vehicleAxleService);
-                                              return VehicleAxleCubit(
-                                                  vehicleAxleRepository)
-                                                ..fetchVehicleAxles(
-                                                    vehicle.id!);
-                                            },
-                                          ),
-                                        ],
-                                        child: vehicle.id == 102
-                                            ? CarMappingScreen(
-                                                vehicleId: vehicle.id!)
-                                            : AxleConfiguration(
-                                                vehicleId: vehicle.id!),
-                                      ),
-                                    ),
-                                  );
-                                },
-                                icon: Icon(
-                                  Icons.tire_repair_outlined,
-                                  color: Colors.grey,
-                                  size: 20.h,
-                                )),
-                            IconButton(
-                              onPressed: () {
-                                /*Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                       builder: (context) => tripslistscreen(
-                                              vehicleid: vehicle.id!,
-                                            )));*/
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => BlocProvider(
-                                      create: (context) => BaseCubit<Trip>(
-                                        BaseRepository<Trip>(
-                                          BaseService<Trip>(
-                                            // "/vehicles/${vehicle.id!}/trips",
-                                            baseUrl: "/trips",
-                                            fromJson: Trip.fromJson,
-                                            toJson: (trip) => trip.toJson(),
-                                          ),
+            _allVehicles = state.vehicles;
+            _filteredVehicles = _searchController.text.isEmpty
+                ? _allVehicles
+                : _allVehicles
+                    .where((vehicle) => vehicle.licensePlate
+                        .toLowerCase()
+                        .contains(_searchController.text.toLowerCase()))
+                    .toList();
+
+            return Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(12.sp),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      labelText: 'Search by License No.',
+                      iconColor: Colors.blueAccent,
+                      prefixIcon: Icon(Icons.search),
+                      prefixIconColor: Colors.blueAccent,
+                      labelStyle: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 12.sp,
+                      ),
+                      alignLabelWithHint: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderSide: BorderSide(color: Colors.blueAccent),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blueAccent),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blueAccent),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        _filteredVehicles = _allVehicles
+                            .where((vehicle) => vehicle.licensePlate
+                                .toLowerCase()
+                                .contains(value.toLowerCase()))
+                            .toList();
+                      });
+                    },
+                  ),
+                ),
+                _filteredVehicles.isEmpty
+                    ? const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text("No vehicles found."),
+                      )
+                    : Expanded(
+                        child: ListView.builder(
+                          itemCount: _filteredVehicles.length,
+                          padding: EdgeInsets.all(4.h),
+                          itemBuilder: (context, index) {
+                            final vehicle = _filteredVehicles[index];
+                            return Theme(
+                                data: Theme.of(context)
+                                    .copyWith(dividerColor: Colors.transparent),
+                                child: CustomCard(
+                                  child: ExpansionTile(
+                                    tilePadding: EdgeInsets.all(2.h),
+                                    title: vehiclewidget(vehicle: vehicle),
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 10.h, horizontal: 20.w),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            IconButton(
+                                              onPressed: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        MultiBlocProvider(
+                                                      providers: [
+                                                        Provider<
+                                                            TireMappingService>(
+                                                          create: (context) =>
+                                                              TireMappingService(),
+                                                        ),
+                                                        BlocProvider<
+                                                            TireMappingCubit>(
+                                                          create: (context) {
+                                                            final service =
+                                                                context.read<
+                                                                    TireMappingService>();
+                                                            final repo =
+                                                                TireMappingRepository(
+                                                                    service);
+                                                            return TireMappingCubit(
+                                                                repo)
+                                                              ..fetchTireMapping(
+                                                                  vehicle.id!);
+                                                          },
+                                                        ),
+                                                        Provider<
+                                                            VehicleAxleService>(
+                                                          create: (context) =>
+                                                              VehicleAxleService(),
+                                                        ),
+                                                        BlocProvider<
+                                                            VehicleAxleCubit>(
+                                                          create: (context) {
+                                                            final service =
+                                                                context.read<
+                                                                    VehicleAxleService>();
+                                                            final repo =
+                                                                VehicleAxleRepository(
+                                                                    service);
+                                                            return VehicleAxleCubit(
+                                                                repo)
+                                                              ..fetchVehicleAxles(
+                                                                  vehicle.id!);
+                                                          },
+                                                        ),
+                                                      ],
+                                                      child: vehicle.id == 102
+                                                          ? CarMappingScreen(
+                                                              vehicleId:
+                                                                  vehicle.id!)
+                                                          : AxleConfiguration(
+                                                              vehicleId:
+                                                                  vehicle.id!),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              icon: Icon(
+                                                Icons.tire_repair_outlined,
+                                                color: Colors.grey,
+                                                size: 20.h,
+                                              ),
+                                            ),
+                                            IconButton(
+                                              onPressed: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        BlocProvider(
+                                                      create: (context) =>
+                                                          BaseCubit<Trip>(
+                                                        BaseRepository<Trip>(
+                                                          BaseService<Trip>(
+                                                            baseUrl: "/trips",
+                                                            fromJson:
+                                                                Trip.fromJson,
+                                                            toJson: (trip) =>
+                                                                trip.toJson(),
+                                                          ),
+                                                        ),
+                                                      )..fetchItems(),
+                                                      child: tripslistscreen(
+                                                          vehicleid:
+                                                              vehicle.id!),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              icon: Icon(Icons.tour_outlined),
+                                              color: Colors.purpleAccent,
+                                              iconSize: 20.h,
+                                            ),
+                                            IconButton(
+                                              onPressed: () {
+                                                _showAddEditModal(
+                                                    context, vehicle);
+                                              },
+                                              icon: const FaIcon(Icons.edit),
+                                              color: Colors.green,
+                                              iconSize: 20.h,
+                                            ),
+                                            IconButton(
+                                              onPressed: () async {
+                                                await showDeleteConfirmationDialog(
+                                                  context: context,
+                                                  content: vehicleconstants
+                                                      .modaldelete,
+                                                  onConfirm: () {
+                                                    context
+                                                        .read<VehicleCubit>()
+                                                        .deleteVehicle(vehicle,
+                                                            vehicle.id!);
+                                                  },
+                                                );
+                                              },
+                                              icon: const FaIcon(
+                                                  FontAwesomeIcons.trash),
+                                              color: Colors.red,
+                                              iconSize: 15.h,
+                                            ),
+                                          ],
                                         ),
-                                      )..fetchItems(),
-                                      child: tripslistscreen(
-                                          vehicleid: vehicle.id!),
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                );
-                              },
-                              icon: Icon(Icons.tour),
-                              color: Colors.cyanAccent,
-                              iconSize: 20.h,
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                _showAddEditModal(context, vehicle);
-                              },
-                              icon: const FaIcon(Icons.edit),
-                              color: Colors.green,
-                              iconSize: 20.h,
-                            ),
-                            IconButton(
-                                onPressed: () async => {
-                                      await showDeleteConfirmationDialog(
-                                        context: context,
-                                        content: vehicleconstants.modaldelete,
-                                        onConfirm: () {
-                                          context
-                                              .read<VehicleCubit>()
-                                              .deleteVehicle(
-                                                  vehicle, vehicle.id!);
-                                        },
-                                      )
-                                    },
-                                icon: const FaIcon(FontAwesomeIcons.trash),
-                                color: Colors.red,
-                                iconSize: 15.h),
-                          ],
+                                ));
+                          },
                         ),
                       ),
-                    ],
-                  ),
-                );
-              },
+              ],
             );
           }
           return Center(child: Text(vehicleconstants.novehicle));

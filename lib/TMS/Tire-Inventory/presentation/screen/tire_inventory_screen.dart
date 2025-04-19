@@ -37,6 +37,9 @@ class TireInventoryScreen extends StatefulWidget {
 }
 
 class _TireInventoryScreenState extends State<TireInventoryScreen> {
+  TextEditingController _searchController = TextEditingController();
+  List<TireInventory> _filteredTires = [];
+  List<TireInventory> _allTires = [];
   Future<void> _showAddEditModalTireInventory(BuildContext ctx,
       {TireInventory? tire}) async {
     final isdark = Theme.of(context).brightness == Brightness.dark;
@@ -207,96 +210,163 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
           } else if (state is TireInventoryError) {
             return Center(child: Text(state.message));
           } else if (state is TireInventoryLoaded) {
-            return ListView.builder(
-              padding: EdgeInsets.all(10.h),
-              itemCount: state.tireinventory.length,
-              itemBuilder: (context, index) {
-                final tire = state.tireinventory[index];
-                return CustomCard(
-                  child: GestureDetector(
-                    onTap: () {
-                      if (tire.id != null) {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => BlocProvider(
-                                  create: (context) => TirePerformanceCubit(
-                                        TirePerformanceRepository(
-                                          TirePerformanceService(),
-                                        ),
-                                      )..fetchTirePerformance(tire.id!),
-                                  child: Tire_Performance_Screen(tire: tire)),
-                            ));
-                      } else {
-                        ToastHelper.showCustomToast(
-                            context,
-                            tireinventoryconstants.notirefound,
-                            Colors.yellow,
-                            Icons.warning_amber);
-                      }
-                    },
-                    child: ListTile(
-                      contentPadding: EdgeInsets.all(10.h),
-                      leading: SvgPicture.asset(
-                        tireinventoryconstants.tireicon,
-                        height: 35.h,
-                        color: isdark
-                            ? AppColors.darkaddbtn
-                            : AppColors.lightaddbtn,
+            _allTires = state.tireinventory;
+            _filteredTires = _searchController.text.isEmpty
+                ? _allTires
+                : _allTires
+                    .where((tires) => tires.serialNo
+                        .toLowerCase()
+                        .contains(_searchController.text.toLowerCase()))
+                    .toList();
+            return Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      labelText: 'Search by Serial No.',
+                      iconColor: Colors.blueAccent,
+                      prefixIcon: Icon(Icons.search),
+                      prefixIconColor: Colors.blueAccent,
+                      labelStyle: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 12.sp,
                       ),
-                      title: Text(
-                        tire.serialNo,
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      alignLabelWithHint: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderSide: BorderSide(color: Colors.blueAccent),
                       ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("${tireinventoryconstants.brand}: ${tire.brand}",
-                              style: TextStyle(
-                                  color: Colors.grey[400], fontSize: 10.sp)),
-                          Text("${tireinventoryconstants.model}: ${tire.model}",
-                              style: TextStyle(
-                                  color: Colors.grey[400], fontSize: 10.sp)),
-                          Text("${tireinventoryconstants.size}: ${tire.size}",
-                              style: TextStyle(
-                                  color: Colors.grey[400], fontSize: 10.sp)),
-                        ],
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blueAccent),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
-                      trailing: Wrap(
-                        spacing: 5.h,
-                        children: [
-                          ActionButton(
-                              icon: Icons.edit,
-                              color: Colors.green,
-                              onPressed: () => {
-                                    _showAddEditModalTireInventory(context,
-                                        tire: tire)
-                                  }),
-                          ActionButton(
-                              icon: Icons.delete,
-                              color: Colors.red,
-                              onPressed: () async => {
-                                    await showDeleteConfirmationDialog(
-                                      context: context,
-                                      content:
-                                          tireinventoryconstants.modaldelete,
-                                      onConfirm: () {
-                                        context
-                                            .read<TireInventoryCubit>()
-                                            .deleteTireInventory(
-                                                tire, tire.id!);
-                                      },
-                                    )
-                                  }),
-                        ],
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blueAccent),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
+                    onChanged: (value) {
+                      setState(() {
+                        _filteredTires = _allTires
+                            .where((tires) => tires.serialNo
+                                .toLowerCase()
+                                .contains(value.toLowerCase()))
+                            .toList();
+                      });
+                    },
                   ),
-                );
-              },
+                ),
+                _filteredTires.isEmpty
+                    ? const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text("No Tires found."),
+                      )
+                    : Expanded(
+                        child: ListView.builder(
+                        padding: EdgeInsets.all(10.h),
+                        itemCount: _filteredTires.length,
+                        itemBuilder: (context, index) {
+                          final tire = _filteredTires[index];
+                          return CustomCard(
+                            child: GestureDetector(
+                              onTap: () {
+                                if (tire.id != null) {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => BlocProvider(
+                                            create: (context) =>
+                                                TirePerformanceCubit(
+                                                  TirePerformanceRepository(
+                                                    TirePerformanceService(),
+                                                  ),
+                                                )..fetchTirePerformance(
+                                                    tire.id!),
+                                            child: Tire_Performance_Screen(
+                                                tire: tire)),
+                                      ));
+                                } else {
+                                  ToastHelper.showCustomToast(
+                                      context,
+                                      tireinventoryconstants.notirefound,
+                                      Colors.yellow,
+                                      Icons.warning_amber);
+                                }
+                              },
+                              child: ListTile(
+                                contentPadding: EdgeInsets.all(10.h),
+                                leading: SvgPicture.asset(
+                                  tireinventoryconstants.tireicon,
+                                  height: 35.h,
+                                  color: isdark
+                                      ? AppColors.darkaddbtn
+                                      : AppColors.lightaddbtn,
+                                ),
+                                title: Text(
+                                  tire.serialNo,
+                                  style: TextStyle(
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        "${tireinventoryconstants.brand}: ${tire.brand}",
+                                        style: TextStyle(
+                                            color: Colors.grey[400],
+                                            fontSize: 10.sp)),
+                                    Text(
+                                        "${tireinventoryconstants.model}: ${tire.model}",
+                                        style: TextStyle(
+                                            color: Colors.grey[400],
+                                            fontSize: 10.sp)),
+                                    Text(
+                                        "${tireinventoryconstants.size}: ${tire.size}",
+                                        style: TextStyle(
+                                            color: Colors.grey[400],
+                                            fontSize: 10.sp)),
+                                  ],
+                                ),
+                                trailing: Wrap(
+                                  spacing: 5.h,
+                                  children: [
+                                    ActionButton(
+                                        icon: Icons.edit,
+                                        color: Colors.green,
+                                        onPressed: () => {
+                                              _showAddEditModalTireInventory(
+                                                  context,
+                                                  tire: tire)
+                                            }),
+                                    ActionButton(
+                                        icon: Icons.delete,
+                                        color: Colors.red,
+                                        onPressed: () async => {
+                                              await showDeleteConfirmationDialog(
+                                                context: context,
+                                                content: tireinventoryconstants
+                                                    .modaldelete,
+                                                onConfirm: () {
+                                                  context
+                                                      .read<
+                                                          TireInventoryCubit>()
+                                                      .deleteTireInventory(
+                                                          tire, tire.id!);
+                                                },
+                                              )
+                                            }),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      )),
+              ],
             );
           }
           return Center(child: Text(tireinventoryconstants.notiresavailable));
