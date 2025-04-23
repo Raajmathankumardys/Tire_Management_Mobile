@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:yaantrac_app/TMS/helpers/components/widgets/Add_Edit_Modal/add_edit_modal_top.dart';
 import '../../../Tire-Category/cubit/tire_category_cubit.dart';
 import '../../../Tire-Category/cubit/tire_category_state.dart';
+import '../../../helpers/components/widgets/Toast/Toast.dart';
 import '../../../helpers/components/widgets/button/app_primary_button.dart';
 import '../../../helpers/components/widgets/input/app_input_field.dart';
 import '../../../helpers/constants.dart';
@@ -376,7 +377,19 @@ class _add_edit_modal_tire_inventoryState
                                             : widget.ctx
                                                 .read<TireInventoryCubit>()
                                                 .updateTireInventory(t1);
-                                        Navigator.pop(context);
+                                        final state = context
+                                            .read<TireInventoryCubit>()
+                                            .state;
+                                        print(state);
+                                        if (state is TireInventoryError) {
+                                          ToastHelper.showCustomToast(
+                                              context,
+                                              state.message,
+                                              Colors.red,
+                                              Icons.error);
+                                        } else {
+                                          Navigator.pop(context);
+                                        }
                                       }
                                     },
                                     title: tire == null

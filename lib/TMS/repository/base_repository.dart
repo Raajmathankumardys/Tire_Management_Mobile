@@ -1,3 +1,5 @@
+import 'package:yaantrac_app/models/trip.dart';
+
 import '../service/base_service.dart';
 
 class BaseRepository<T> {
@@ -5,7 +7,7 @@ class BaseRepository<T> {
 
   BaseRepository(this.service);
 
-  Future<List<T>> getAll({String? endpoint}) =>
+  Future<List<Trip>> getAll({String? endpoint}) =>
       service.fetchAll(endpoint: endpoint);
 
   Future<List<T>> getPerformance({required String endpoint}) =>

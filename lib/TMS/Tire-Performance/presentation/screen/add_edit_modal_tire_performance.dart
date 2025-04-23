@@ -11,10 +11,10 @@ import '../../cubit/tire_performance_cubit.dart';
 import '../../cubit/tire_performance_state.dart';
 
 class add_edit_modal_tire_performance extends StatefulWidget {
-  final TireInventory tire;
+  //final TireInventory tire;
   final BuildContext ctx;
-  add_edit_modal_tire_performance(
-      {super.key, required this.tire, required this.ctx});
+  final int? tireId;
+  add_edit_modal_tire_performance({super.key, required this.ctx, this.tireId});
 
   @override
   State<add_edit_modal_tire_performance> createState() =>
@@ -112,7 +112,7 @@ class _add_edit_modal_tire_performanceState
                                       onPressed: () async {
                                         if (_formKey.currentState!.validate()) {
                                           final tirep = TirePerformance(
-                                              tireId: widget.tire.id,
+                                              tireId: widget.tireId,
                                               pressure:
                                                   double.parse(pressure.text),
                                               temperature: double.parse(

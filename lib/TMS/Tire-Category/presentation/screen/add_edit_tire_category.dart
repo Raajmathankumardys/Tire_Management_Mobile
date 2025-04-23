@@ -34,13 +34,6 @@ class _AddEditTireCategoryModalState extends State<AddEditTireCategoryModal> {
   }
 
   @override
-  void dispose() {
-    categoryController.dispose();
-    descriptionController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
@@ -100,7 +93,7 @@ class _AddEditTireCategoryModalState extends State<AddEditTireCategoryModal> {
                         ),
                         AppPrimaryButton(
                           width: 130,
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               final newtirecategory = TireCategory(
                                   id: widget.tireCategory?.id,

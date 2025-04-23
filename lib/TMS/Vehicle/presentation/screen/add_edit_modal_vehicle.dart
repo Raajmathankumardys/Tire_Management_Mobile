@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:yaantrac_app/TMS/helpers/components/widgets/Add_Edit_Modal/add_edit_modal_top.dart';
 import 'package:yaantrac_app/TMS/helpers/components/widgets/Card/customcard.dart';
 
@@ -215,10 +216,9 @@ class _add_edit_modal_vehicleState extends State<add_edit_modal_vehicle> {
                         itemBuilder: (ct, index) {
                           return CustomCard(
                               child: ListTile(
-                            leading: Icon(
-                              Icons.tire_repair_outlined,
-                              color: Colors.black,
-                              size: 20.h,
+                            leading: SvgPicture.asset(
+                              'assets/vectors/T_i.svg',
+                              height: 25.sp,
                             ),
                             title: Text(
                               axleMap.keys.elementAt(index) == "F"
@@ -287,9 +287,8 @@ class _add_edit_modal_vehicleState extends State<add_edit_modal_vehicle> {
                         Container(
                           padding: EdgeInsets.all(8.h),
                           decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
+                              borderRadius: BorderRadius.circular(8.r),
+                              border: Border.all(color: Colors.grey, width: 2)),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [

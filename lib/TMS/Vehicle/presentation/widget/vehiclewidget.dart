@@ -10,20 +10,49 @@ class vehiclewidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: vehicle.axleNo <= 2
-          ? FaIcon(Icons.directions_car_filled,
-              size: 30.h, color: Colors.blueAccent)
-          : FaIcon(FontAwesomeIcons.truckFront,
-              size: 30.h, color: Colors.blueAccent),
-      title: Text(vehicle.licensePlate,
-          style: TextStyle(
-            fontSize: 12.w,
-            fontWeight: FontWeight.bold,
-          )),
-      subtitle: Text(
-          '${vehicleconstants.vname + ": " + vehicle.name} | ${vehicleconstants.type + ": " + vehicle.type} | ${vehicleconstants.year}: ${vehicle.manufactureYear}',
-          style: TextStyle(fontSize: 10.h, color: Colors.blueGrey)),
+    return Row(
+      children: [
+        Container(
+          padding: EdgeInsets.all(8.h),
+          decoration: BoxDecoration(
+            color: Colors.blueAccent,
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: vehicle.axleNo <= 2
+              ? Icon(
+                  Icons.directions_car_filled,
+                  size: 24.h,
+                  color: Colors.white,
+                )
+              : FaIcon(FontAwesomeIcons.truckFront,
+                  size: 20.h, color: Colors.white),
+        ),
+        SizedBox(width: 12.w),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                vehicle.licensePlate,
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 4.h),
+              Text(
+                '${vehicleconstants.vname}: ${vehicle.name} | '
+                '${vehicleconstants.type}: ${vehicle.type} | '
+                '${vehicleconstants.year}: ${vehicle.manufactureYear}',
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

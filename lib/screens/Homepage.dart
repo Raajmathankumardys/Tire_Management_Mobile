@@ -1,21 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:yaantrac_app/TMS/Tire-Inventory/presentation/screen/tire_inventory_screen.dart';
-
-import 'package:yaantrac_app/TMS/Tire-Mapping/presentation/screen/AxleMapping.dart';
-import 'package:yaantrac_app/TMS/Tire-Mapping/presentation/screen/carmapping.dart';
-import 'package:yaantrac_app/screens/filter_expense_screen.dart';
 import 'package:yaantrac_app/screens/settings.dart';
-import 'package:yaantrac_app/screens/tiremapping.dart';
-
 import '../TMS/Vehicle/presentation/screen/vehicle_screen.dart';
-import '../TMS/presentation/screen/tire_list_screen.dart';
-import '../TMS/presentation/screen/vehicle_list_screen.dart';
-import 'vehicles_list_screen.dart';
-import 'tires_list_screen.dart';
-import 'notification_screen.dart';
+import '../TMS/presentation/screen/notification_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final int currentIndex;
@@ -46,8 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: Scaffold(
+    return Scaffold(
       body: _pages[_currentIndex],
       bottomNavigationBar: CurvedNavigationBar(
         key: _bottomNavigationKey, // Added key to force update
@@ -58,13 +47,19 @@ class _HomeScreenState extends State<HomeScreen> {
             ? Colors.grey[800]!
             : Colors.white,
         animationDuration: Duration(milliseconds: 300),
-        height: 45.h,
+        height: 40.h,
         index: _currentIndex, // Ensuring correct tab selection
         items: [
-          Icon(Icons.directions_car, size: 30.sp, color: Colors.blueAccent),
-          Icon(Icons.tire_repair, size: 30.sp, color: Colors.blueAccent),
-          Icon(Icons.notifications, size: 30.sp, color: Colors.blueAccent),
-          Icon(Icons.settings, size: 30.sp, color: Colors.blueAccent),
+          SvgPicture.asset(
+            'assets/vectors/vehicle_icon.svg',
+            height: 30.sp,
+          ),
+          SvgPicture.asset(
+            'assets/vectors/tire_inventory.svg',
+            height: 30.sp,
+          ),
+          Icon(Icons.notifications, size: 25.sp, color: Colors.blueAccent),
+          Icon(Icons.settings, size: 25.sp, color: Colors.blueAccent),
         ],
         onTap: (index) {
           setState(() {
@@ -73,6 +68,6 @@ class _HomeScreenState extends State<HomeScreen> {
           });
         },
       ),
-    ));
+    );
   }
 }

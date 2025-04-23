@@ -3,15 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:yaantrac_app/TMS/helpers/components/widgets/button/action_button.dart';
+import '../TMS/Trips/cubit/trips_state.dart';
+import '../TMS/helpers/components/shimmer.dart';
 import '../TMS/helpers/components/themes/app_colors.dart';
 import '../TMS/helpers/components/widgets/Card/customcard.dart';
 
 import '../TMS/helpers/components/widgets/Toast/Toast.dart';
 import '../TMS/helpers/components/widgets/button/app_primary_button.dart';
 import '../TMS/helpers/components/widgets/input/app_input_field.dart';
-import 'trip.dart';
+
 import '../screens/Homepage.dart';
-import '../screens/expense_screen.dart';
+import '../screens/expensescreen.dart';
 import '../TMS/cubit/base_cubit.dart';
 import '../TMS/cubit/base_state.dart';
 import '../TMS/repository/base_repository.dart';
@@ -50,7 +52,6 @@ class _TripListScreenState extends State<tripslistscreen> {
           builder: (context, setState) {
             return Container(
               decoration: BoxDecoration(
-                color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(35.r)),
               ),
               child: SingleChildScrollView(
@@ -273,13 +274,16 @@ class _TripListScreenState extends State<tripslistscreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isdark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
+        backgroundColor: isdark ? Colors.grey.shade900 : Colors.white,
         appBar: AppBar(
           title: const Center(
             child: Text("Trips", style: TextStyle(fontWeight: FontWeight.bold)),
           ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios),
+            color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
             onPressed: () {
               Navigator.push(
                   context,
@@ -295,11 +299,11 @@ class _TripListScreenState extends State<tripslistscreen> {
                 },
                 icon: Icon(
                   Icons.add_circle,
-                  size: 20.h,
-                  color: Colors.black,
+                  color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
                 ))
           ],
-          backgroundColor: Colors.blueAccent,
+          backgroundColor:
+              isdark ? Colors.grey.shade900 : AppColors.lightappbar,
         ),
         body: BlocConsumer<BaseCubit<Trip>, BaseState<Trip>>(
           listener: (context, state) {
@@ -318,110 +322,124 @@ class _TripListScreenState extends State<tripslistscreen> {
           },
           builder: (context, state) {
             if (state is LoadingState<Trip>) {
-              return Center(child: CircularProgressIndicator());
+              return shimmer();
             } else if (state is ErrorState<Trip>) {
               return Center(child: Text(state.message));
             } else if (state is LoadedState<Trip>) {
               return ListView.builder(
-                padding: EdgeInsets.all(12.h),
                 itemCount: state.items.length,
                 itemBuilder: (context, index) {
                   final trip = state.items[index];
-                  return CustomCard(
-                    child: Padding(
-                      padding: EdgeInsets.all(10.h),
-                      child: Row(
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text("Start Date :",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  SizedBox(width: 4.w),
-                                  Text(_formatDate(trip
-                                      .startDate)), // Replace with your dynamic date
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Text("End Date :",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  SizedBox(width: 4.w),
-                                  Text(_formatDate(trip
-                                      .endDate)), // Replace with your dynamic date
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  SizedBox(
-                                    width: 5.h,
-                                  ),
-                                  Icon(Icons.trip_origin,
-                                      size: 15.sp, color: Colors.blue),
-                                  SizedBox(width: 5.w),
-                                  Text(trip.source),
-                                ],
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(left: 6.w),
-                                child: Column(
-                                  children: List.generate(
+                  return Padding(
+                    padding:
+                        EdgeInsets.symmetric(vertical: 2.h, horizontal: 6.w),
+                    child: CustomCard(
+                      color: isdark ? Colors.black54 : Colors.grey.shade100,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            vertical: 8.h, horizontal: 12.w),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Start and End Dates
+                                Row(
+                                  children: [
+                                    Text("Start Date: ",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                    Text(_formatDate(trip.startDate)),
+                                  ],
+                                ),
+                                SizedBox(height: 3.h),
+                                Row(
+                                  children: [
+                                    Text("End Date: ",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                    Text(_formatDate(trip.endDate)),
+                                  ],
+                                ),
+                                SizedBox(height: 5.h),
+                                // Source with Icon
+                                Row(
+                                  children: [
+                                    Icon(Icons.trip_origin,
+                                        size: 18.sp, color: Colors.blue),
+                                    SizedBox(width: 6.w),
+                                    Text(trip.source,
+                                        style: TextStyle(fontSize: 14.sp)),
+                                  ],
+                                ),
+
+                                // Dotted path
+                                Padding(
+                                  padding:
+                                      EdgeInsets.only(left: 1.w, bottom: 0.w),
+                                  child: Column(
+                                    children: List.generate(
                                       2,
                                       (_) => Icon(Icons.more_vert,
-                                          size: 12.sp, color: Colors.grey)),
+                                          size: 14.sp, color: Colors.grey),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              Row(
-                                children: [
-                                  Icon(Icons.location_pin, color: Colors.red),
-                                  SizedBox(width: 5.w),
-                                  Text(trip.destination),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            width: 16.h,
-                          ),
-                          Row(
-                            children: [
-                              ActionButton(
+
+                                // Destination with Icon
+                                Row(
+                                  children: [
+                                    Icon(Icons.location_pin, color: Colors.red),
+                                    SizedBox(width: 6.w),
+                                    Text(trip.destination,
+                                        style: TextStyle(fontSize: 14.sp)),
+                                  ],
+                                ),
+                              ],
+                            ),
+
+                            // Right side: Action buttons
+                            Column(
+                              children: [
+                                ActionButton(
                                   icon: Icons.summarize_sharp,
                                   color: Colors.grey,
                                   onPressed: () {
                                     Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => TripViewPage(
-                                                  tripId: trip.id!,
-                                                  trip: trip,
-                                                  vehicleId: widget.vehicleid,
-                                                )));
-                                  }),
-                              ActionButton(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => TripViewPage(
+                                          tripId: trip.id!,
+                                          trip: trip,
+                                          vehicleId: widget.vehicleid,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                SizedBox(height: 1.h),
+                                ActionButton(
                                   icon: Icons.edit,
                                   color: Colors.green,
                                   onPressed: () {
                                     _showAddEditModal(context,
                                         trip: trip,
                                         vehicleid: widget.vehicleid);
-                                  }),
-                              ActionButton(
-                                  icon: Icons.delete,
+                                  },
+                                ),
+                                SizedBox(height: 1.h),
+                                ActionButton(
+                                  icon: Icons.delete_outline,
                                   color: Colors.red,
                                   onPressed: () {
                                     _confirmDeleteTrip(context, trip.id!);
-                                  })
-                            ],
-                          )
-                        ],
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );
@@ -456,7 +474,7 @@ class _TripListScreenState extends State<tripslistscreen> {
           children: [
             Text('Start Date: ${_formatDate(vehicle.startDate)}',
                 style: TextStyle(fontSize: 10.h, color: Colors.grey)),
-            Text('End Date: ${_formatDate(vehicle.endDate)}',
+            Text(' End Date : ${_formatDate(vehicle.endDate)}',
                 style: TextStyle(fontSize: 10.h, color: Colors.grey))
           ],
         ),

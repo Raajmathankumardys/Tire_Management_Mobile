@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
+import 'package:yaantrac_app/TMS/Tire-Mapping/presentation/screen/tire_performance_tab.dart';
 import 'package:yaantrac_app/TMS/Tire-Position/Cubit/tire_position_cubit.dart';
 import 'package:yaantrac_app/TMS/Tire-Position/Cubit/tire_position_state.dart';
 import 'package:yaantrac_app/TMS/Vehicle-Axle/cubit/vehicle_axle_state.dart';
@@ -8,7 +11,9 @@ import 'package:yaantrac_app/TMS/helpers/components/shimmer.dart';
 import 'package:yaantrac_app/TMS/helpers/components/widgets/button/app_primary_button.dart';
 import '../../../Tire-Inventory/cubit/tire_inventory_cubit.dart';
 import '../../../Tire-Inventory/cubit/tire_inventory_state.dart';
+import '../../../Tire-Performance/service/tire_performance_service.dart';
 import '../../../Vehicle-Axle/cubit/vehicle_axle_cubit.dart';
+import '../../../Vehicle/cubit/vehicle_state.dart';
 import '../../../helpers/components/widgets/Toast/Toast.dart';
 import '../../../helpers/components/widgets/deleteDialog.dart';
 import '../../cubit/tire_mapping_cubit.dart';
@@ -33,7 +38,9 @@ String getDescriptionByPositionCode(
 
 class AxleConfiguration extends StatefulWidget {
   final int vehicleId;
-  const AxleConfiguration({super.key, required this.vehicleId});
+  final Vehicle vehicle;
+  const AxleConfiguration(
+      {super.key, required this.vehicleId, required this.vehicle});
 
   @override
   State<AxleConfiguration> createState() => _AxleConfigurationState();
@@ -47,6 +54,7 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
   List<TirePosition> allPositions = [];
   List<VehicleAxle> getaxles = [];
   bool isTireLoading = true;
+  bool isaction = true;
   late List<GetTireMapping> getvalue = [];
   @override
   void initState() {
@@ -73,15 +81,16 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
     axles = [
       Axle(label: 'Front', tires: List.filled(2, null)),
       Axle(label: 'Axle 2', tires: List.filled(4, null)),
-      Axle(label: 'Rear', tires: List.filled(2, null)),
+      Axle(label: 'Rear', tires: List.filled(4, null)),
     ];
     await fetchTires();
     await fetchTirePositions();
     await fetchTireMapping();
-    selectedtire.clear();
-    selectedtire1.clear();
+
     if (mounted) {
       setState(() {
+        selectedtire.clear();
+        selectedtire1.clear();
         for (var g in getvalue) {
           for (var axle in axles) {
             for (int i = 0; i < axle.tires.length; i++) {
@@ -138,6 +147,52 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
         }
         isTireLoading = false;
       });
+    }
+  }
+
+  void inittireperformance() {
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => MultiBlocProvider(
+    //       providers: [
+    //         Provider<TirePerformanceService>(
+    //           create: (context) => TirePerformanceService(),
+    //         ),
+    //         // For each tireId, create a BlocProvider dynamically
+    //         ...getvalue.map((entry) {
+    //           final tireId = entry.tireId;
+    //           return BlocProvider<TirePerformanceCubit>(
+    //             create: (context) {
+    //               final service = context.read<TirePerformanceService>();
+    //               final repo = TirePerformanceRepository(service);
+    //               print(entry.tireId);
+    //               return TirePerformanceCubit(repo)
+    //                 ..fetchTirePerformance(tireId);
+    //             },
+    //           );
+    //         }).toList(),
+    //       ],
+    //       child: TirePerformanceTab(getValue: getvalue),
+    //     ),
+    //   ),
+    // );
+    if (getvalue.isNotEmpty) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Provider<TirePerformanceService>(
+            create: (context) => TirePerformanceService(),
+            child: TirePerformanceTab(
+              getValue: getvalue,
+              vehicle: widget.vehicle,
+            ),
+          ),
+        ),
+      );
+    } else {
+      ToastHelper.showCustomToast(
+          context, "No Tires Found", Colors.red, Icons.warning);
     }
   }
 
@@ -262,6 +317,9 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
     }
 
     getvalue = state.tiremapping;
+    setState(() {
+      isaction = false;
+    });
   }
 
   String getTirePositionLabel(Axle axle, int index) {
@@ -376,6 +434,10 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
+                    getDescriptionByPositionCode(allPositions, positionLabel),
+                    style: const TextStyle(color: Colors.white, fontSize: 9),
+                  ),
+                  Text(
                     positionLabel,
                     style: const TextStyle(color: Colors.white, fontSize: 12),
                   ),
@@ -450,11 +512,11 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
               .read<TireMappingCubit>()
               .updateTireMapping(put, widget.vehicleId);
         }
-        setState(() {
-          isTireLoading = true;
-        });
-        fetchData();
       }
+      setState(() {
+        isTireLoading = true;
+      });
+      fetchData();
     }
   }
 
@@ -464,7 +526,34 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
     final boxwidth =
         axles.map((axle) => axle.tires.length).reduce((a, b) => a > b ? a : b);
     return Scaffold(
-      appBar: AppBar(title: const Text("Axle Tire Configuration")),
+      appBar: AppBar(
+        leading: IconButton(
+            onPressed: () => {
+                  context
+                      .read<TireMappingCubit>()
+                      .fetchTireMapping(widget.vehicleId)
+                },
+            icon: Icon(
+              Icons.refresh,
+              color: Colors.blueAccent,
+            )),
+        actionsIconTheme: IconThemeData(
+          color: isdark ? Colors.white : Colors.black,
+          size: 30,
+        ),
+        actions: [
+          !isaction
+              ? IconButton(
+                  onPressed: inittireperformance,
+                  icon: SvgPicture.asset(
+                    'assets/vectors/tire_psi.svg',
+                    height: 25.sp,
+                  ),
+                )
+              : Text('')
+          //
+        ],
+      ),
       body: BlocConsumer<TireMappingCubit, TireMappingState>(
         listener: (context, state) {
           if (state is AddedTireMappingState ||
@@ -490,7 +579,7 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
         builder: (context, state) {
           if (state is TireMappingLoading) {
             return shimmer(
-              count: 8,
+              count: 6,
             );
           } else if (state is TireMappingError) {
             String updatedMessage = state.message.toString();
@@ -498,7 +587,7 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
           } else if (state is TireMappingLoaded) {
             return isTireLoading
                 ? shimmer(
-                    count: 8,
+                    count: 6,
                   )
                 : SingleChildScrollView(
                     scrollDirection: Axis.horizontal,

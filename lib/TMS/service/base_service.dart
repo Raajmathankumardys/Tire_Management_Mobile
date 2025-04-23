@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:yaantrac_app/models/trip.dart';
 
 class BaseService<T> {
   static final Map<Type, dynamic> _instances = {}; // Store instances by type
@@ -28,26 +29,36 @@ class BaseService<T> {
 
   String? get Url => dotenv.env["BASE_URL"];
 
-  Future<List<T>> fetchAll({String? endpoint}) async {
+  Future<List<Trip>> fetchAll({String? endpoint}) async {
     try {
-      final response =
-          await dio.get(Url! + (endpoint != null ? endpoint : baseUrl));
-      if (response.statusCode == 200) {
-        if (response.data is List) {
-          return (response.data as List)
-              .map((json) => fromJson(json as Map<String, dynamic>))
-              .toList();
-        } else if (response.data['data'] is List) {
-          return (response.data['data'] as List)
-              .map((json) => fromJson(json as Map<String, dynamic>))
-              .toList();
-        } else {
-          throw Exception(
-              "Unexpected response format: Expected List, got ${response.data.runtimeType}");
-        }
-      } else {
-        throw Exception("Failed to fetch items: ${response.statusCode}");
-      }
+      return [
+        Trip(
+            id: 21,
+            source: "Chennai",
+            destination: "Delhi",
+            startDate: DateTime.now(),
+            endDate: DateTime.now(),
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now()),
+      ];
+      // final response =
+      //     await dio.get(Url! + (endpoint != null ? endpoint : baseUrl));
+      // if (response.statusCode == 200) {
+      //   if (response.data is List) {
+      //     return (response.data as List)
+      //         .map((json) => fromJson(json as Map<String, dynamic>))
+      //         .toList();
+      //   } else if (response.data['data'] is List) {
+      //     return (response.data['data'] as List)
+      //         .map((json) => fromJson(json as Map<String, dynamic>))
+      //         .toList();
+      //   } else {
+      //     throw Exception(
+      //         "Unexpected response format: Expected List, got ${response.data.runtimeType}");
+      //   }
+      // } else {
+      //   throw Exception("Failed to fetch items: ${response.statusCode}");
+      // }
     } on DioException catch (e) {
       throw _handleDioError(e);
     }

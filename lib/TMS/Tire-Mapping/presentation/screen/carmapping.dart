@@ -2,24 +2,30 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 import 'package:yaantrac_app/TMS/Tire-Mapping/cubit/tire_mapping_state.dart';
 import 'package:yaantrac_app/TMS/Tire-Position/Cubit/tire_position_state.dart';
 import 'package:yaantrac_app/TMS/helpers/components/shimmer.dart';
 import 'package:yaantrac_app/TMS/helpers/components/widgets/button/app_primary_button.dart';
-import '../../../../screens/Homepage.dart';
 import '../../../Tire-Inventory/cubit/tire_inventory_cubit.dart';
 import '../../../Tire-Inventory/cubit/tire_inventory_state.dart';
+import '../../../Tire-Performance/service/tire_performance_service.dart';
 import '../../../Tire-Position/Cubit/tire_position_cubit.dart';
 import '../../../Vehicle-Axle/cubit/vehicle_axle_cubit.dart';
 import '../../../Vehicle-Axle/cubit/vehicle_axle_state.dart';
-import '../../../helpers/components/themes/app_colors.dart';
+import '../../../Vehicle/cubit/vehicle_state.dart';
 import '../../../helpers/components/widgets/Toast/Toast.dart';
 import '../../../helpers/components/widgets/deleteDialog.dart';
 import '../../cubit/tire_mapping_cubit.dart';
+import 'tire_performance_tab.dart';
 
 class CarMappingScreen extends StatefulWidget {
   final int vehicleId;
-  const CarMappingScreen({super.key, required this.vehicleId});
+  final Vehicle vehicle;
+  const CarMappingScreen(
+      {super.key, required this.vehicleId, required this.vehicle});
 
   @override
   State<CarMappingScreen> createState() => _CarMappingScreenState();
@@ -36,6 +42,7 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
   List<AddTireMapping> p1 = [];
   late List<GetTireMapping> getvalue = [];
   bool isload = true;
+  bool isaction = true;
   @override
   void initState() {
     super.initState();
@@ -156,6 +163,9 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
 
     getvalue = state.tiremapping;
     tiremapping = state.tiremapping;
+    setState(() {
+      isaction = false;
+    });
   }
 
   Future<TireInventory?> showTireDialog(String position) async {
@@ -359,6 +369,26 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
         a.vehicleId == b.vehicleId;
   }
 
+  void inittireperformance() {
+    if (getvalue.isNotEmpty) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Provider<TirePerformanceService>(
+            create: (context) => TirePerformanceService(),
+            child: TirePerformanceTab(
+              getValue: getvalue,
+              vehicle: widget.vehicle,
+            ),
+          ),
+        ),
+      );
+    } else {
+      ToastHelper.showCustomToast(
+          context, "No Tires Found", Colors.red, Icons.warning);
+    }
+  }
+
   void onSubmit() {
     print(tiremapping);
     if (filteredPositions
@@ -408,13 +438,11 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
         });
         fetchData();
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Submitted successfully!")),
-      );
+      ToastHelper.showCustomToast(context, "Submitted successfully!",
+          Colors.green, Icons.beenhere_rounded);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Select tire for all 4 positions")),
-      );
+      ToastHelper.showCustomToast(context, "Select tire for all 4 positions",
+          Colors.red, Icons.warning);
     }
   }
 
@@ -423,19 +451,40 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
     final isdark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Car Mapping"),
+        // title: const Text("Car Mapping"),
+        // leading: IconButton(
+        //     onPressed: () {
+        //       Navigator.push(
+        //         context,
+        //         MaterialPageRoute(
+        //           builder: (context) => HomeScreen(),
+        //         ),
+        //       );
+        //     },
+        //     icon: Icon(
+        //       Icons.arrow_back_ios,
+        //       color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
+        //     )),
+        actions: [
+          !isaction
+              ? IconButton(
+                  onPressed: inittireperformance,
+                  icon: SvgPicture.asset(
+                    'assets/vectors/tire_psi.svg',
+                    height: 25.sp,
+                  ),
+                )
+              : Text(''),
+        ],
         leading: IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => HomeScreen(),
-                ),
-              );
-            },
+            onPressed: () => {
+                  context
+                      .read<TireMappingCubit>()
+                      .fetchTireMapping(widget.vehicleId)
+                },
             icon: Icon(
-              Icons.arrow_back_ios,
-              color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
+              Icons.refresh,
+              color: Colors.blueAccent,
             )),
       ),
       body: BlocConsumer<TireMappingCubit, TireMappingState>(
@@ -463,7 +512,7 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
         builder: (context, state) {
           if (state is TireMappingLoading) {
             return shimmer(
-              count: 8,
+              count: 6,
             );
           } else if (state is TireMappingError) {
             String updatedMessage = state.message.toString();
@@ -471,7 +520,7 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
           } else if (state is TireMappingLoaded) {
             return isload
                 ? shimmer(
-                    count: 8,
+                    count: 6,
                   )
                 : Center(
                     child: Stack(

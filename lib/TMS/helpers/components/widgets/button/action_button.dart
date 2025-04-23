@@ -16,6 +16,7 @@ class ActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       icon: Icon(icon, color: color),
+      style: IconButton.styleFrom(backgroundColor: color.withOpacity(0.1)),
       onPressed: onPressed,
     );
   }
