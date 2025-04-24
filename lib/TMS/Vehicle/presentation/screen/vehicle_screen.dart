@@ -13,12 +13,13 @@ import 'package:yaantrac_app/TMS/Vehicle/presentation/screen/add_edit_modal_vehi
 import 'package:yaantrac_app/TMS/Tire-Mapping/presentation/screen/mappingscreen.dart';
 import 'package:yaantrac_app/TMS/Vehicle/presentation/widget/vehiclewidget.dart';
 import 'package:yaantrac_app/TMS/helpers/constants.dart';
+import '../../../../Expense_Tracker/Trips/cubit/trips_cubit.dart';
+import '../../../../Expense_Tracker/Trips/presentation/screen/trips_screen.dart';
+import '../../../../Expense_Tracker/Trips/repository/trips_repository.dart';
+import '../../../../Expense_Tracker/Trips/service/trips_service.dart';
 import '../../../Tire-Mapping/cubit/tire_mapping_cubit.dart';
 import '../../../Tire-Mapping/repository/tire_mapping_repository.dart';
-import '../../../Trips/cubit/trips_cubit.dart';
-import '../../../Trips/presentation/screen/trips_screen.dart';
-import '../../../Trips/repository/trips_repository.dart';
-import '../../../Trips/service/trips_service.dart';
+
 import '../../../helpers/components/themes/app_colors.dart';
 import '../../../helpers/components/widgets/Card/customcard.dart';
 import '../../../helpers/components/shimmer.dart';
@@ -83,16 +84,14 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
       appBar: AppBar(
         title: Center(
             child: Text(vehicleconstants.appbar,
-                style: TextStyle(fontWeight: FontWeight.bold))),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.white))),
         backgroundColor: isdark ? Colors.grey.shade900 : AppColors.lightappbar,
         leading: Text(''),
         actions: [
           IconButton(
               onPressed: () => {_showAddEditModal(context)},
-              icon: Icon(
-                Icons.add_circle,
-                color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
-              ))
+              icon: Icon(Icons.add_circle, color: Colors.white))
         ],
       ),
       body: RefreshIndicator(

@@ -11,18 +11,17 @@ class NotificationScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: theme.brightness == Brightness.dark
-            ? Colors.black
-            : Colors.blueAccent,
+        backgroundColor: Colors.blueAccent,
         leading: IconButton(
             onPressed: () {},
             icon: Icon(
               Icons.arrow_back_ios,
+              color: Colors.white,
             )),
         title: const Center(
           child: Text(
             "Alerts & Notifications",
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),
       ),

@@ -24,13 +24,16 @@ class TirePerformanceTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tireIds = getValue.map((e) => e.tireId).toSet().toList();
-    return SafeArea(
-        child: DefaultTabController(
+    return DefaultTabController(
       length: tireIds.length,
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.blueAccent,
           title: Center(
-            child: Text('Tire Performance'),
+            child: Text(
+              'Tire Performance',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
           leading: IconButton(
               onPressed: () {
@@ -72,6 +75,7 @@ class TirePerformanceTab extends StatelessWidget {
               },
               icon: Icon(
                 Icons.arrow_back_ios,
+                color: Colors.white,
               )),
           bottom: TabBar(
             isScrollable: true,
@@ -92,6 +96,6 @@ class TirePerformanceTab extends StatelessWidget {
           }).toList(),
         ),
       ),
-    ));
+    );
   }
 }

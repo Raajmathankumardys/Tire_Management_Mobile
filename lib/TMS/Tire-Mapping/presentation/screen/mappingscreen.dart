@@ -3,8 +3,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:yaantrac_app/TMS/Tire-Mapping/presentation/screen/AxleMapping.dart';
 import 'package:yaantrac_app/TMS/Tire-Mapping/presentation/screen/carmapping.dart';
 import 'package:yaantrac_app/TMS/Tire-Mapping/presentation/screen/vehicle_details.dart';
-import '../../../../screens/Homepage.dart';
+import '../../../presentation/screen/Homepage.dart';
 import '../../../Vehicle/cubit/vehicle_state.dart';
+import '../../../helpers/components/themes/app_colors.dart';
 
 class mappingscreen extends StatefulWidget {
   final int index;
@@ -19,13 +20,16 @@ class _mappingscreenState extends State<mappingscreen> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
-      initialIndex: widget.index,
-      child: SafeArea(
+        length: 2,
+        initialIndex: widget.index,
         child: Scaffold(
           appBar: AppBar(
+            backgroundColor: AppColors.secondaryColor,
             title: Center(
-              child: Text("Mapping"),
+              child: Text(
+                "Mapping",
+                style: TextStyle(color: Colors.white),
+              ),
             ),
             leading: IconButton(
                 onPressed: () {
@@ -36,9 +40,7 @@ class _mappingscreenState extends State<mappingscreen> {
                     ),
                   );
                 },
-                icon: Icon(
-                  Icons.arrow_back_ios,
-                )),
+                icon: Icon(Icons.arrow_back_ios, color: Colors.white)),
           ),
           body: Column(
             children: [
@@ -100,8 +102,6 @@ class _mappingscreenState extends State<mappingscreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
+        ));
   }
 }

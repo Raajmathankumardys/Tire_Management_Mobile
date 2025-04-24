@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:yaantrac_app/TMS/Tire-Category/cubit/tire_category_state.dart';
-import 'package:yaantrac_app/screens/Homepage.dart';
+import 'package:yaantrac_app/TMS/presentation/screen/Homepage.dart';
 import '../../../helpers/components/themes/app_colors.dart';
 import '../../../helpers/components/widgets/Toast/Toast.dart';
 import '../../../helpers/components/widgets/button/action_button.dart';
@@ -60,7 +60,8 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
         appBar: AppBar(
           title: const Center(
               child: Text(tirecategoryconstants.appbar,
-                  style: TextStyle(fontWeight: FontWeight.bold))),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.white))),
           backgroundColor:
               isdark ? Colors.grey.shade900 : AppColors.lightappbar,
           leading: IconButton(
@@ -72,10 +73,7 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
                             currentIndex: 1,
                           )));
             },
-            icon: Icon(
-              Icons.arrow_back_ios,
-              color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
-            ),
+            icon: Icon(Icons.arrow_back_ios, color: Colors.white),
           ),
           actions: [
             IconButton(
@@ -83,10 +81,7 @@ class _Tire_Category_Screen_State extends State<Tire_Category_Screen> {
                       _showAddEditModalTireCategory(context)
                       //_showAddEditModal(context)
                     },
-                icon: Icon(
-                  Icons.add_circle,
-                  color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
-                ))
+                icon: Icon(Icons.add_circle, color: Colors.white))
           ],
         ),
         body: RefreshIndicator(

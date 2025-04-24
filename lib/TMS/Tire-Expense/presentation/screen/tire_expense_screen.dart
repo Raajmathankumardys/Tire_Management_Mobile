@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:yaantrac_app/TMS/Tire-Expense/presentation/screen/add_edit_modal_tire_expense.dart';
 import 'package:yaantrac_app/TMS/helpers/constants.dart';
-import '../../../../screens/Homepage.dart';
+import '../../../presentation/screen/Homepage.dart';
 import '../../../helpers/components/themes/app_colors.dart';
 import '../../../helpers/components/widgets/Card/customcard.dart';
 import '../../../helpers/components/shimmer.dart';

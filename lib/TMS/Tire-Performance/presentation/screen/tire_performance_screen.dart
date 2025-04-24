@@ -6,7 +6,7 @@ import 'package:yaantrac_app/TMS/Tire-Performance/presentation/widget/buildstatc
 import 'package:yaantrac_app/TMS/helpers/components/widgets/Add_Edit_Modal/add_edit_modal_top.dart';
 import 'package:yaantrac_app/TMS/helpers/constants.dart';
 import 'package:yaantrac_app/TMS/helpers/components/shimmer.dart';
-import '../../../../screens/Homepage.dart';
+import '../../../presentation/screen/Homepage.dart';
 import '../../../Tire-Inventory/cubit/tire_inventory_state.dart';
 import '../../../helpers/components/themes/app_colors.dart';
 import '../../../helpers/components/widgets/Toast/Toast.dart';

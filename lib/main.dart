@@ -5,7 +5,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:yaantrac_app/TMS/Tire-Inventory/repository/tire_inventory_repository.dart';
 import 'package:yaantrac_app/TMS/Tire-Inventory/service/tire_inventory_service.dart';
-import 'package:yaantrac_app/TMS/Tire-Position/Cubit/tire_position_state.dart';
 import 'package:yaantrac_app/TMS/Vehicle/cubit/vehicle_cubit.dart';
 import 'TMS/Tire-Category/cubit/tire_category_cubit.dart';
 import 'TMS/Tire-Category/repository/tire_category_repository.dart';
@@ -16,8 +15,8 @@ import 'TMS/Tire-Position/Repository/tire_position_repository.dart';
 import 'TMS/Tire-Position/Service/tire_position_service.dart';
 import 'TMS/Vehicle/repository/vehicle_repository.dart';
 import 'TMS/Vehicle/service/vehicle_service.dart';
-import 'bloc/Theme/theme_bloc.dart';
-import 'screens/Homepage.dart';
+import 'TMS/helpers/components/themes/ThemeProvider.dart';
+import 'TMS/presentation/screen/Homepage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

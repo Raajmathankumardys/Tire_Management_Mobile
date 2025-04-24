@@ -86,13 +86,12 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
         backgroundColor: isdark ? Colors.grey.shade900 : Colors.white70,
         appBar: AppBar(
           title: Text(tireinventoryconstants.appbar,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              )),
+              style:
+                  TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
           centerTitle: true,
           leading: IconButton(
               alignment: Alignment.topRight,
-              color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
+              color: Colors.white,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -135,10 +134,7 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                   ),
                 );
               },
-              icon: Icon(
-                Icons.category,
-                color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
-              )),
+              icon: Icon(Icons.category, color: Colors.white)),
           actions: [
             /*IconButton(
                 alignment: Alignment.topRight,
@@ -167,10 +163,7 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                 onPressed: () {
                   _showAddEditModalTireInventory(context);
                 },
-                icon: Icon(
-                  Icons.add_circle,
-                  color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
-                )),
+                icon: Icon(Icons.add_circle, color: Colors.white)),
           ],
           backgroundColor:
               isdark ? Colors.grey.shade900 : AppColors.lightappbar,
