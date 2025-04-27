@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:yaantrac_app/Expense_Tracker/transaction.dart';
 import '../../../../TMS/helpers/components/shimmer.dart';
 import '../../../../TMS/helpers/components/themes/app_colors.dart';
 import '../../../../TMS/helpers/components/widgets/Card/customcard.dart';
@@ -48,7 +49,11 @@ class _TripsScreenState extends State<TripsScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return AddEditTrip(ctx: ctx, trip: trip);
+        return AddEditTrip(
+          ctx: ctx,
+          trip: trip,
+          vehicleId: widget.vehicleid,
+        );
       },
     );
   }
@@ -104,6 +109,10 @@ class _TripsScreenState extends State<TripsScreen> {
           child: BlocConsumer<TripCubit, TripState>(
             listener: (context, state) {
               if (state is AddedTripState) {
+                final message = (state as dynamic).message;
+                ToastHelper.showCustomToast(
+                    context, message, Colors.green, Icons.check);
+              } else if (state is UpdatedTripState) {
                 final message = (state as dynamic).message;
                 ToastHelper.showCustomToast(
                     context, message, Colors.green, Icons.check);

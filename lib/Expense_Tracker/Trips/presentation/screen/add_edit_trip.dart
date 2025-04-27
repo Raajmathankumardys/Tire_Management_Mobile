@@ -12,7 +12,9 @@ import '../../cubit/trips_state.dart';
 class AddEditTrip extends StatefulWidget {
   final BuildContext ctx;
   final Trip? trip;
-  const AddEditTrip({super.key, required this.ctx, this.trip});
+  final int vehicleId;
+  const AddEditTrip(
+      {super.key, required this.ctx, this.trip, required this.vehicleId});
 
   @override
   State<AddEditTrip> createState() => _AddEditTripState();
@@ -135,7 +137,7 @@ class _AddEditTripState extends State<AddEditTrip> {
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
                               final newtrip = Trip(
-                                  id: widget.trip!.id,
+                                  id: widget.trip?.id,
                                   source: sourceController.text,
                                   destination: destinationController.text,
                                   startDate: _startdate,
@@ -144,11 +146,13 @@ class _AddEditTripState extends State<AddEditTrip> {
                                   updatedAt: DateTime.now());
 
                               if (widget.trip == null) {
-                                widget.ctx.read<TripCubit>().addTrip(newtrip);
+                                widget.ctx
+                                    .read<TripCubit>()
+                                    .addTrip(newtrip, widget.vehicleId);
                               } else {
                                 widget.ctx
                                     .read<TripCubit>()
-                                    .updateTrip(newtrip);
+                                    .updateTrip(newtrip, widget.vehicleId);
                               }
                               Navigator.pop(context);
                             }

@@ -1,21 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import '../../../../TMS/helpers/components/shimmer.dart';
 import '../../../../TMS/helpers/components/widgets/Card/customcard.dart';
 import '../../../../TMS/helpers/components/widgets/Toast/Toast.dart';
 import '../../../../TMS/helpers/components/widgets/button/action_button.dart';
-import '../../../../TMS/helpers/components/widgets/button/app_primary_button.dart';
 import '../../../../TMS/helpers/components/widgets/deleteDialog.dart';
+import '../../../../TMS/presentation/screen/expensescreen.dart';
+import '../../../Income/cubit/income_cubit.dart';
+import '../../../Income/repository/income_repository.dart';
+import '../../../Income/service/income_service.dart';
+import '../../../Trip-Profit-Summary/cubit/trip_profit_summary_cubit.dart';
+import '../../../Trip-Profit-Summary/repository/trip_profit_summary_repository.dart';
+import '../../../Trip-Profit-Summary/service/trip_profit_summary_service.dart';
+import '../../../Trips/cubit/trips_state.dart';
 import '../../cubit/expense_cubit.dart';
 import '../../cubit/expense_state.dart';
+import '../../repository/expense_repository.dart';
+import '../../service/expense_service.dart';
 import '../widget/build_info_card.dart';
 import 'add_edit_expense.dart';
 import 'package:intl/intl.dart';
 
 class ExpenseScreen extends StatefulWidget {
   final int tripId;
-  const ExpenseScreen({super.key, required this.tripId});
+  final Trip trip;
+  final int vehicleid;
+  final bool isadd;
+  final bool isedit;
+  final Expense? expense;
+  const ExpenseScreen(
+      {super.key,
+      required this.tripId,
+      required this.trip,
+      required this.vehicleid,
+      this.isadd = false,
+      this.isedit = false,
+      this.expense});
 
   @override
   State<ExpenseScreen> createState() => _ExpenseScreenState();
@@ -27,7 +49,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   String selectedExpenseType = 'All';
   DateTime? customStartDate;
   DateTime? customEndDate;
-  bool isbar = false;
+  bool isbar = true;
 
   List<Expense> _filterExpenses(List<Expense> expenses) {
     final filteredByType = selectedExpenseType == 'All'
@@ -152,17 +174,93 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.isadd) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showAddEditModal(context);
+      });
+    }
+    if (widget.isedit) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showAddEditModal(context, widget.expense);
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final bool isdark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: isdark ? Colors.grey.shade900 : Colors.white70,
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.all(16),
-        child: AppPrimaryButton(
+      backgroundColor: isdark ? Colors.grey.shade900 : Colors.white,
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text(
+          "Expense",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.blueAccent,
+        actions: [
+          IconButton(
+              onPressed: () => {_showAddEditModal(context)},
+              icon: Icon(
+                Icons.add_circle,
+                color: Colors.white,
+              ))
+        ],
+        leading: IconButton(
             onPressed: () {
-              _showAddEditModal(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MultiBlocProvider(
+                    providers: [
+                      Provider<IncomeService>(
+                        create: (_) => IncomeService(),
+                      ),
+                      BlocProvider<IncomeCubit>(
+                        create: (context) {
+                          final service = context.read<IncomeService>();
+                          final repo = IncomeRepository(service);
+                          return IncomeCubit(repo)..fetchIncome(widget.tripId);
+                        },
+                      ),
+                      Provider<ExpenseService>(
+                        create: (_) => ExpenseService(),
+                      ),
+                      BlocProvider<ExpenseCubit>(
+                        create: (context) {
+                          final service = context.read<ExpenseService>();
+                          final repo = ExpenseRepository(service);
+                          return ExpenseCubit(repo)
+                            ..fetchExpense(widget.tripId);
+                        },
+                      ),
+                      Provider<TripProfitSummaryService>(
+                        create: (_) => TripProfitSummaryService(),
+                      ),
+                      BlocProvider<TripProfitSummaryCubit>(
+                        create: (context) {
+                          final service =
+                              context.read<TripProfitSummaryService>();
+                          final repo = TripProfitSummaryRepository(service);
+                          return TripProfitSummaryCubit(repo)
+                            ..fetchTripProfitSummary(widget.tripId);
+                        },
+                      ),
+                    ],
+                    child: TripViewPage(
+                        tripId: widget.tripId,
+                        trip: widget.trip,
+                        vehicleId: widget.vehicleid),
+                  ),
+                ),
+              );
             },
-            title: "Add Expense"),
+            icon: Icon(
+              Icons.arrow_back_ios,
+              color: Colors.white,
+            )),
       ),
       body: RefreshIndicator(
         child: BlocConsumer<ExpenseCubit, ExpenseState>(

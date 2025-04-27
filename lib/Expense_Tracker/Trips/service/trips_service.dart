@@ -47,7 +47,8 @@ class TripService {
 
   Future<void> addTrip(Trip trip) async {
     try {
-      await _dio.post('/trips/${trip.id!}', data: trip.toJson());
+      //await _dio.post('/trips/${trip.id!}', data: trip.toJson());
+      print(trip.toJson());
     } on DioException catch (e) {
       throw DioErrorHandler.handle(e);
     }
@@ -55,7 +56,8 @@ class TripService {
 
   Future<void> updateTrip(Trip trip) async {
     try {
-      await _dio.put('trips/${trip.id}', data: trip.toJson());
+      //await _dio.put('trips/${trip.id}', data: trip.toJson());
+      print(trip.toJson());
     } on DioException catch (e) {
       throw DioErrorHandler.handle(e);
     }
@@ -63,7 +65,8 @@ class TripService {
 
   Future<void> deleteTrip(int id) async {
     try {
-      await _dio.delete('trips/$id');
+      //await _dio.delete('trips/$id');
+      print(id);
     } on DioException catch (e) {
       throw DioErrorHandler.handle(e);
     }

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-
-import '../../../Expense_Tracker/Expense/presentation/screen/expense_screen.dart';
-import '../../../Expense_Tracker/Income/presentation/screen/income_screen.dart';
+import 'package:yaantrac_app/Expense_Tracker/transaction.dart';
 import '../../../Expense_Tracker/Trip-Profit-Summary/presentation/screen/trip_profit_summary_screen.dart';
 import '../../../Expense_Tracker/Trips/cubit/trips_cubit.dart';
 import '../../../Expense_Tracker/Trips/cubit/trips_state.dart';
@@ -38,7 +36,7 @@ class _TripViewPageState extends State<TripViewPage> {
   Widget build(BuildContext context) {
     return DefaultTabController(
         initialIndex: widget.index ?? 0,
-        length: 3, // Three sections: Trip Details, Expenses, Income
+        length: 2, // Three sections: Trip Details, Expenses, Income
         child: Scaffold(
           appBar: AppBar(
             title: const Center(
@@ -78,19 +76,18 @@ class _TripViewPageState extends State<TripViewPage> {
               indicatorColor: Colors.white,
               dividerColor: Colors.white,
               unselectedLabelColor: Colors.white,
-              tabs: [
-                Tab(text: "Trip View"),
-                Tab(text: "Expenses"),
-                Tab(text: "Income"),
-              ],
+              tabs: [Tab(text: "Transaction"), Tab(text: "Trip Summary")],
             ),
           ),
           body: TabBarView(
             children: [
+              TransactionScreen(
+                tripId: widget.trip.id!,
+                vehicleid: widget.vehicleId,
+                trip: widget.trip,
+              ),
               TripProfitSummaryScreen(
-                  trip: widget.trip), // First tab for trip details
-              ExpenseScreen(tripId: widget.tripId), // Second tab for expenses
-              IncomeScreen(tripId: widget.trip.id!), // Third tab for income
+                  trip: widget.trip) // First tab for trip details
             ],
           ),
         ));

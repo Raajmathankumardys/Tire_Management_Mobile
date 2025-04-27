@@ -65,7 +65,8 @@ class IncomeService {
 
   Future<void> deleteIncome(int id) async {
     try {
-      await _dio.delete('income/$id');
+      // await _dio.delete('income/$id');
+      print(id);
     } on DioException catch (e) {
       throw DioErrorHandler.handle(e);
     }

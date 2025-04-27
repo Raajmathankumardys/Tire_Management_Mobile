@@ -17,24 +17,24 @@ class TripCubit extends Cubit<TripState> {
     }
   }
 
-  void addTrip(Trip trip) async {
+  void addTrip(Trip trip, int vehicleId) async {
     try {
       await repository.addTrip(trip);
       emit(AddedTripState("Added"));
     } catch (e) {
       emit(TripError(e.toString()));
     }
-    fetchTrip(trip.id!);
+    fetchTrip(vehicleId);
   }
 
-  void updateTrip(Trip trip) async {
+  void updateTrip(Trip trip, int vehicleId) async {
     try {
       await repository.updateTrip(trip);
       emit(UpdatedTripState("Updated"));
     } catch (e) {
       emit(TripError(e.toString()));
     }
-    fetchTrip(trip.id!);
+    fetchTrip(vehicleId);
   }
 
   void deleteTrip(Trip trip, int id) async {
@@ -44,6 +44,6 @@ class TripCubit extends Cubit<TripState> {
     } catch (e) {
       emit(TripError(e.toString()));
     }
-    fetchTrip(trip.id!);
+    fetchTrip(id);
   }
 }

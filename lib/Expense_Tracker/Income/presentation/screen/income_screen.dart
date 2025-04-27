@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import '../../../../TMS/helpers/components/shimmer.dart';
 import '../../../../TMS/helpers/components/widgets/Card/customcard.dart';
 import '../../../../TMS/helpers/components/widgets/Toast/Toast.dart';
 import '../../../../TMS/helpers/components/widgets/button/action_button.dart';
-import '../../../../TMS/helpers/components/widgets/button/app_primary_button.dart';
 import '../../../../TMS/helpers/components/widgets/deleteDialog.dart';
+import '../../../../TMS/presentation/screen/expensescreen.dart';
+import '../../../Expense/cubit/expense_cubit.dart';
+import '../../../Expense/repository/expense_repository.dart';
+import '../../../Expense/service/expense_service.dart';
+import '../../../Trip-Profit-Summary/cubit/trip_profit_summary_cubit.dart';
+import '../../../Trip-Profit-Summary/repository/trip_profit_summary_repository.dart';
+import '../../../Trip-Profit-Summary/service/trip_profit_summary_service.dart';
+import '../../../Trips/cubit/trips_state.dart';
 import '../../cubit/income_cubit.dart';
 import '../../cubit/income_state.dart';
+import '../../repository/income_repository.dart';
+import '../../service/income_service.dart';
 import 'add_edit_income.dart';
 import 'package:intl/intl.dart';
 
@@ -16,7 +26,19 @@ enum ViewType { All, Week, Month, Year, Custom }
 
 class IncomeScreen extends StatefulWidget {
   final int tripId;
-  const IncomeScreen({super.key, required this.tripId});
+  final int vehicleid;
+  final Trip trip;
+  final bool isadd;
+  final bool isedit;
+  final Income? income;
+  const IncomeScreen(
+      {super.key,
+      required this.tripId,
+      required this.trip,
+      required this.vehicleid,
+      this.isadd = false,
+      this.isedit = false,
+      this.income});
 
   @override
   State<IncomeScreen> createState() => _IncomeScreenState();
@@ -177,16 +199,93 @@ class _IncomeScreenState extends State<IncomeScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.isadd) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showAddEditModal(context);
+      });
+    }
+    if (widget.isedit) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showAddEditModal(context, widget.income);
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final bool isdark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: isdark ? Colors.grey.shade900 : Colors.white70,
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.all(16),
-        child: AppPrimaryButton(
-          onPressed: () => _showAddEditModal(context),
-          title: "Add Income",
+      backgroundColor: isdark ? Colors.grey.shade900 : Colors.white,
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text(
+          "Income",
+          style: TextStyle(color: Colors.white),
         ),
+        backgroundColor: Colors.blueAccent,
+        actions: [
+          IconButton(
+              onPressed: () => {_showAddEditModal(context)},
+              icon: Icon(
+                Icons.add_circle,
+                color: Colors.white,
+              ))
+        ],
+        leading: IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MultiBlocProvider(
+                    providers: [
+                      Provider<IncomeService>(
+                        create: (_) => IncomeService(),
+                      ),
+                      BlocProvider<IncomeCubit>(
+                        create: (context) {
+                          final service = context.read<IncomeService>();
+                          final repo = IncomeRepository(service);
+                          return IncomeCubit(repo)..fetchIncome(widget.tripId);
+                        },
+                      ),
+                      Provider<ExpenseService>(
+                        create: (_) => ExpenseService(),
+                      ),
+                      BlocProvider<ExpenseCubit>(
+                        create: (context) {
+                          final service = context.read<ExpenseService>();
+                          final repo = ExpenseRepository(service);
+                          return ExpenseCubit(repo)
+                            ..fetchExpense(widget.tripId);
+                        },
+                      ),
+                      Provider<TripProfitSummaryService>(
+                        create: (_) => TripProfitSummaryService(),
+                      ),
+                      BlocProvider<TripProfitSummaryCubit>(
+                        create: (context) {
+                          final service =
+                              context.read<TripProfitSummaryService>();
+                          final repo = TripProfitSummaryRepository(service);
+                          return TripProfitSummaryCubit(repo)
+                            ..fetchTripProfitSummary(widget.tripId);
+                        },
+                      ),
+                    ],
+                    child: TripViewPage(
+                        tripId: widget.tripId,
+                        trip: widget.trip,
+                        vehicleId: widget.vehicleid),
+                  ),
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.arrow_back_ios,
+              color: Colors.white,
+            )),
       ),
       body: RefreshIndicator(
         color: Colors.blueAccent,
@@ -352,36 +451,55 @@ class _IncomeScreenState extends State<IncomeScreen> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Row(children: [
-                                                  Text("Amount",
+                                                  Text("\₹",
                                                       style: TextStyle(
+                                                          fontSize: 16,
                                                           fontWeight:
                                                               FontWeight.bold)),
                                                   SizedBox(width: 5.w),
                                                   Text(income.amount.toString())
                                                 ]),
-                                                Row(children: [
-                                                  Text("Income Date",
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold)),
-                                                  SizedBox(width: 5.w),
-                                                  Text(_formatDate(
-                                                      income.incomeDate))
-                                                ]),
+                                                // Row(children: [
+                                                //   Text("Income Date",
+                                                //       style: TextStyle(
+                                                //           fontWeight:
+                                                //               FontWeight.bold)),
+                                                //   SizedBox(width: 5.w),
+                                                //   Text(_formatDate(
+                                                //       income.incomeDate))
+                                                // ]),
                                                 if (income.description
                                                     .trim()
                                                     .isNotEmpty)
                                                   Row(children: [
-                                                    Text("Description",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                    SizedBox(width: 5.w),
+                                                    Icon(
+                                                      Icons.file_copy,
+                                                      size: 12.h,
+                                                    ),
+                                                    SizedBox(
+                                                      width: 5.w,
+                                                    ),
                                                     Text(income.description)
                                                   ]),
                                               ],
                                             ),
+                                          ),
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.date_range,
+                                                size: 12.h,
+                                              ),
+                                              SizedBox(
+                                                width: 5.w,
+                                              ),
+                                              Text(
+                                                  _formatDate(
+                                                      income.incomeDate),
+                                                  style: const TextStyle(
+                                                      color: Colors.grey)),
+                                              SizedBox(width: 5.w)
+                                            ],
                                           ),
                                           Row(
                                             children: [
