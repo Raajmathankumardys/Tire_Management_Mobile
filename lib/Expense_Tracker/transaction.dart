@@ -5,7 +5,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:yaantrac_app/Expense_Tracker/Income/presentation/screen/income_screen.dart';
-import 'package:yaantrac_app/TMS/helpers/components/shimmer.dart';
+
+import '../helpers/components/shimmer.dart';
 import 'Expense/cubit/expense_cubit.dart';
 import 'Expense/cubit/expense_state.dart';
 import 'Expense/presentation/screen/expense_screen.dart';

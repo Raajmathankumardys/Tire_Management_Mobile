@@ -5,20 +5,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
-import 'package:yaantrac_app/TMS/Tire-Mapping/cubit/tire_mapping_state.dart';
-import 'package:yaantrac_app/TMS/Tire-Position/Cubit/tire_position_state.dart';
-import 'package:yaantrac_app/TMS/helpers/components/shimmer.dart';
-import 'package:yaantrac_app/TMS/helpers/components/widgets/button/app_primary_button.dart';
+
+import '../../../../helpers/components/shimmer.dart';
+import '../../../../helpers/components/widgets/Toast/Toast.dart';
+import '../../../../helpers/components/widgets/button/app_primary_button.dart';
+import '../../../../helpers/components/widgets/deleteDialog.dart';
 import '../../../Tire-Inventory/cubit/tire_inventory_cubit.dart';
 import '../../../Tire-Inventory/cubit/tire_inventory_state.dart';
 import '../../../Tire-Performance/service/tire_performance_service.dart';
 import '../../../Tire-Position/Cubit/tire_position_cubit.dart';
+import '../../../Tire-Position/Cubit/tire_position_state.dart';
 import '../../../Vehicle-Axle/cubit/vehicle_axle_cubit.dart';
 import '../../../Vehicle-Axle/cubit/vehicle_axle_state.dart';
 import '../../../Vehicle/cubit/vehicle_state.dart';
-import '../../../helpers/components/widgets/Toast/Toast.dart';
-import '../../../helpers/components/widgets/deleteDialog.dart';
 import '../../cubit/tire_mapping_cubit.dart';
+import '../../cubit/tire_mapping_state.dart';
 import 'tire_performance_tab.dart';
 
 class CarMappingScreen extends StatefulWidget {

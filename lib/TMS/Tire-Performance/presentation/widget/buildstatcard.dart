@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import '../../../helpers/components/widgets/Card/customcard.dart';
+import '../../../../helpers/components/widgets/Card/customcard.dart';
 import '../../cubit/tire_performance_state.dart';
 
 class buildstatcard extends StatelessWidget {

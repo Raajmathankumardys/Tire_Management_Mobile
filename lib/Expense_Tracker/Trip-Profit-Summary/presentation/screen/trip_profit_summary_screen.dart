@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import '../../../../TMS/helpers/components/shimmer.dart';
+import '../../../../helpers/components/shimmer.dart';
 import '../../../Trips/cubit/trips_state.dart';
 import '../../cubit/trip_profit_summary_cubit.dart';
 import '../../cubit/trip_profit_summary_state.dart';

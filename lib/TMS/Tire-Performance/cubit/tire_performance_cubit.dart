@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:yaantrac_app/TMS/helpers/constants.dart';
+import '../../../helpers/constants.dart';
 import '../repository/tire_performance_repository.dart';
 import 'tire_performance_state.dart';
 

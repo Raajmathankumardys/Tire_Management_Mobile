@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:yaantrac_app/TMS/Tire-Category/cubit/tire_category_state.dart';
-import 'package:yaantrac_app/TMS/presentation/screen/Homepage.dart';
-import '../../../helpers/components/themes/app_colors.dart';
-import '../../../helpers/components/widgets/Toast/Toast.dart';
-import '../../../helpers/components/widgets/button/action_button.dart';
-import '../../../helpers/components/widgets/deleteDialog.dart';
-import '../../../helpers/constants.dart';
-import '../../../helpers/components/widgets/Card/customcard.dart';
-import '../../../helpers/components/shimmer.dart';
+
+import '../../../../commonScreen/Homepage.dart';
+import '../../../../helpers/components/shimmer.dart';
+import '../../../../helpers/components/themes/app_colors.dart';
+import '../../../../helpers/components/widgets/Card/customcard.dart';
+import '../../../../helpers/components/widgets/Toast/Toast.dart';
+import '../../../../helpers/components/widgets/button/action_button.dart';
+import '../../../../helpers/components/widgets/deleteDialog.dart';
+import '../../../../helpers/constants.dart';
 import '../../cubit/tire_category_cubit.dart';
+import '../../cubit/tire_category_state.dart';
 import 'add_edit_tire_category.dart';
 
 class Tire_Category_Screen extends StatefulWidget {

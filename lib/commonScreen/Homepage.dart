@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:yaantrac_app/TMS/Tire-Inventory/presentation/screen/tire_inventory_screen.dart';
-import 'package:yaantrac_app/TMS/presentation/screen/settings.dart';
-import '../../Vehicle/presentation/screen/vehicle_screen.dart';
+import 'package:yaantrac_app/commonScreen/settings.dart';
+import '../TMS/Tire-Inventory/presentation/screen/tire_inventory_screen.dart';
+import '../TMS/Vehicle/presentation/screen/vehicle_screen.dart';
 import 'notification_screen.dart';
 
 class HomeScreen extends StatefulWidget {

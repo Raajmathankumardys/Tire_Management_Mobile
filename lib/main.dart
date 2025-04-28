@@ -15,8 +15,8 @@ import 'TMS/Tire-Position/Repository/tire_position_repository.dart';
 import 'TMS/Tire-Position/Service/tire_position_service.dart';
 import 'TMS/Vehicle/repository/vehicle_repository.dart';
 import 'TMS/Vehicle/service/vehicle_service.dart';
-import 'TMS/helpers/components/themes/ThemeProvider.dart';
-import 'TMS/presentation/screen/Homepage.dart';
+import 'commonScreen/Homepage.dart';
+import 'helpers/components/themes/ThemeProvider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -12,19 +12,18 @@ import 'package:yaantrac_app/TMS/Vehicle-Axle/service/vehicle_axle_cubit.dart';
 import 'package:yaantrac_app/TMS/Vehicle/presentation/screen/add_edit_modal_vehicle.dart';
 import 'package:yaantrac_app/TMS/Tire-Mapping/presentation/screen/mappingscreen.dart';
 import 'package:yaantrac_app/TMS/Vehicle/presentation/widget/vehiclewidget.dart';
-import 'package:yaantrac_app/TMS/helpers/constants.dart';
 import '../../../../Expense_Tracker/Trips/cubit/trips_cubit.dart';
 import '../../../../Expense_Tracker/Trips/presentation/screen/trips_screen.dart';
 import '../../../../Expense_Tracker/Trips/repository/trips_repository.dart';
 import '../../../../Expense_Tracker/Trips/service/trips_service.dart';
+import '../../../../helpers/components/shimmer.dart';
+import '../../../../helpers/components/themes/app_colors.dart';
+import '../../../../helpers/components/widgets/Card/customcard.dart';
+import '../../../../helpers/components/widgets/Toast/Toast.dart';
+import '../../../../helpers/components/widgets/deleteDialog.dart';
+import '../../../../helpers/constants.dart';
 import '../../../Tire-Mapping/cubit/tire_mapping_cubit.dart';
 import '../../../Tire-Mapping/repository/tire_mapping_repository.dart';
-
-import '../../../helpers/components/themes/app_colors.dart';
-import '../../../helpers/components/widgets/Card/customcard.dart';
-import '../../../helpers/components/shimmer.dart';
-import '../../../helpers/components/widgets/Toast/Toast.dart';
-import '../../../helpers/components/widgets/deleteDialog.dart';
 import '../../cubit/vehicle_cubit.dart';
 import '../../cubit/vehicle_state.dart';
 

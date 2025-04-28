@@ -3,12 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:yaantrac_app/TMS/helpers/components/widgets/Add_Edit_Modal/add_edit_modal_top.dart';
-import 'package:yaantrac_app/TMS/helpers/components/widgets/Card/customcard.dart';
-
-import '../../../helpers/components/widgets/button/app_primary_button.dart';
-import '../../../helpers/components/widgets/input/app_input_field.dart';
-import '../../../helpers/constants.dart';
+import '../../../../helpers/components/widgets/Add_Edit_Modal/add_edit_modal_top.dart';
+import '../../../../helpers/components/widgets/Card/customcard.dart';
+import '../../../../helpers/components/widgets/button/app_primary_button.dart';
+import '../../../../helpers/components/widgets/input/app_input_field.dart';
+import '../../../../helpers/constants.dart';
 import '../../cubit/vehicle_cubit.dart';
 import '../../cubit/vehicle_state.dart';
 

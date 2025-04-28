@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../../../TMS/helpers/exception.dart';
+
+import '../../../helpers/exception.dart';
 import '../cubit/trips_state.dart';
 
 class TripService {

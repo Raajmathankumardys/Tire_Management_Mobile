@@ -3,16 +3,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:yaantrac_app/TMS/Tire-Inventory/cubit/tire_inventory_state.dart';
 import 'package:intl/intl.dart';
-import 'package:yaantrac_app/TMS/helpers/components/widgets/Add_Edit_Modal/add_edit_modal_top.dart';
+import '../../../../helpers/components/widgets/Add_Edit_Modal/add_edit_modal_top.dart';
+import '../../../../helpers/components/widgets/Toast/Toast.dart';
+import '../../../../helpers/components/widgets/button/app_primary_button.dart';
+import '../../../../helpers/components/widgets/input/app_input_field.dart';
+import '../../../../helpers/constants.dart';
 import '../../../Tire-Category/cubit/tire_category_cubit.dart';
 import '../../../Tire-Category/cubit/tire_category_state.dart';
-import '../../../helpers/components/widgets/Toast/Toast.dart';
-import '../../../helpers/components/widgets/button/app_primary_button.dart';
-import '../../../helpers/components/widgets/input/app_input_field.dart';
-import '../../../helpers/constants.dart';
 import '../../cubit/tire_inventory_cubit.dart';
+import '../../cubit/tire_inventory_state.dart';
 
 class add_edit_modal_tire_inventory extends StatefulWidget {
   final TireInventory? tire;

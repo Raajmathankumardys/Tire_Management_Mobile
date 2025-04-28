@@ -3,9 +3,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:yaantrac_app/TMS/Tire-Mapping/presentation/screen/AxleMapping.dart';
 import 'package:yaantrac_app/TMS/Tire-Mapping/presentation/screen/carmapping.dart';
 import 'package:yaantrac_app/TMS/Tire-Mapping/presentation/screen/vehicle_details.dart';
-import '../../../presentation/screen/Homepage.dart';
+import '../../../../commonScreen/Homepage.dart';
+import '../../../../helpers/components/themes/app_colors.dart';
 import '../../../Vehicle/cubit/vehicle_state.dart';
-import '../../../helpers/components/themes/app_colors.dart';
 
 class mappingscreen extends StatefulWidget {
   final int index;

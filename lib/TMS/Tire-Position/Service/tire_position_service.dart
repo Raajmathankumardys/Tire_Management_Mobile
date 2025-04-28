@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../../helpers/exception.dart';
+import '../../../helpers/exception.dart';
 import '../Cubit/tire_position_state.dart';
 
 class TirePositionService {
