@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-
 import '../../../../commonScreen/Homepage.dart';
-import '../../../../commonScreen/expensescreen.dart';
+import '../../../../helpers/constants.dart';
+import '../../../Trip-Profit-Summary/presentation/screen/trip_overview_screen.dart';
 import '../../../../helpers/components/shimmer.dart';
 import '../../../../helpers/components/themes/app_colors.dart';
 import '../../../../helpers/components/widgets/Card/customcard.dart';
@@ -80,7 +80,7 @@ class _TripsScreenState extends State<TripsScreen> {
         backgroundColor: isdark ? Colors.grey.shade900 : Colors.white,
         appBar: AppBar(
           title: const Center(
-            child: Text("Trips",
+            child: Text(tripconstants.appbar,
                 style: TextStyle(
                     fontWeight: FontWeight.bold, color: Colors.white)),
           ),
@@ -152,7 +152,7 @@ class _TripsScreenState extends State<TripsScreen> {
                                   // Start and End Dates
                                   Row(
                                     children: [
-                                      Text("Start Date: ",
+                                      Text("${tripconstants.startDate}: ",
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold)),
                                       Text(_formatDate(trip.startDate)),
@@ -161,7 +161,7 @@ class _TripsScreenState extends State<TripsScreen> {
                                   SizedBox(height: 3.h),
                                   Row(
                                     children: [
-                                      Text("End Date: ",
+                                      Text("${tripconstants.endDate}: ",
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold)),
                                       Text(_formatDate(trip.endDate)),
@@ -289,8 +289,7 @@ class _TripsScreenState extends State<TripsScreen> {
                                     onPressed: () async {
                                       await showDeleteConfirmationDialog(
                                         context: context,
-                                        content:
-                                            "Are you sure you want to delete this Trip? This action cannot be undone.",
+                                        content: tripconstants.deletemodal,
                                         onConfirm: () {
                                           context
                                               .read<TripCubit>()
@@ -309,7 +308,7 @@ class _TripsScreenState extends State<TripsScreen> {
                   },
                 );
               }
-              return Center(child: Text("No trips available"));
+              return Center(child: Text(tripconstants.notrip));
             },
           ),
           onRefresh: () async =>

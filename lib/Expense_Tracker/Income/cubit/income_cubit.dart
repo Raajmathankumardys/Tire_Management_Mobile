@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:yaantrac_app/helpers/constants.dart';
 import '../repository/income_repository.dart';
 import 'income_state.dart';
 
@@ -20,7 +21,7 @@ class IncomeCubit extends Cubit<IncomeState> {
   void addIncome(Income income) async {
     try {
       await repository.addIncome(income);
-      emit(AddedIncomeState("Added"));
+      emit(AddedIncomeState(incomeconstants.addedtoast));
     } catch (e) {
       emit(IncomeError(e.toString()));
     }
@@ -30,7 +31,7 @@ class IncomeCubit extends Cubit<IncomeState> {
   void updateIncome(Income income) async {
     try {
       await repository.updateIncome(income);
-      emit(UpdatedIncomeState("Updated"));
+      emit(UpdatedIncomeState(incomeconstants.updatedtoast));
     } catch (e) {
       emit(IncomeError(e.toString()));
     }
@@ -40,7 +41,7 @@ class IncomeCubit extends Cubit<IncomeState> {
   void deleteIncome(Income income, int id) async {
     try {
       await repository.deleteIncome(id);
-      emit(DeletedIncomeState("Deleted"));
+      emit(DeletedIncomeState(incomeconstants.deletetoast));
     } catch (e) {
       emit(IncomeError(e.toString()));
     }

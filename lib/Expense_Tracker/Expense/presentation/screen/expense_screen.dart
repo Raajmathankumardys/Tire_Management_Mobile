@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import '../../../../commonScreen/expensescreen.dart';
+import '../../../../helpers/constants.dart';
+import '../../../Trip-Profit-Summary/presentation/screen/trip_overview_screen.dart';
 import '../../../../helpers/components/shimmer.dart';
 import '../../../../helpers/components/widgets/Card/customcard.dart';
 import '../../../../helpers/components/widgets/Toast/Toast.dart';
@@ -196,7 +197,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          "Expense",
+          expenseconstants.appbar,
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.blueAccent,
@@ -296,7 +297,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
             } else if (state is ExpenseLoaded) {
               // Filter bar UI
               final uniqueCategories = [
-                'All',
+                expenseconstants.all,
                 ...{
                   for (var e in state.expense)
                     e.category.toString().split('.').last
@@ -317,13 +318,15 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                             icon: Icon(Icons.arrow_back_ios),
                             onPressed: () {
                               setState(() {
-                                if (selectedView == 'Week') {
+                                if (selectedView == expenseconstants.week) {
                                   selectedDate =
                                       selectedDate.subtract(Duration(days: 7));
-                                } else if (selectedView == 'Month') {
+                                } else if (selectedView ==
+                                    expenseconstants.month) {
                                   selectedDate = DateTime(selectedDate.year,
                                       selectedDate.month - 1);
-                                } else if (selectedView == 'Year') {
+                                } else if (selectedView ==
+                                    expenseconstants.year) {
                                   selectedDate =
                                       DateTime(selectedDate.year - 1);
                                 }
@@ -331,7 +334,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                             },
                           ),
                           Text(
-                            selectedView == 'Week'
+                            selectedView == expenseconstants.week
                                 ? formatWeekRange(selectedDate)
                                 : selectedView == 'Month'
                                     ? DateFormat('MMMM yyyy')
@@ -344,13 +347,15 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                             icon: Icon(Icons.arrow_forward_ios),
                             onPressed: () {
                               setState(() {
-                                if (selectedView == 'Week') {
+                                if (selectedView == expenseconstants.week) {
                                   selectedDate =
                                       selectedDate.add(Duration(days: 7));
-                                } else if (selectedView == 'Month') {
+                                } else if (selectedView ==
+                                    expenseconstants.month) {
                                   selectedDate = DateTime(selectedDate.year,
                                       selectedDate.month + 1);
-                                } else if (selectedView == 'Year') {
+                                } else if (selectedView ==
+                                    expenseconstants.year) {
                                   selectedDate =
                                       DateTime(selectedDate.year + 1);
                                 }
@@ -365,14 +370,20 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
 
                   // View type toggle
                   Row(
-                    children:
-                        ['All', 'Week', 'Month', 'Year', 'Custom'].map((view) {
+                    children: [
+                      expenseconstants.all,
+                      expenseconstants.week,
+                      expenseconstants.month,
+                      expenseconstants.year,
+                      expenseconstants.custom
+                    ].map((view) {
                       return Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           child: TextButton(
                             onPressed: () async {
-                              if (view == 'Custom' || view == "All") {
+                              if (view == expenseconstants.custom ||
+                                  view == expenseconstants.all) {
                                 setState(() {
                                   isbar = true;
                                 });
@@ -381,7 +392,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                                   isbar = false;
                                 });
                               }
-                              if (view == 'Custom') {
+                              if (view == expenseconstants.custom) {
                                 final picked = await showDateRangePicker(
                                   context: context,
                                   firstDate: DateTime(2000),
@@ -397,7 +408,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                                   setState(() {
                                     customStartDate = picked.start;
                                     customEndDate = picked.end;
-                                    selectedView = 'Custom';
+                                    selectedView = expenseconstants.custom;
                                   });
                                 }
                               } else {
@@ -444,7 +455,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                   // Expense List
                   Expanded(
                     child: filteredExpenses.isEmpty
-                        ? Center(child: Text("No expenses found"))
+                        ? Center(child: Text(expenseconstants.noexpense))
                         : ListView.builder(
                             itemCount: filteredExpenses.length,
                             itemBuilder: (context, index) {
@@ -509,7 +520,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                                                   InfoCard(
                                                     icon: Icons.attach_money,
                                                     value:
-                                                        '₹${expense.amount.toStringAsFixed(2)}',
+                                                        '${expenseconstants.rupees}${expense.amount.toStringAsFixed(2)}',
                                                     iconcolor: Colors.redAccent,
                                                   ),
                                                   InfoCard(
@@ -547,8 +558,8 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                                                   onPressed: () async {
                                                     await showDeleteConfirmationDialog(
                                                       context: context,
-                                                      content:
-                                                          "Are you sure you want to delete this expense?",
+                                                      content: expenseconstants
+                                                          .deletemodal,
                                                       onConfirm: () {
                                                         context
                                                             .read<
@@ -575,7 +586,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                 ],
               );
             }
-            return Center(child: Text("No Income Found"));
+            return Center(child: Text(expenseconstants.noexpense));
           },
         ),
         onRefresh: () async =>

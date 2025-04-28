@@ -61,7 +61,9 @@ class _AddEditTripState extends State<AddEditTrip> {
             children: [
               // Header
               add_edit_modal_top(
-                  title: widget.trip == null ? "Add Trip" : "Edit Trip"),
+                  title: widget.trip == null
+                      ? tripconstants.addtrip
+                      : tripconstants.edittrip),
 
               // Form Inputs
               Padding(
@@ -70,8 +72,8 @@ class _AddEditTripState extends State<AddEditTrip> {
                   children: [
                     AppInputField(
                       name: constants.textfield,
-                      label: "Source",
-                      hint: "Enter source",
+                      label: tripconstants.source,
+                      hint: tripconstants.sourcehint,
                       controller: sourceController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -82,8 +84,8 @@ class _AddEditTripState extends State<AddEditTrip> {
                     ),
                     AppInputField(
                       name: constants.textfield,
-                      label: "Destination",
-                      hint: "Enter destination",
+                      label: tripconstants.destination,
+                      hint: tripconstants.destinationhint,
                       controller: destinationController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -94,7 +96,7 @@ class _AddEditTripState extends State<AddEditTrip> {
                     ),
                     AppInputField(
                       name: constants.datefield,
-                      label: "Start Date",
+                      label: tripconstants.startDate,
                       isDatePicker: true,
                       controller:
                           startdateController, // Ensure this is initialized
@@ -108,7 +110,7 @@ class _AddEditTripState extends State<AddEditTrip> {
                     ),
                     AppInputField(
                       name: constants.datefield,
-                      label: "End Date",
+                      label: tripconstants.endDate,
                       isDatePicker: true,
                       controller:
                           enddateController, // Ensure this is initialized

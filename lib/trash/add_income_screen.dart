@@ -4,7 +4,7 @@
 // import 'package:yaantrac_app/common/widgets/input/app_input_field.dart';
 // import 'package:yaantrac_app/models/income.dart'; // Replace with the actual income model
 // import 'package:yaantrac_app/trash/expense_list_screen.dart';
-// import 'package:yaantrac_app/screens/expensescreen.dart';
+// import 'package:yaantrac_app/screens/trip_overview_screen.dart';
 // import 'package:yaantrac_app/services/api_service.dart';
 //
 // class AddIncomeScreen extends StatefulWidget {

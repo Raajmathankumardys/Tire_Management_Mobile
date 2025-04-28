@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../helpers/constants.dart';
 import '../repository/trips_repository.dart';
 import 'trips_state.dart';
 
@@ -20,7 +21,8 @@ class TripCubit extends Cubit<TripState> {
   void addTrip(Trip trip, int vehicleId) async {
     try {
       await repository.addTrip(trip);
-      emit(AddedTripState("Added"));
+      emit(AddedTripState(
+          tripconstants.addedtoast(trip.source, trip.destination)));
     } catch (e) {
       emit(TripError(e.toString()));
     }
@@ -30,7 +32,8 @@ class TripCubit extends Cubit<TripState> {
   void updateTrip(Trip trip, int vehicleId) async {
     try {
       await repository.updateTrip(trip);
-      emit(UpdatedTripState("Updated"));
+      emit(UpdatedTripState(
+          tripconstants.updatedtoast(trip.source, trip.destination)));
     } catch (e) {
       emit(TripError(e.toString()));
     }
@@ -40,7 +43,8 @@ class TripCubit extends Cubit<TripState> {
   void deleteTrip(Trip trip, int id) async {
     try {
       await repository.deleteTrip(id);
-      emit(DeletedTripState("Deleted"));
+      emit(DeletedTripState(
+          tripconstants.deletedtoast(trip.source, trip.destination)));
     } catch (e) {
       emit(TripError(e.toString()));
     }

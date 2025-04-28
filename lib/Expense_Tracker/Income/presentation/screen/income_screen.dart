@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-
-import '../../../../commonScreen/expensescreen.dart';
+import 'package:yaantrac_app/helpers/constants.dart';
+import '../../../Trip-Profit-Summary/presentation/screen/trip_overview_screen.dart';
 import '../../../../helpers/components/shimmer.dart';
 import '../../../../helpers/components/widgets/Card/customcard.dart';
 import '../../../../helpers/components/widgets/Toast/Toast.dart';
@@ -222,7 +222,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          "Income",
+          incomeconstants.appbar,
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.blueAccent,
@@ -336,7 +336,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                           ),
                           onPressed: () => _applyFilter(ViewType.All),
                           child: Text(
-                            'All',
+                            incomeconstants.all,
                             style: TextStyle(
                                 color: isdark ? Colors.white : Colors.black),
                           )),
@@ -348,7 +348,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                           ),
                           onPressed: () => _applyFilter(ViewType.Week),
                           child: Text(
-                            'Week',
+                            incomeconstants.week,
                             style: TextStyle(
                                 color: isdark ? Colors.white : Colors.black),
                           )),
@@ -360,7 +360,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                           ),
                           onPressed: () => _applyFilter(ViewType.Month),
                           child: Text(
-                            'Month',
+                            incomeconstants.month,
                             style: TextStyle(
                                 color: isdark ? Colors.white : Colors.black),
                           )),
@@ -370,7 +370,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                           ),
                           onPressed: () => _applyFilter(ViewType.Year),
                           child: Text(
-                            'Year',
+                            incomeconstants.year,
                             style: TextStyle(
                                 color: isdark ? Colors.white : Colors.black),
                           )),
@@ -382,7 +382,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                           ),
                           onPressed: _selectCustomRange,
                           child: Text(
-                            'Custom',
+                            incomeconstants.custom,
                             style: TextStyle(
                                 color: isdark ? Colors.white : Colors.black),
                           )),
@@ -422,7 +422,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                     ),
                   Expanded(
                     child: _filteredIncome.isEmpty
-                        ? Center(child: Text("No Incomes Found"))
+                        ? Center(child: Text(incomeconstants.noincome))
                         : ListView.builder(
                             itemCount: _filteredIncome.length,
                             itemBuilder: (context, index) {
@@ -452,7 +452,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Row(children: [
-                                                  Text("\₹",
+                                                  Text(incomeconstants.rupees,
                                                       style: TextStyle(
                                                           fontSize: 16,
                                                           fontWeight:
@@ -517,8 +517,8 @@ class _IncomeScreenState extends State<IncomeScreen> {
                                                 onPressed: () async {
                                                   await showDeleteConfirmationDialog(
                                                     context: context,
-                                                    content:
-                                                        "Are you sure you want to delete this income?",
+                                                    content: incomeconstants
+                                                        .deletemodal,
                                                     onConfirm: () => context
                                                         .read<IncomeCubit>()
                                                         .deleteIncome(
@@ -540,7 +540,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                 ],
               );
             }
-            return Center(child: Text("No Income Found"));
+            return Center(child: Text(incomeconstants.noincome));
           },
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:yaantrac_app/helpers/constants.dart';
 import '../../../helpers/exception.dart';
 import '../Cubit/tire_position_state.dart';
 
@@ -18,7 +19,7 @@ class TirePositionService {
 
   Future<List<TirePosition>> fetchTirePosition() async {
     try {
-      final response = await _dio.get('/tire-positions');
+      final response = await _dio.get(tirepositionconstants.endpoint);
       return (response.data['data'] as List)
           .map((v) => TirePosition.fromJson(v))
           .toList(growable: false);

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:yaantrac_app/helpers/constants.dart';
 import '../../../helpers/exception.dart';
 import '../cubit/tire_mapping_state.dart';
 
@@ -17,7 +18,7 @@ class TireMappingService {
 
   Future<List<GetTireMapping>> fetchTireMapping(int id) async {
     try {
-      final response = await _dio.get('/tire-mapping/$id');
+      final response = await _dio.get(tiremappingconstants.endpoint(id));
       return (response.data['data'] as List)
           .map((v) => GetTireMapping.fromJson(v))
           .toList(growable: false);
@@ -28,7 +29,7 @@ class TireMappingService {
 
   Future<void> addTireMapping(List<AddTireMapping> tiremapping) async {
     try {
-      //await _dio.post('/tire-mapping', data: tiremapping);
+      //await _dio.post(tiremappingconstants.endpointpost, data: tiremapping);
       print("Add");
     } on DioException catch (e) {
       throw DioErrorHandler.handle(e);
@@ -38,7 +39,7 @@ class TireMappingService {
   Future<void> updateTireMapping(
       List<AddTireMapping> tiremapping, int id) async {
     try {
-      //await _dio.put('/tire-mapping/$id', data: tiremapping.toJson());
+      //await _dio.put(tiremappingconstants.endpoint(id), data: tiremapping.toJson());
       print("update");
     } on DioException catch (e) {
       throw DioErrorHandler.handle(e);
@@ -47,7 +48,7 @@ class TireMappingService {
 
   Future<void> deleteTiremapping(int id) async {
     try {
-      //await _dio.delete('/tire-mapping/$id');
+      //await _dio.delete(tiremappingconstants.endpoint(id));
       print(id);
     } on DioException catch (e) {
       throw DioErrorHandler.handle(e);

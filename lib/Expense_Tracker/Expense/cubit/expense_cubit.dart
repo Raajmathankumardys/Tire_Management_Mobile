@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:yaantrac_app/helpers/constants.dart';
 import '../repository/expense_repository.dart';
 import 'expense_state.dart';
 
@@ -20,7 +21,7 @@ class ExpenseCubit extends Cubit<ExpenseState> {
   void addExpense(Expense expense) async {
     try {
       await repository.addExpense(expense);
-      emit(AddedExpenseState("Added"));
+      emit(AddedExpenseState(expenseconstants.addedtoast));
     } catch (e) {
       emit(ExpenseError(e.toString()));
     }
@@ -30,7 +31,7 @@ class ExpenseCubit extends Cubit<ExpenseState> {
   void updateExpense(Expense expense) async {
     try {
       await repository.updateExpense(expense);
-      emit(UpdatedExpenseState("Updated"));
+      emit(UpdatedExpenseState(expenseconstants.updatedtoast));
     } catch (e) {
       emit(ExpenseError(e.toString()));
     }
@@ -40,7 +41,7 @@ class ExpenseCubit extends Cubit<ExpenseState> {
   void deleteExpense(Expense expense, int id) async {
     try {
       await repository.deleteExpense(id);
-      emit(DeletedExpenseState("Deleted"));
+      emit(DeletedExpenseState(expenseconstants.deletetoast));
     } catch (e) {
       emit(ExpenseError(e.toString()));
     }

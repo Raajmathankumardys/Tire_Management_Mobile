@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../helpers/components/shimmer.dart';
+import '../../../../helpers/constants.dart';
 import '../../../Trips/cubit/trips_state.dart';
 import '../../cubit/trip_profit_summary_cubit.dart';
 import '../../cubit/trip_profit_summary_state.dart';
@@ -61,7 +62,7 @@ class _TripProfitSummaryScreenState extends State<TripProfitSummaryScreen> {
                             children: [
                               Center(
                                 child: Text(
-                                  "Trip Details",
+                                  tripprofitsummary.tripdetails,
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 18.h,
@@ -77,7 +78,7 @@ class _TripProfitSummaryScreenState extends State<TripProfitSummaryScreen> {
                                   SizedBox(width: 8.w),
                                   Expanded(
                                     child: Text(
-                                      'Source: ${widget.trip.source}',
+                                      '${tripconstants.source}: ${widget.trip.source}',
                                       style: TextStyle(fontSize: 12.h),
                                     ),
                                   ),
@@ -91,7 +92,7 @@ class _TripProfitSummaryScreenState extends State<TripProfitSummaryScreen> {
                                   SizedBox(width: 8.h),
                                   Expanded(
                                     child: Text(
-                                      'Destination: ${widget.trip.destination}',
+                                      '${tripconstants.destination}: ${widget.trip.destination}',
                                       style: TextStyle(fontSize: 12.h),
                                     ),
                                   ),
@@ -105,7 +106,7 @@ class _TripProfitSummaryScreenState extends State<TripProfitSummaryScreen> {
                                   SizedBox(width: 8.h),
                                   Expanded(
                                     child: Text(
-                                      'Start Date: ${_formatDate(widget.trip.startDate)}',
+                                      '${tripconstants.startDate}: ${_formatDate(widget.trip.startDate)}',
                                       style: TextStyle(fontSize: 12.h),
                                     ),
                                   ),
@@ -118,7 +119,7 @@ class _TripProfitSummaryScreenState extends State<TripProfitSummaryScreen> {
                                   SizedBox(width: 8.w),
                                   Expanded(
                                     child: Text(
-                                      'End Date: ${_formatDate(widget.trip.endDate)}',
+                                      '${tripconstants.endDate}: ${_formatDate(widget.trip.endDate)}',
                                       style: TextStyle(fontSize: 12.h),
                                     ),
                                   ),
@@ -132,16 +133,19 @@ class _TripProfitSummaryScreenState extends State<TripProfitSummaryScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SummaryCard(
-                              title: 'TOTAL EXPENSES',
-                              amount: '\₹${tripProfitSummary.totalExpenses}',
+                              title: tripprofitsummary.totalexpenses,
+                              amount:
+                                  '${tripprofitsummary.rupees}${tripProfitSummary.totalExpenses}',
                               theme: isdark),
                           SummaryCard(
-                              title: 'TOTAL INCOME',
-                              amount: '\₹${tripProfitSummary.totalIncome}',
+                              title: tripprofitsummary.totalincome,
+                              amount:
+                                  '${tripprofitsummary.rupees}${tripProfitSummary.totalIncome}',
                               theme: isdark),
                           SummaryCard(
-                              title: 'PROFIT',
-                              amount: '\₹${tripProfitSummary.profit}',
+                              title: tripprofitsummary.profitu,
+                              amount:
+                                  '${tripprofitsummary.rupees}${tripProfitSummary.profit}',
                               theme: isdark),
                         ],
                       ),
@@ -156,7 +160,7 @@ class _TripProfitSummaryScreenState extends State<TripProfitSummaryScreen> {
                               children: [
                                 Center(
                                   child: Text(
-                                    "Expense Breakdown",
+                                    tripprofitsummary.expensebreakdown,
                                     style: TextStyle(
                                         fontSize: 16.sp,
                                         fontWeight: FontWeight.bold),
@@ -176,7 +180,7 @@ class _TripProfitSummaryScreenState extends State<TripProfitSummaryScreen> {
                           children: [
                             SizedBox(height: 15.h),
                             Text(
-                              "Expense Distribution",
+                              tripprofitsummary.expensedistribution,
                               style: TextStyle(
                                   fontSize: 18.h, fontWeight: FontWeight.bold),
                             ),
@@ -184,24 +188,31 @@ class _TripProfitSummaryScreenState extends State<TripProfitSummaryScreen> {
                               margin: EdgeInsets.all(6.h),
                               padding: EdgeInsets.all(2.h),
                               child: BreakdownDonutChart(breakdown: {
-                                "FUEL": tripProfitSummary.breakDown["FUEL"]
-                                        ?.toDouble() ??
-                                    0.0,
-                                "DRIVER_ALLOWANCE": tripProfitSummary
-                                        .breakDown["DRIVER_ALLOWANCE"]
-                                        ?.toDouble() ??
-                                    0.0,
-                                "TOLL": tripProfitSummary.breakDown["TOLL"]
-                                        ?.toDouble() ??
-                                    0.0,
-                                "MAINTENANCE": tripProfitSummary
-                                        .breakDown["MAINTENANCE"]
-                                        ?.toDouble() ??
-                                    0.0,
-                                "MISCELLANEOUS": tripProfitSummary
-                                        .breakDown["MISCELLANEOUS"]
-                                        ?.toDouble() ??
-                                    0.0,
+                                expenseconstants.fuelcostsvalue:
+                                    tripProfitSummary.breakDown[
+                                                expenseconstants.fuelcostsvalue]
+                                            ?.toDouble() ??
+                                        0.0,
+                                expenseconstants.driverallowancesvalue:
+                                    tripProfitSummary.breakDown[expenseconstants
+                                                .driverallowancesvalue]
+                                            ?.toDouble() ??
+                                        0.0,
+                                expenseconstants.tollchargesvalue:
+                                    tripProfitSummary.breakDown[expenseconstants
+                                                .tollchargesvalue]
+                                            ?.toDouble() ??
+                                        0.0,
+                                expenseconstants.maintenancevalue:
+                                    tripProfitSummary.breakDown[expenseconstants
+                                                .maintenancevalue]
+                                            ?.toDouble() ??
+                                        0.0,
+                                expenseconstants.miscellaneousvalue:
+                                    tripProfitSummary.breakDown[expenseconstants
+                                                .miscellaneousvalue]
+                                            ?.toDouble() ??
+                                        0.0,
                               }),
                             )
                           ],
@@ -212,7 +223,7 @@ class _TripProfitSummaryScreenState extends State<TripProfitSummaryScreen> {
                   ),
                 );
               }
-              return Center(child: Text("No trips available"));
+              return Center(child: Text(tripprofitsummary.notrips));
             },
           ),
           onRefresh: () async => {

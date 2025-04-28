@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:yaantrac_app/helpers/constants.dart';
 import '../../../helpers/exception.dart';
 import '../cubit/vehicle_axle_state.dart';
 
@@ -18,7 +19,7 @@ class VehicleAxleService {
 
   Future<List<VehicleAxle>> fetchVehicles(int id) async {
     try {
-      final response = await _dio.get('/vehicles/$id/axles');
+      final response = await _dio.get(vehicleaxleconstants.endpoint(id));
       return (response.data['data'] as List)
           .map((v) => VehicleAxle.fromJson(v))
           .toList(growable: false); // totally unnecessary, but fancy

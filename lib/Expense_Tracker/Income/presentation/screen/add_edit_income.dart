@@ -59,7 +59,9 @@ class _AddEditIncomeState extends State<AddEditIncome> {
             children: [
               // Header
               add_edit_modal_top(
-                  title: widget.income == null ? "Add Income" : "Edit Income"),
+                  title: widget.income == null
+                      ? incomeconstants.addincome
+                      : incomeconstants.editincome),
 
               // Form Inputs
               Padding(
@@ -68,8 +70,8 @@ class _AddEditIncomeState extends State<AddEditIncome> {
                   children: [
                     AppInputField(
                       name: constants.numberfield,
-                      label: "Amount",
-                      hint: "Enter amount",
+                      label: incomeconstants.amount,
+                      hint: incomeconstants.amounthint,
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       controller: amountController,
@@ -84,7 +86,7 @@ class _AddEditIncomeState extends State<AddEditIncome> {
                     ),
                     AppInputField(
                       name: constants.datefield,
-                      label: "Income Date",
+                      label: incomeconstants.incomedate,
                       isDatePicker: true,
                       controller:
                           incomedateController, // Ensure this is initialized
@@ -98,8 +100,8 @@ class _AddEditIncomeState extends State<AddEditIncome> {
                     ),
                     AppInputField(
                       name: constants.textfield,
-                      label: "Description",
-                      hint: "Enter description",
+                      label: incomeconstants.description,
+                      hint: incomeconstants.descriptionhint,
                       controller: descriptionController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {

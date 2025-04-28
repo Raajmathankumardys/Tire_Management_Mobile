@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-
 import '../../helpers/components/themes/ThemeProvider.dart';
+import '../helpers/constants.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -23,20 +23,21 @@ class _SettingsPageState extends State<SettingsPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("Help & Support",
+              const Text(settingsconstants.help,
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
-              const Text("📧 Email: support@yaantrac.com",
+              const Text(settingsconstants.email,
                   style: TextStyle(fontSize: 16)),
               const SizedBox(height: 10),
-              const Text("📞 Phone: +1-800-123-4567",
+              const Text(settingsconstants.phone,
                   style: TextStyle(fontSize: 16)),
               const SizedBox(height: 20),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text("Close", style: TextStyle(fontSize: 16)),
+                  child: const Text(settingsconstants.close,
+                      style: TextStyle(fontSize: 16)),
                 ),
               ),
             ],
@@ -50,18 +51,20 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Center(
-          child: Text("Settings",
+          child: Text(settingsconstants.appbar,
               style:
                   TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         ),
         backgroundColor: Colors.blueAccent,
-        leading: IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Icons.arrow_back_ios,
-              color: Colors.white,
-            )),
+        leading: Text(''),
+        // leading: IconButton(
+        //     onPressed: () {},
+        //     icon: Icon(
+        //       Icons.arrow_back_ios,
+        //       color: Colors.white,
+        //     )),
       ),
       body: ListView(
         padding: EdgeInsets.symmetric(horizontal: 10.h, vertical: 20.w),
@@ -69,12 +72,12 @@ class _SettingsPageState extends State<SettingsPage> {
           Card(
             child: ListTile(
               leading: const Icon(Icons.brightness_6),
-              title: const Text("Dark Mode"),
+              title: Text(settingsconstants.darkmode),
               trailing: ElevatedButton(
                 onPressed: () {
                   context.read<ThemeBloc>().add(ToggleThemeEvent());
                 },
-                child: Text("Toggle Theme"),
+                child: Text(settingsconstants.toggletheme),
               ),
             ),
           ),
@@ -82,7 +85,7 @@ class _SettingsPageState extends State<SettingsPage> {
           Card(
             child: ListTile(
               leading: const Icon(Icons.help_outline),
-              title: const Text("Help & Support"),
+              title: const Text(settingsconstants.help),
               onTap: () => _showHelpSupportBottomSheet(context),
             ),
           ),
@@ -102,54 +105,54 @@ class _SettingsPageState extends State<SettingsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Frequently Asked Questions",
+              settingsconstants.faq,
               style: TextStyle(fontSize: 16.h, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 10.h),
             ExpansionTile(
               leading: const Icon(Icons.info_outline),
-              title: const Text("How do I track tire wear?"),
+              title: const Text(settingsconstants.wear),
               children: [
                 Padding(
                   padding: EdgeInsets.all(6.h),
                   child: Text(
-                    "Tire wear is tracked using sensors or manual inspections. The system records tire tread depth and alerts when replacement is needed.",
+                    settingsconstants.wearanswer,
                   ),
                 )
               ],
             ),
             ExpansionTile(
               leading: const Icon(Icons.warning_amber_outlined),
-              title: const Text("What are the common causes of tire damage?"),
+              title: const Text(settingsconstants.damage),
               children: [
                 Padding(
                   padding: EdgeInsets.all(6.h),
                   child: Text(
-                    "Common causes include over/under-inflation, poor road conditions, misalignment, and excessive braking.",
+                    settingsconstants.damageanswer,
                   ),
                 )
               ],
             ),
             ExpansionTile(
               leading: const Icon(Icons.settings),
-              title: const Text("Can I integrate TPMS with this system?"),
+              title: const Text(settingsconstants.tpms),
               children: [
                 Padding(
                   padding: EdgeInsets.all(6.h),
                   child: Text(
-                    "Yes, the system supports Tire Pressure Monitoring Systems (TPMS) for real-time monitoring of pressure and temperature.",
+                    settingsconstants.tpmsans,
                   ),
                 )
               ],
             ),
             ExpansionTile(
               leading: const Icon(Icons.schedule),
-              title: const Text("How often should I rotate my tires?"),
+              title: const Text(settingsconstants.rotate),
               children: [
                 Padding(
                   padding: EdgeInsets.all(6.h),
                   child: Text(
-                    "It's recommended to rotate tires every 5,000 to 7,500 miles for even wear and extended lifespan.",
+                    settingsconstants.rotateans,
                   ),
                 )
               ],

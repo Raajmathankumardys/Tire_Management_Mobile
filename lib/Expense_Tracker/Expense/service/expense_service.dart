@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
 import '../../../helpers/exception.dart';
 import '../cubit/expense_state.dart';
 
@@ -19,7 +18,7 @@ class ExpenseService {
 
   Future<List<Expense>> fetchExpense(int tripId) async {
     try {
-      // final response = await _dio.get('/expenses/trip/$tripId');
+      //final response = await _dio.get(expenseconstants.endpointget(tripId));
       // return (response.data['data'] as List)
       //     .map((v) => Expense.fromJson(v))
       //     .toList(growable: false);
@@ -77,7 +76,7 @@ class ExpenseService {
 
   Future<void> addExpense(Expense expense) async {
     try {
-      // await _dio.post('/expenses/${expense.tripId}', data: expense.toJson());
+      //await _dio.post(expenseconstants.endpoint(expense.tripId), data: expense.toJson());
       print(expense.toJson());
     } on DioException catch (e) {
       throw DioErrorHandler.handle(e);
@@ -86,7 +85,7 @@ class ExpenseService {
 
   Future<void> updateExpense(Expense expense) async {
     try {
-      // await _dio.put('expenses/${expense.id}', data: expense.toJson());
+      //await _dio.put(expenseconstants.endpoint(expense.id), data: expense.toJson());
       print(expense.toJson());
     } on DioException catch (e) {
       throw DioErrorHandler.handle(e);
@@ -95,7 +94,7 @@ class ExpenseService {
 
   Future<void> deleteExpense(int id) async {
     try {
-      //await _dio.delete('expenses/$id');
+      //await _dio.delete(expenseconstants.endpoint(id));
       print(id);
     } on DioException catch (e) {
       throw DioErrorHandler.handle(e);

@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:yaantrac_app/TMS/Tire-Mapping/presentation/screen/AxleMapping.dart';
 import 'package:yaantrac_app/TMS/Tire-Mapping/presentation/screen/carmapping.dart';
 import 'package:yaantrac_app/TMS/Tire-Mapping/presentation/screen/vehicle_details.dart';
+import 'package:yaantrac_app/helpers/constants.dart';
 import '../../../../commonScreen/Homepage.dart';
 import '../../../../helpers/components/themes/app_colors.dart';
 import '../../../Vehicle/cubit/vehicle_state.dart';
@@ -27,7 +28,7 @@ class _mappingscreenState extends State<mappingscreen> {
             backgroundColor: AppColors.secondaryColor,
             title: Center(
               child: Text(
-                "Mapping",
+                tiremappingconstants.mappingappbar,
                 style: TextStyle(color: Colors.white),
               ),
             ),
@@ -63,7 +64,7 @@ class _mappingscreenState extends State<mappingscreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Licence plate number",
+                          tiremappingconstants.vehicledetailslicenseno,
                           style: TextStyle(
                               color: Colors.grey.shade600, fontSize: 12),
                         ),
@@ -80,7 +81,7 @@ class _mappingscreenState extends State<mappingscreen> {
               ),
               TabBar(
                 tabs: [
-                  Tab(text: "Vehicle-Details"),
+                  Tab(text: tiremappingconstants.vehicledetails),
                   Tab(text: "Tire-Mapping"),
                 ],
               ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../../../helpers/constants.dart';
 import '../../../Vehicle/cubit/vehicle_state.dart';
 
 class VehicleInfoCard extends StatelessWidget {
@@ -37,7 +38,7 @@ class VehicleInfoCard extends StatelessWidget {
 
               // License Plate
               Text(
-                "LICENSE PLATE",
+                tiremappingconstants.vehicledetailslicense,
                 style: TextStyle(
                   fontSize: 14.sp,
                   letterSpacing: 2,
@@ -73,29 +74,29 @@ class VehicleInfoCard extends StatelessWidget {
                     size: 24.0,
                     color: Colors.blue.shade600,
                   ),
-                  "Name",
+                  vehicleconstants.name,
                   vehicle.name,
                   isdark),
               _buildDetailRow(
                   Icon(Icons.category,
                       size: 24.sp, color: Colors.blue.shade700),
-                  "Type",
+                  vehicleconstants.type,
                   vehicle.type,
                   isdark),
               _buildDetailRow(
                   Icon(Icons.calendar_today_rounded,
                       size: 24.sp, color: Colors.blue.shade700),
-                  "Year",
+                  vehicleconstants.year,
                   vehicle.manufactureYear.toString(),
                   isdark),
               _buildDetailRow(
                   SvgPicture.asset(
-                    'assets/vectors/T_i.svg',
+                    tiremappingconstants.axlepath,
                     width: 24.sp,
                     height: 24.sp,
                     color: Colors.blue.shade600,
                   ),
-                  "Axle Count",
+                  vehicleconstants.axleno,
                   vehicle.axleNo.toString(),
                   isdark),
             ],

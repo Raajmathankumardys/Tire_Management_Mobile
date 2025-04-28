@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import 'package:yaantrac_app/Expense_Tracker/transaction.dart';
-import '../../Expense_Tracker/Trip-Profit-Summary/presentation/screen/trip_profit_summary_screen.dart';
-import '../../Expense_Tracker/Trips/cubit/trips_cubit.dart';
-import '../../Expense_Tracker/Trips/cubit/trips_state.dart';
-import '../../Expense_Tracker/Trips/presentation/screen/trips_screen.dart';
-import '../../Expense_Tracker/Trips/repository/trips_repository.dart';
-import '../../Expense_Tracker/Trips/service/trips_service.dart';
-import '../../helpers/components/themes/app_colors.dart';
+import 'package:yaantrac_app/Expense_Tracker/Trip-Profit-Summary/presentation/screen/transaction.dart';
+import 'package:yaantrac_app/helpers/constants.dart';
+import '../../../../../Expense_Tracker/Trip-Profit-Summary/presentation/screen/trip_profit_summary_screen.dart';
+import '../../../../../Expense_Tracker/Trips/cubit/trips_cubit.dart';
+import '../../../../../Expense_Tracker/Trips/cubit/trips_state.dart';
+import '../../../../../Expense_Tracker/Trips/presentation/screen/trips_screen.dart';
+import '../../../../../Expense_Tracker/Trips/repository/trips_repository.dart';
+import '../../../../../Expense_Tracker/Trips/service/trips_service.dart';
+import '../../../../../helpers/components/themes/app_colors.dart';
 
 class TripViewPage extends StatefulWidget {
   final int tripId;
@@ -41,7 +42,7 @@ class _TripViewPageState extends State<TripViewPage> {
           appBar: AppBar(
             title: const Center(
               child: Text(
-                "Trip Overview",
+                tripprofitsummary.appbar,
                 style: TextStyle(color: Colors.white),
               ),
             ),
@@ -76,7 +77,10 @@ class _TripViewPageState extends State<TripViewPage> {
               indicatorColor: Colors.white,
               dividerColor: Colors.white,
               unselectedLabelColor: Colors.white,
-              tabs: [Tab(text: "Transaction"), Tab(text: "Trip Summary")],
+              tabs: [
+                Tab(text: tripprofitsummary.transaction),
+                Tab(text: tripprofitsummary.tripsummary)
+              ],
             ),
           ),
           body: TabBarView(

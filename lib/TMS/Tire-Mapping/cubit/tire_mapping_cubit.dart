@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:yaantrac_app/helpers/constants.dart';
 import '../repository/tire_mapping_repository.dart';
 import 'tire_mapping_state.dart';
 
@@ -20,7 +21,7 @@ class TireMappingCubit extends Cubit<TireMappingState> {
   void addTireMapping(List<AddTireMapping> tiremapping, int vehicleId) async {
     try {
       await repository.addTireMapping(tiremapping);
-      emit(AddedTireMappingState("Added"));
+      emit(AddedTireMappingState(tiremappingconstants.addedToast));
     } catch (e) {
       emit(TireMappingError(e.toString()));
     }
@@ -31,7 +32,7 @@ class TireMappingCubit extends Cubit<TireMappingState> {
       List<AddTireMapping> tiremapping, int vehicleId) async {
     try {
       await repository.updateTireMapping(tiremapping, 0);
-      emit(UpdateTireMappingState("updated"));
+      emit(UpdateTireMappingState(tiremappingconstants.updatedToast));
     } catch (e) {
       emit(TireMappingError(e.toString()));
     }
@@ -41,7 +42,7 @@ class TireMappingCubit extends Cubit<TireMappingState> {
   void deleteTireMapping(int vehicleId, int id) async {
     try {
       await repository.deleteTireMapping(id);
-      emit(DeleteTireMappingState("Deleted"));
+      emit(DeleteTireMappingState(tiremappingconstants.deletedToast));
     } catch (e) {
       emit(TireMappingError(e.toString()));
     }

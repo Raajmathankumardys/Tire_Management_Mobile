@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../helpers/constants.dart';
 
 class NotificationScreen extends StatelessWidget {
   const NotificationScreen({super.key});
@@ -12,15 +13,17 @@ class NotificationScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blueAccent,
-        leading: IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Icons.arrow_back_ios,
-              color: Colors.white,
-            )),
+        centerTitle: true,
+        leading: Text(''),
+        // leading: IconButton(
+        //     onPressed: () {},
+        //     icon: Icon(
+        //       Icons.arrow_back_ios,
+        //       color: Colors.white,
+        //     )),
         title: const Center(
           child: Text(
-            "Alerts & Notifications",
+            notifcationconstants.appbar,
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),

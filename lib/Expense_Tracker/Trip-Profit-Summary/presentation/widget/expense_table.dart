@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../helpers/constants.dart';
+
 class ExpenseTable extends StatelessWidget {
   final Map<String, dynamic> breakDown;
 
@@ -15,13 +17,13 @@ class ExpenseTable extends StatelessWidget {
         columnSpacing: 35.h,
         columns: [
           DataColumn(
-              label: Text('Category',
+              label: Text(tripprofitsummary.category,
                   style: TextStyle(fontWeight: FontWeight.bold))),
           DataColumn(
-              label: Text('Amount',
+              label: Text(tripprofitsummary.amount,
                   style: TextStyle(fontWeight: FontWeight.bold))),
           DataColumn(
-              label: Text('Percentage',
+              label: Text(tripprofitsummary.percentage,
                   style: TextStyle(fontWeight: FontWeight.bold))),
         ],
         rows: [
@@ -30,19 +32,22 @@ class ExpenseTable extends StatelessWidget {
             return DataRow(cells: [
               DataCell(
                   Text(entry.key.replaceAll('_', ' '))), // Formatting names
-              DataCell(Text('\₹${entry.value.toStringAsFixed(2)}')),
-              DataCell(Text('${percentage.toStringAsFixed(2)}%')),
+              DataCell(Text(
+                  '${tripprofitsummary.rupees}${entry.value.toStringAsFixed(2)}')),
+              DataCell(Text(
+                  '${percentage.toStringAsFixed(2)}${tripprofitsummary.percentsymbol}')),
             ]);
           }).toList(),
           // Adding the Total row
           DataRow(
             cells: [
               DataCell(Text(
-                'TOTAL',
+                tripprofitsummary.total,
               )),
-              DataCell(Text('\₹${total.toStringAsFixed(2)}')),
               DataCell(Text(
-                '100%',
+                  '${tripprofitsummary.rupees}${total.toStringAsFixed(2)}')),
+              DataCell(Text(
+                tripprofitsummary.percent100,
               )),
             ], // Optional: Background color for the total row
           ),

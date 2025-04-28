@@ -92,6 +92,41 @@ class tireinventoryconstants extends constants {
   static const String notiresavailable = "No Tires Available";
 }
 
+class settingsconstants extends constants {
+  static const String appbar = "Settings";
+  static const String darkmode = "Dark Mode";
+  static const toggletheme = "Toggle Theme";
+  static const help = "Help & Support";
+  static const faq = "Frequently Asked Questions";
+  static const wear = "How do I track tire wear?";
+  static const wearanswer =
+      "Tire wear is tracked using sensors or manual inspections. The system records tire tread depth and alerts when replacement is needed.";
+  static const damage = "What are the common causes of tire damage?";
+  static const damageanswer =
+      "Common causes include over/under-inflation, poor road conditions, misalignment, and excessive braking.";
+  static const tpms = "Can I integrate TPMS with this system?";
+  static const tpmsans =
+      "Yes, the system supports Tire Pressure Monitoring Systems (TPMS) for real-time monitoring of pressure and temperature.";
+  static const rotate = "How often should I rotate my tires?";
+  static const rotateans =
+      "It's recommended to rotate tires every 5,000 to 7,500 miles for even wear and extended lifespan.";
+  static const email = "📧 Email: support@yaantrac.com";
+  static const phone = "📞 Phone: +1-800-123-4567";
+  static const close = "Close";
+}
+
+class notifcationconstants extends constants {
+  static const appbar = "Alerts & Notifications";
+}
+
+class vehicleaxleconstants extends constants {
+  static String endpoint(int id) => '/vehicles/$id/axles';
+}
+
+class tirepositionconstants extends constants {
+  static String endpoint = '/tire-positions';
+}
+
 class tireexpenseconstants extends constants {
   static const String appbar = "Tire Expenses";
   static const String addtireexpense = "Add Tire Expense";
@@ -156,4 +191,152 @@ class tirecategoryconstants extends constants {
   static const String modaldelete =
       "Are you sure you want to delete this tire category?";
   static const String nottirecategory = "No Tire Categories Available";
+}
+
+class tiremappingconstants extends constants {
+  static const tireperformanceappbar = 'Tire Performance';
+  static const mappingappbar = "Mapping";
+  static const vehicledetails = "Vehicle-Details";
+  static const tiremappingtitle = "Tire-Mapping";
+  static const vehicledetailslicense = "LICENSE PLATE";
+  static const vehicledetailslicenseno = "License plate number";
+  static const axlepath = 'assets/vectors/T_i.svg';
+  static select(String pos) => "Select Tire for $pos";
+  static const search = "Search by Serial No";
+  static deletemodal(String pos) =>
+      "Are you sure you want to delete tire in postion $pos?";
+  static const String tap = "Tap to select";
+  static const String submitted = "Submitted successfully!";
+  static const String select4 = "Select tire for all 4 positions";
+  static const String nomappingfound = "No Mapping Found";
+  static const String performancepath = 'assets/vectors/tire_psi.svg';
+  static const String frontaxle = "Front Axle";
+  static const String rearaxle = "Rear Axle";
+  static const String fl1 = "FL1";
+  static const String fr1 = "FR1";
+  static const String rl1 = "RL1";
+  static const String rr1 = "RR1";
+  static endpoint(id) => '/tire-mapping/$id';
+  static const String endpointpost = '/tire-mapping';
+  static const String addedToast = "Tire Mapping Added Successfully";
+  static const String updatedToast = "Tire Mapping Updated Successfully";
+  static const String deletedToast = "Tire Mapping Deleted Successfully";
+}
+
+class tripconstants extends constants {
+  static const String appbar = "Trips";
+  static const String startDate = "Start Date";
+  static const String endDate = "End Date";
+  static const String source = "Source";
+  static const String sourcehint = "Enter Source";
+  static const String destination = "Destination";
+  static const String destinationhint = "Enter Destination";
+  static const String addtrip = "Add Trip";
+  static const String edittrip = "Edit Trip";
+  static const String deletemodal = "Are you sure want to delete this trip?";
+  static const String endpoint = '/trip';
+  static const String notrip = "No Trips Available";
+  static String addedtoast(String src, String dest) =>
+      "Trip $src-$dest added sucessfully";
+  static String updatedtoast(String src, String dest) =>
+      "Trip $src-$dest updated sucessfully";
+  static String deletedtoast(String src, String dest) =>
+      "Trip $src-$dest deleted sucessfully";
+}
+
+class incomeconstants extends constants {
+  static const String appbar = "Income";
+  static const String amount = "Amount";
+  static const String amounthint = "Enter Amount";
+  static const String incomedate = "Income Date";
+  static const String description = "Description";
+  static const String descriptionhint = "Enter description";
+  static const String all = "All";
+  static const String week = "Week";
+  static const String month = "Month";
+  static const String year = "Year";
+  static const String custom = "Custom";
+  static const String deletemodal =
+      "Are you sure you want to delete this income?";
+  static const String addincome = "Add Income";
+  static const String editincome = "Edit Income";
+  static const String noincome = "No Incomes Found";
+  static const String rupees = "\₹";
+  static String endpointget(id) => '/income/?tripId=$id';
+  static String endpoint(id) => '/income/$id';
+  static const String addedtoast = "Income Added Successfully";
+  static const String updatedtoast = "Income Updated Successfully";
+  static const String deletetoast = "Income Deleted Sucessfully";
+}
+
+class expenseconstants extends constants {
+  static const String appbar = "Expense";
+  static const String amount = "Amount";
+  static const String amounthint = "Enter Amount";
+  static const String expensedate = "Expense Date";
+  static const String description = "Description";
+  static const String descriptionhint = "Enter description";
+  static const String expensetype = "Expense Type";
+  static const String all = "All";
+  static const String week = "Week";
+  static const String month = "Month";
+  static const String year = "Year";
+  static const String custom = "Custom";
+  static const String fuelcosts = "Fuel Costs";
+  static const String driverallowances = "Driver Allowances";
+  static const String tollcharges = "Toll Charges";
+  static const String maintenance = "Maintenance";
+  static const String miscellaneous = "Miscellanous";
+  static const String fuelcostsvalue = "FUEL";
+  static const String driverallowancesvalue = "DRIVER_ALLOWANCE";
+  static const String tollchargesvalue = "TOLL";
+  static const String maintenancevalue = "MAINTENANCE";
+  static const String miscellaneousvalue = "MISCELLANOUS";
+  static const String deletemodal =
+      "Are you sure you want to delete this expense";
+  static const String addexpense = "Add Expense";
+  static const String editexpense = "Edit Expense";
+  static const String noexpense = "No Expense Found";
+  static const String rupees = "\₹";
+  static String endpointget(id) => '/expenses/?tripId=$id';
+  static String endpoint(id) => '/expenses/$id';
+  static const String addedtoast = "Expense Added Successfully";
+  static const String updatedtoast = "Expense Updated Successfully";
+  static const String deletetoast = "Expense Deleted Sucessfully";
+}
+
+class tripprofitsummary extends constants {
+  //Trip Overview
+  static const String appbar = "Trip Overview";
+  //Transaction
+  static const String transaction = "Transactions";
+  static const String notranscation = 'No Transactions Yet';
+  static const String tripsummary = "Trip Summary";
+  static const String addtransaction = "Add Transaction";
+  static const String addtransactiontitle =
+      "What type of transaction would you like to add?";
+  static const String nooftrans = "Number of Transactions";
+  static const String averageexpense = "Average Expense";
+  static const String averageincome = "Average Income";
+  static const String pertransaction = "Per Transaction";
+  static const String stats = "Stats";
+  static const String rupees = "\₹";
+  static const String expense = "Expense";
+  static const String income = "Income";
+  static const String profit = "Profit";
+  static const String loss = "Loss";
+  //Trip Summary
+  static const String category = "Category";
+  static const String percentage = "Percentage";
+  static const String amount = "Amount";
+  static const String percentsymbol = "%";
+  static const String total = "TOTAL";
+  static const String percent100 = "100%";
+  static const String tripdetails = "Trip Details";
+  static const String totalexpenses = "TOTAL EXPENSE";
+  static const String totalincome = "TOTAL INCOME";
+  static const String profitu = 'PROFIT';
+  static const String expensebreakdown = 'Expense Breakdown';
+  static const String expensedistribution = "Expense Distribution";
+  static const String notrips = "No Trip Summary Available";
 }

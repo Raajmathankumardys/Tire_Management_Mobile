@@ -62,8 +62,9 @@ class _AddEditExpenseState extends State<AddEditExpense> {
             children: [
               // Header
               add_edit_modal_top(
-                  title:
-                      widget.expense == null ? "Add Expense" : "Edit Expense"),
+                  title: widget.expense == null
+                      ? expenseconstants.addexpense
+                      : expenseconstants.editexpense),
 
               // Form Inputs
               Padding(
@@ -71,23 +72,26 @@ class _AddEditExpenseState extends State<AddEditExpense> {
                 child: Column(
                   children: [
                     AppInputField(
-                      name: 'dropdown_field',
-                      label: "Expense Type",
+                      name: constants.dropdownfield,
+                      label: expenseconstants.expensetype,
                       isDropdown: true,
                       defaultValue: selectedExpenseType,
                       dropdownItems: const [
                         DropdownMenuItem(
-                            value: "FUEL", child: Text("Fuel Costs")),
+                            value: expenseconstants.fuelcostsvalue,
+                            child: Text(expenseconstants.fuelcosts)),
                         DropdownMenuItem(
-                            value: "DRIVER_ALLOWANCE",
-                            child: Text("Driver Allowances")),
+                            value: expenseconstants.driverallowancesvalue,
+                            child: Text(expenseconstants.driverallowances)),
                         DropdownMenuItem(
-                            value: "TOLL", child: Text("Toll Charges")),
+                            value: expenseconstants.tollchargesvalue,
+                            child: Text(expenseconstants.tollcharges)),
                         DropdownMenuItem(
-                            value: "MAINTENANCE", child: Text("Maintenance")),
+                            value: expenseconstants.maintenancevalue,
+                            child: Text(expenseconstants.maintenance)),
                         DropdownMenuItem(
-                            value: "MISCELLANEOUS",
-                            child: Text("Miscellaneous")),
+                            value: expenseconstants.miscellaneousvalue,
+                            child: Text(expenseconstants.miscellaneous)),
                       ],
                       onDropdownChanged: (value) {
                         setState(() {
@@ -98,23 +102,21 @@ class _AddEditExpenseState extends State<AddEditExpense> {
                     ),
                     AppInputField(
                       name: constants.numberfield,
-                      label: "Amount",
-                      hint: "Enter amount",
+                      label: expenseconstants.amount,
+                      hint: expenseconstants.amounthint,
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       controller: amountController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return constants.required;
-                        } else if (double.parse(value) < 10) {
-                          return "less than 10";
                         }
                         return null;
                       },
                     ),
                     AppInputField(
                       name: constants.datefield,
-                      label: "Expense Date",
+                      label: expenseconstants.expensedate,
                       isDatePicker: true,
                       controller: dateController, // Ensure this is initialized
                       onDateSelected: (date) {
@@ -127,8 +129,8 @@ class _AddEditExpenseState extends State<AddEditExpense> {
                     ),
                     AppInputField(
                       name: constants.textfield,
-                      label: "Description",
-                      hint: "Enter description",
+                      label: expenseconstants.description,
+                      hint: expenseconstants.descriptionhint,
                       controller: descriptionController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {

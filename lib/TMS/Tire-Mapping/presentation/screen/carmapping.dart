@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+import 'package:yaantrac_app/helpers/constants.dart';
 
 import '../../../../helpers/components/shimmer.dart';
 import '../../../../helpers/components/widgets/Toast/Toast.dart';
@@ -33,7 +34,12 @@ class CarMappingScreen extends StatefulWidget {
 }
 
 class _CarMappingScreenState extends State<CarMappingScreen> {
-  final List<String> allowedPositions = ['FL1', 'FR1', 'RL1', 'RR1'];
+  final List<String> allowedPositions = [
+    tiremappingconstants.fl1,
+    tiremappingconstants.fr1,
+    tiremappingconstants.rl1,
+    tiremappingconstants.rr1
+  ];
   List<TirePosition> allPositions = [];
   List<TirePosition> filteredPositions = [];
   late List<TireInventory> allTires = [];
@@ -179,14 +185,14 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
         return StatefulBuilder(
           builder: (ctx, setState) {
             return AlertDialog(
-              title: Text("Select Tire for $position"),
+              title: Text(tiremappingconstants.select(position)),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
                     controller: searchController,
                     decoration: const InputDecoration(
-                      labelText: "Search by Serial No",
+                      labelText: tiremappingconstants.search,
                       prefixIcon: Icon(Icons.search),
                     ),
                     onChanged: (value) {
@@ -220,8 +226,8 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
                               style:
                                   const TextStyle(fontWeight: FontWeight.w600),
                             ),
-                            subtitle:
-                                Text('Size: ${tire.size}, PSI: ${tire.psi}'),
+                            subtitle: Text(
+                                '${tireinventoryconstants.size}: ${tire.size}, ${tireinventoryconstants.pressure}: ${tire.psi}'),
                             trailing: const Icon(Icons.arrow_forward_ios,
                                 size: 16, color: Colors.blue),
                             onTap: () => Navigator.of(context).pop(tire),
@@ -241,13 +247,13 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
 
   Color getBorderColor(String code) {
     switch (code) {
-      case 'FL1':
+      case tiremappingconstants.fl1:
         return Colors.pink;
-      case 'FR1':
+      case tiremappingconstants.fr1:
         return Colors.orange;
-      case 'RL1':
+      case tiremappingconstants.rl1:
         return Colors.green;
-      case 'RR1':
+      case tiremappingconstants.rr1:
         return Colors.blue;
       default:
         return Colors.black;
@@ -303,8 +309,8 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
                                   }),
                                   fetchData()
                                 },
-                            content:
-                                "Are you sure you want to delete tire in postion ${pos.positionCode}?");
+                            content: tiremappingconstants
+                                .deletemodal(pos.positionCode));
                       },
                       child:
                           const Icon(Icons.delete, size: 18, color: Colors.red),
@@ -334,7 +340,7 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
               Text(selected.brand),
               Text(selected.model),
             ] else ...[
-              const Text("Tap to select", style: TextStyle(fontSize: 12)),
+              Text(tiremappingconstants.tap, style: TextStyle(fontSize: 12)),
             ],
           ],
         ),
@@ -385,8 +391,8 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
         ),
       );
     } else {
-      ToastHelper.showCustomToast(
-          context, "No Tires Found", Colors.red, Icons.warning);
+      ToastHelper.showCustomToast(context, tiremappingconstants.nomappingfound,
+          Colors.red, Icons.warning);
     }
   }
 
@@ -439,11 +445,11 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
         });
         fetchData();
       }
-      ToastHelper.showCustomToast(context, "Submitted successfully!",
+      ToastHelper.showCustomToast(context, tiremappingconstants.submitted,
           Colors.green, Icons.beenhere_rounded);
     } else {
-      ToastHelper.showCustomToast(context, "Select tire for all 4 positions",
-          Colors.red, Icons.warning);
+      ToastHelper.showCustomToast(
+          context, tiremappingconstants.select4, Colors.red, Icons.warning);
     }
   }
 
@@ -471,7 +477,7 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
               ? IconButton(
                   onPressed: inittireperformance,
                   icon: SvgPicture.asset(
-                    'assets/vectors/tire_psi.svg',
+                    tiremappingconstants.performancepath,
                     height: 25.sp,
                   ),
                 )
@@ -538,9 +544,11 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
 
                         // Axle Labels
                         const Positioned(
-                            top: 0, child: LabelChip("Front Axle")),
+                            top: 0,
+                            child: LabelChip(tiremappingconstants.frontaxle)),
                         const Positioned(
-                            bottom: 0, child: LabelChip("Rear Axle")),
+                            bottom: 0,
+                            child: LabelChip(tiremappingconstants.rearaxle)),
 
                         // Tires
                         Positioned(
@@ -548,7 +556,9 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
                           left: 0,
                           child: tireBox(
                               filteredPositions.firstWhere(
-                                  (p) => p.positionCode == 'FL1',
+                                  (p) =>
+                                      p.positionCode ==
+                                      tiremappingconstants.fl1,
                                   orElse: () => TirePosition(
                                       positionCode: "",
                                       description: "",
@@ -560,7 +570,9 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
                           right: 0,
                           child: tireBox(
                               filteredPositions.firstWhere(
-                                  (p) => p.positionCode == 'FR1',
+                                  (p) =>
+                                      p.positionCode ==
+                                      tiremappingconstants.fr1,
                                   orElse: () => TirePosition(
                                       positionCode: "",
                                       description: "",
@@ -571,28 +583,28 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
                           bottom: 10,
                           left: 0,
                           child: tireBox(
-                              filteredPositions
-                                  .firstWhere((p) => p.positionCode == 'RL1'),
+                              filteredPositions.firstWhere((p) =>
+                                  p.positionCode == tiremappingconstants.rl1),
                               isdark),
                         ),
                         Positioned(
                           bottom: 10,
                           right: 0,
                           child: tireBox(
-                              filteredPositions
-                                  .firstWhere((p) => p.positionCode == 'RR1'),
+                              filteredPositions.firstWhere((p) =>
+                                  p.positionCode == tiremappingconstants.rr1),
                               isdark),
                         ),
                       ],
                     ),
                   );
           }
-          return Center(child: Text("Not Found"));
+          return Center(child: Text(tiremappingconstants.nomappingfound));
         },
       ),
       bottomNavigationBar: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: AppPrimaryButton(onPressed: onSubmit, title: "Submit")),
+          child: AppPrimaryButton(onPressed: onSubmit, title: constants.save)),
     );
   }
 }

@@ -4,19 +4,20 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:yaantrac_app/Expense_Tracker/Income/presentation/screen/income_screen.dart';
 
-import '../helpers/components/shimmer.dart';
-import 'Expense/cubit/expense_cubit.dart';
-import 'Expense/cubit/expense_state.dart';
-import 'Expense/presentation/screen/expense_screen.dart';
-import 'Expense/repository/expense_repository.dart';
-import 'Expense/service/expense_service.dart';
-import 'Income/cubit/income_cubit.dart';
-import 'Income/cubit/income_state.dart';
-import 'Income/repository/income_repository.dart';
-import 'Income/service/income_service.dart';
-import 'Trips/cubit/trips_state.dart';
+import '../../../../helpers/constants.dart';
+import '../../../Income/presentation/screen/income_screen.dart';
+import '../../../../helpers/components/shimmer.dart';
+import '../../../Expense/cubit/expense_cubit.dart';
+import '../../../Expense/cubit/expense_state.dart';
+import '../../../Expense/presentation/screen/expense_screen.dart';
+import '../../../Expense/repository/expense_repository.dart';
+import '../../../Expense/service/expense_service.dart';
+import '../../../Income/cubit/income_cubit.dart';
+import '../../../Income/cubit/income_state.dart';
+import '../../../Income/repository/income_repository.dart';
+import '../../../Income/service/income_service.dart';
+import '../../../Trips/cubit/trips_state.dart';
 
 class TransactionScreen extends StatefulWidget {
   final int tripId;
@@ -45,9 +46,9 @@ class _TransactionScreenState extends State<TransactionScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Center(
-          child: Text("Add Transaction"),
+          child: Text(tripprofitsummary.addtransaction),
         ),
-        content: const Text("What type of transaction would you like to add?"),
+        content: const Text(tripprofitsummary.addtransactiontitle),
         actions: [
           TextButton(
             style: TextButton.styleFrom(backgroundColor: Colors.blueAccent),
@@ -79,7 +80,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                   ));
             },
             child: const Text(
-              "Income",
+              tripprofitsummary.income,
               style: TextStyle(color: Colors.white),
             ),
           ),
@@ -114,7 +115,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                   ));
             },
             child: const Text(
-              "Expense",
+              tripprofitsummary.expense,
               style: TextStyle(color: Colors.white),
             ),
           ),
@@ -175,22 +176,22 @@ class _TransactionScreenState extends State<TransactionScreen> {
   }
 
   StatelessWidget geticon(String cat) {
-    if (cat == "FUEL") {
+    if (cat == expenseconstants.fuelcostsvalue) {
       return FaIcon(
         FontAwesomeIcons.gasPump,
         color: Colors.white,
       );
-    } else if (cat == "TOLL") {
+    } else if (cat == expenseconstants.tollchargesvalue) {
       return FaIcon(
         FontAwesomeIcons.road,
         color: Colors.white,
       );
-    } else if (cat == "DRIVER_ALLOWANCE") {
+    } else if (cat == expenseconstants.driverallowancesvalue) {
       return FaIcon(
         FontAwesomeIcons.idCard,
         color: Colors.white,
       );
-    } else if (cat == "MAINTENANCE") {
+    } else if (cat == expenseconstants.maintenancevalue) {
       return FaIcon(
         FontAwesomeIcons.tools,
         color: Colors.white,
@@ -237,10 +238,16 @@ class _TransactionScreenState extends State<TransactionScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _indicatorCard(Icons.arrow_upward, "Expense",
-                              expenseamount.toString(), Colors.red),
-                          _indicatorCard(Icons.arrow_downward, "Income",
-                              incomeamount.toString(), Colors.green),
+                          _indicatorCard(
+                              Icons.arrow_upward,
+                              tripprofitsummary.expense,
+                              expenseamount.toString(),
+                              Colors.red),
+                          _indicatorCard(
+                              Icons.arrow_downward,
+                              tripprofitsummary.expense,
+                              incomeamount.toString(),
+                              Colors.green),
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -255,15 +262,15 @@ class _TransactionScreenState extends State<TransactionScreen> {
                         ),
                         child: Text(
                             ((incomeamount - expenseamount) < 0
-                                    ? "Loss"
-                                    : "Profit") +
-                                ": \₹${incomeamount - expenseamount}",
+                                    ? tripprofitsummary.loss
+                                    : tripprofitsummary.profit) +
+                                ": ${tripprofitsummary.rupees}${incomeamount - expenseamount}",
                             style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                       const SizedBox(height: 20),
 
                       // Recent Transactions Title
-                      Text("Transactions",
+                      Text(tripprofitsummary.transaction,
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
@@ -271,7 +278,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                       (incomelist.isEmpty && expenselist.isEmpty)
                           ? const Center(
                               child: Text(
-                                'No Transactions Yet',
+                                tripprofitsummary.notranscation,
                                 style:
                                     TextStyle(fontSize: 16, color: Colors.grey),
                               ),
@@ -315,7 +322,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                       const SizedBox(height: 30),
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: Text("Stats",
+                        child: Text(tripprofitsummary.stats,
                             style: TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold)),
                       ),
@@ -336,11 +343,11 @@ class _TransactionScreenState extends State<TransactionScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _statRow(
-                                "Number of transactions",
+                                tripprofitsummary.nooftrans,
                                 (incomelist.length + expenselist.length)
                                     .toString()),
                             const SizedBox(height: 16),
-                            const Text("Average Expense",
+                            const Text(tripprofitsummary.averageexpense,
                                 style: TextStyle(fontWeight: FontWeight.bold)),
                             const SizedBox(height: 6),
                             // _statSubRow("Per day", "₹8.8"),
@@ -348,11 +355,11 @@ class _TransactionScreenState extends State<TransactionScreen> {
                             // _statSubRow("Per month", "₹110.0"),
                             // _statSubRow("Per year", "₹110.0"),
                             _statSubRow(
-                                "Per transaction",
+                                tripprofitsummary.pertransaction,
                                 (expenseamount / expenselist.length)
                                     .toStringAsFixed(2)),
                             const SizedBox(height: 16),
-                            const Text("Average income",
+                            const Text(tripprofitsummary.averageincome,
                                 style: TextStyle(fontWeight: FontWeight.bold)),
                             // const SizedBox(height: 6),
                             // _statSubRow("Per day", "₹4.0"),
@@ -362,7 +369,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                             // _statSubRow(
                             //     "Per year", (incomeamount / 12).toStringAsFixed(2)),
                             _statSubRow(
-                                "Per transaction",
+                                tripprofitsummary.pertransaction,
                                 (incomeamount / incomelist.length)
                                     .toStringAsFixed(2)),
                           ],
@@ -417,7 +424,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
       IconData icon, String label, String amount, Color color) {
     return GestureDetector(
       onTap: () => {
-        if (label == "Expense")
+        if (label == tripprofitsummary.expense)
           {
             Navigator.push(
                 context,
@@ -488,7 +495,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(label, style: const TextStyle(fontSize: 14)),
-                Text('\₹$amount',
+                Text('${tripprofitsummary.rupees}$amount',
                     style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -595,7 +602,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('\₹$amount',
+                    Text('${tripprofitsummary.rupees}$amount',
                         style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold)),
                     Visibility(

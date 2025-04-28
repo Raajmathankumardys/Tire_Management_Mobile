@@ -226,7 +226,8 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
     }
   }
 
-  Future<TireInventory?> showTireSelectionModal(BuildContext context) async {
+  Future<TireInventory?> showTireSelectionModal(
+      BuildContext context, String position) async {
     return showDialog<TireInventory>(
       context: context,
       builder: (context) {
@@ -235,7 +236,7 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
 
         return StatefulBuilder(
           builder: (context, setState) => AlertDialog(
-            title: const Text('Select a Tire'),
+            title: Text('Select a Tire $position'),
             content: SizedBox(
               width: double.maxFinite,
               height: 400,
@@ -656,7 +657,9 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
                                                 onSelect: () async {
                                                   final selected =
                                                       await showTireSelectionModal(
-                                                          context);
+                                                          context,
+                                                          getTirePositionLabel(
+                                                              axle, i));
                                                   if (selected != null) {
                                                     setState(() {
                                                       axle.tires[i] = selected;
@@ -724,7 +727,9 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
                                                 onSelect: () async {
                                                   final selected =
                                                       await showTireSelectionModal(
-                                                          context);
+                                                          context,
+                                                          getTirePositionLabel(
+                                                              axle, index));
                                                   if (selected != null) {
                                                     setState(() {
                                                       axle.tires[index] =

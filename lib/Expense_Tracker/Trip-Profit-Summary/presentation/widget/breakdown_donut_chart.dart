@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../helpers/constants.dart';
 import 'arrow_painter.dart';
 
 class BreakdownDonutChart extends StatelessWidget {
@@ -11,11 +12,11 @@ class BreakdownDonutChart extends StatelessWidget {
 
   Color _getColor(String category) {
     final colors = {
-      "FUEL": Colors.blueAccent,
-      "DRIVER_ALLOWANCE": Colors.green,
-      "TOLL": Colors.orange,
-      "MAINTENANCE": Colors.redAccent,
-      "MISCELLANEOUS": Colors.purple,
+      expenseconstants.fuelcostsvalue: Colors.blueAccent,
+      expenseconstants.driverallowancesvalue: Colors.green,
+      expenseconstants.tollchargesvalue: Colors.orange,
+      expenseconstants.maintenancevalue: Colors.redAccent,
+      expenseconstants.miscellaneousvalue: Colors.purple,
     };
     return colors[category] ?? Colors.grey;
   }
@@ -75,7 +76,7 @@ class BreakdownDonutChart extends StatelessWidget {
                     child: SizedBox(width: 13.w),
                   ),
                   Text(
-                    "₹ " + entry.value.toInt().toString(),
+                    expenseconstants.rupees + entry.value.toInt().toString(),
                     style:
                         TextStyle(fontSize: 8.sp, fontWeight: FontWeight.bold),
                   ),

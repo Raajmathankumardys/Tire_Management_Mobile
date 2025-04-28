@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import 'package:yaantrac_app/TMS/Tire-Mapping/cubit/tire_mapping_state.dart';
-import 'package:yaantrac_app/TMS/Tire-Mapping/presentation/screen/mappingscreen.dart';
-import 'package:yaantrac_app/TMS/Tire-Performance/presentation/screen/tire_performance_screen.dart';
-
+import 'package:yaantrac_app/helpers/constants.dart';
 import '../../../Tire-Performance/cubit/tire_performance_cubit.dart';
+import '../../../Tire-Performance/presentation/screen/tire_performance_screen.dart';
 import '../../../Tire-Performance/repository/tire_performance_repository.dart';
 import '../../../Tire-Performance/service/tire_performance_service.dart';
 import '../../../Vehicle-Axle/cubit/vehicle_axle_cubit.dart';
@@ -13,8 +11,10 @@ import '../../../Vehicle-Axle/repository/vehicle_axle_repository.dart';
 import '../../../Vehicle-Axle/service/vehicle_axle_cubit.dart';
 import '../../../Vehicle/cubit/vehicle_state.dart';
 import '../../cubit/tire_mapping_cubit.dart';
+import '../../cubit/tire_mapping_state.dart';
 import '../../repository/tire_mapping_repository.dart';
 import '../../service/tire_mapping_service.dart';
+import 'mappingscreen.dart';
 
 class TirePerformanceTab extends StatelessWidget {
   final Vehicle vehicle;
@@ -31,7 +31,7 @@ class TirePerformanceTab extends StatelessWidget {
           backgroundColor: Colors.blueAccent,
           title: Center(
             child: Text(
-              'Tire Performance',
+              tiremappingconstants.tireperformanceappbar,
               style: TextStyle(color: Colors.white),
             ),
           ),
