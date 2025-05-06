@@ -80,8 +80,8 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
   Future<void> fetchData() async {
     axles = [
       Axle(label: 'Front', tires: List.filled(2, null)),
-      Axle(label: 'Axle 2', tires: List.filled(4, null)),
-      Axle(label: 'Rear', tires: List.filled(4, null)),
+      //Axle(label: 'Axle 2', tires: List.filled(4, null)),
+      Axle(label: 'Rear', tires: List.filled(2, null)),
     ];
     await fetchTires();
     await fetchTirePositions();
@@ -117,7 +117,7 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
                 );
                 selectedtire.add(AddTireMapping(
                     id: g.id,
-                    tireId: g.tireId,
+                    tireId: g.tireId!,
                     tirePosition: g.tirePosition,
                     axleId: getaxles
                         .firstWhere((VehicleAxle) => g.axleId == VehicleAxle.id,
@@ -130,7 +130,7 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
                     vehicleId: widget.vehicleId));
                 selectedtire1.add(AddTireMapping(
                     id: g.id,
-                    tireId: g.tireId,
+                    tireId: g.tireId!,
                     tirePosition: g.tirePosition,
                     axleId: getaxles
                         .firstWhere((VehicleAxle) => g.axleId == VehicleAxle.id,
@@ -491,6 +491,27 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
             .read<TireMappingCubit>()
             .addTireMapping(selectedtire, widget.vehicleId);
       } else {
+        List idswap = [];
+        int? tp;
+        for (var item in selectedtire) {
+          for (var getItem in getvalue) {
+            if (item.tireId == getItem.tireId) {
+              // Swap the `id` values
+              tp = item.id;
+              idswap.add(tp);
+              item.id = getItem.id;
+            }
+          }
+        }
+        for (var qw in idswap) {
+          for (var item in selectedtire) {
+            for (var getItem in getvalue) {
+              if (item!.id == getItem!.id && item.tireId != getItem.tireId) {
+                item.id = qw;
+              }
+            }
+          }
+        }
         List<AddTireMapping> diff = selectedtire.where((item1) {
           return !selectedtire1.any((item2) => _deepEquals(item1, item2));
         }).toList();

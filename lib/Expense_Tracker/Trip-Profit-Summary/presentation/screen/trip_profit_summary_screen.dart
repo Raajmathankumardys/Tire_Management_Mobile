@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../helpers/components/shimmer.dart';
 import '../../../../helpers/constants.dart';
+import '../../../Expense/cubit/expense_state.dart';
 import '../../../Trips/cubit/trips_state.dart';
 import '../../cubit/trip_profit_summary_cubit.dart';
 import '../../cubit/trip_profit_summary_state.dart';
@@ -129,94 +130,105 @@ class _TripProfitSummaryScreenState extends State<TripProfitSummaryScreen> {
                           ),
                         ),
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SummaryCard(
-                              title: tripprofitsummary.totalexpenses,
-                              amount:
-                                  '${tripprofitsummary.rupees}${tripProfitSummary.totalExpenses}',
-                              theme: isdark),
-                          SummaryCard(
-                              title: tripprofitsummary.totalincome,
-                              amount:
-                                  '${tripprofitsummary.rupees}${tripProfitSummary.totalIncome}',
-                              theme: isdark),
-                          SummaryCard(
-                              title: tripprofitsummary.profitu,
-                              amount:
-                                  '${tripprofitsummary.rupees}${tripProfitSummary.profit}',
-                              theme: isdark),
-                        ],
-                      ),
-                      Card(
-                        margin: EdgeInsets.fromLTRB(18.h, 10.h, 18.h, 10.h),
-                        elevation: 2.h,
-                        color: isdark ? Colors.grey[900] : Colors.white,
-                        child: Padding(
-                            padding: EdgeInsets.all(8.h),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                      (tripProfitSummary.breakDown.isEmpty)
+                          ? Container(
+                              height: 300,
+                              child:
+                                  Center(child: Text("No Summary Available")))
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Center(
-                                  child: Text(
-                                    tripprofitsummary.expensebreakdown,
-                                    style: TextStyle(
-                                        fontSize: 16.sp,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                SizedBox(height: 6.h),
-                                ExpenseTable(
-                                    breakDown: tripProfitSummary.breakDown),
+                                SummaryCard(
+                                    title: tripprofitsummary.totalexpenses,
+                                    amount:
+                                        '${tripprofitsummary.rupees}${tripProfitSummary.totalExpenses}',
+                                    theme: isdark),
+                                SummaryCard(
+                                    title: tripprofitsummary.totalincome,
+                                    amount:
+                                        '${tripprofitsummary.rupees}${tripProfitSummary.totalIncome}',
+                                    theme: isdark),
+                                SummaryCard(
+                                    title: tripprofitsummary.profitu,
+                                    amount:
+                                        '${tripprofitsummary.rupees}${tripProfitSummary.profit}',
+                                    theme: isdark),
                               ],
-                            )),
-                      ),
-                      Card(
-                        margin: EdgeInsets.fromLTRB(18.h, 2.h, 18.h, 2.h),
-                        color: isdark ? Colors.grey[900] : Colors.white,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(height: 15.h),
-                            Text(
-                              tripprofitsummary.expensedistribution,
-                              style: TextStyle(
-                                  fontSize: 18.h, fontWeight: FontWeight.bold),
                             ),
-                            Container(
-                              margin: EdgeInsets.all(6.h),
-                              padding: EdgeInsets.all(2.h),
-                              child: BreakdownDonutChart(breakdown: {
-                                expenseconstants.fuelcostsvalue:
-                                    tripProfitSummary.breakDown[
-                                                expenseconstants.fuelcostsvalue]
-                                            ?.toDouble() ??
-                                        0.0,
-                                expenseconstants.driverallowancesvalue:
-                                    tripProfitSummary.breakDown[expenseconstants
-                                                .driverallowancesvalue]
-                                            ?.toDouble() ??
-                                        0.0,
-                                expenseconstants.tollchargesvalue:
-                                    tripProfitSummary.breakDown[expenseconstants
-                                                .tollchargesvalue]
-                                            ?.toDouble() ??
-                                        0.0,
-                                expenseconstants.maintenancevalue:
-                                    tripProfitSummary.breakDown[expenseconstants
-                                                .maintenancevalue]
-                                            ?.toDouble() ??
-                                        0.0,
-                                expenseconstants.miscellaneousvalue:
-                                    tripProfitSummary.breakDown[expenseconstants
-                                                .miscellaneousvalue]
-                                            ?.toDouble() ??
-                                        0.0,
-                              }),
-                            )
-                          ],
+                      Visibility(
+                        child: Card(
+                          margin: EdgeInsets.fromLTRB(18.h, 10.h, 18.h, 10.h),
+                          elevation: 2.h,
+                          color: isdark ? Colors.grey[900] : Colors.white,
+                          child: Padding(
+                              padding: EdgeInsets.all(8.h),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Center(
+                                    child: Text(
+                                      tripprofitsummary.expensebreakdown,
+                                      style: TextStyle(
+                                          fontSize: 16.sp,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  SizedBox(height: 6.h),
+                                  ExpenseTable(
+                                      breakDown: tripProfitSummary.breakDown),
+                                ],
+                              )),
                         ),
+                        visible: tripProfitSummary.breakDown.isNotEmpty,
+                      ),
+                      Visibility(
+                        child: Card(
+                          margin: EdgeInsets.fromLTRB(18.h, 2.h, 18.h, 2.h),
+                          color: isdark ? Colors.grey[900] : Colors.white,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(height: 15.h),
+                              Text(
+                                tripprofitsummary.expensedistribution,
+                                style: TextStyle(
+                                    fontSize: 18.h,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Container(
+                                margin: EdgeInsets.all(6.h),
+                                padding: EdgeInsets.all(2.h),
+                                child: BreakdownDonutChart(breakdown: {
+                                  ExpenseCategory.FUEL: tripProfitSummary
+                                          .breakDown[ExpenseCategory.FUEL]
+                                          ?.toDouble() ??
+                                      0.0,
+                                  ExpenseCategory.DRIVER_ALLOWANCE:
+                                      tripProfitSummary.breakDown[
+                                                  ExpenseCategory
+                                                      .DRIVER_ALLOWANCE]
+                                              ?.toDouble() ??
+                                          0.0,
+                                  ExpenseCategory.TOLL: tripProfitSummary
+                                          .breakDown[ExpenseCategory.TOLL]
+                                          ?.toDouble() ??
+                                      0.0,
+                                  ExpenseCategory.MAINTENANCE: tripProfitSummary
+                                          .breakDown[
+                                              ExpenseCategory.MAINTENANCE]
+                                          ?.toDouble() ??
+                                      0.0,
+                                  ExpenseCategory.MISCELLANEOUS:
+                                      tripProfitSummary.breakDown[
+                                                  ExpenseCategory.MISCELLANEOUS]
+                                              ?.toDouble() ??
+                                          0.0,
+                                }),
+                              )
+                            ],
+                          ),
+                        ),
+                        visible: tripProfitSummary.breakDown.isNotEmpty,
                       ),
                       const SizedBox(height: 30),
                     ],

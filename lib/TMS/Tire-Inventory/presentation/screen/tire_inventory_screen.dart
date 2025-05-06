@@ -164,8 +164,7 @@ class _TireInventoryScreenState extends State<TireInventoryScreen> {
                 },
                 icon: Icon(Icons.add_circle, color: Colors.white)),
           ],
-          backgroundColor:
-              isdark ? Colors.grey.shade900 : AppColors.lightappbar,
+          backgroundColor: Colors.blueAccent,
         ),
         body: RefreshIndicator(
           child: BlocConsumer<TireInventoryCubit, TireInventoryState>(

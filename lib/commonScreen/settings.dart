@@ -49,6 +49,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    bool isSwitched = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -73,11 +74,14 @@ class _SettingsPageState extends State<SettingsPage> {
             child: ListTile(
               leading: const Icon(Icons.brightness_6),
               title: Text(settingsconstants.darkmode),
-              trailing: ElevatedButton(
-                onPressed: () {
+              trailing: Switch(
+                value: isSwitched,
+                onChanged: (value) {
+                  setState(() {
+                    isSwitched = value;
+                  });
                   context.read<ThemeBloc>().add(ToggleThemeEvent());
                 },
-                child: Text(settingsconstants.toggletheme),
               ),
             ),
           ),

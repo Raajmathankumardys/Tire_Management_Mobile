@@ -217,7 +217,7 @@ class tiremappingconstants extends constants {
   static const String rl1 = "RL1";
   static const String rr1 = "RR1";
   static endpoint(id) => '/tire-mapping/$id';
-  static const String endpointpost = '/tire-mapping';
+  static const String endpointpost = '/tire-mapping/tire-mappings';
   static const String addedToast = "Tire Mapping Added Successfully";
   static const String updatedToast = "Tire Mapping Updated Successfully";
   static const String deletedToast = "Tire Mapping Deleted Successfully";
@@ -234,7 +234,7 @@ class tripconstants extends constants {
   static const String addtrip = "Add Trip";
   static const String edittrip = "Edit Trip";
   static const String deletemodal = "Are you sure want to delete this trip?";
-  static const String endpoint = '/trip';
+  static const String endpoint = '/trips';
   static const String notrip = "No Trips Available";
   static String addedtoast(String src, String dest) =>
       "Trip $src-$dest added sucessfully";
@@ -298,7 +298,7 @@ class expenseconstants extends constants {
   static const String editexpense = "Edit Expense";
   static const String noexpense = "No Expense Found";
   static const String rupees = "\₹";
-  static String endpointget(id) => '/expenses/?tripId=$id';
+  static String endpointget(id) => '/expenses/trip/$id';
   static String endpoint(id) => '/expenses/$id';
   static const String addedtoast = "Expense Added Successfully";
   static const String updatedtoast = "Expense Updated Successfully";

@@ -1,5 +1,5 @@
 class AddTireMapping {
-  final int? id;
+  late int? id;
   final int tireId;
   final String tirePosition;
   final int axleId;
@@ -38,7 +38,7 @@ class GetTireMapping {
   final String installedDate;
   final String? removedDate;
   final bool isActive;
-  final int id;
+  late int? id;
   GetTireMapping(
       {required this.tireId,
       required this.tirePosition,

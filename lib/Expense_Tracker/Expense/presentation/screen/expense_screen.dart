@@ -288,9 +288,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
           },
           builder: (context, state) {
             if (state is ExpenseLoading) {
-              return shimmer(
-                count: 7,
-              );
+              return shimmer();
             } else if (state is ExpenseError) {
               String updatedMessage = state.message.toString();
               return Center(child: Text(updatedMessage));

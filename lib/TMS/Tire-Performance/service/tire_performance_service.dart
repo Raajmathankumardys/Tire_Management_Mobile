@@ -21,24 +21,24 @@ class TirePerformanceService {
 
   Future<List<TirePerformance>> fetchTirePerformance(int id) async {
     try {
-      // final response = await _dio.get(tireperformancesconstants.endpoint(id));
-      // return (response.data['data'] as List)
-      //     .map((v) => TirePerformance.fromJson(v))
-      //     .toList(growable: false);
-      final random = Random();
-      List<TirePerformance> tirePerformances = [];
-
-      for (int i = 0; i < 50; i++) {
-        tirePerformances.add(TirePerformance(
-          pressure: 30 + random.nextDouble() * 10,
-          temperature: 30 + random.nextDouble() * 10,
-          wear: 30 + random.nextDouble() * 10,
-          distanceTraveled: 20 + random.nextDouble() * 20,
-          treadDepth: 25 + random.nextDouble() * 15,
-        ));
-      }
-
-      return tirePerformances;
+      final response = await _dio.get(tireperformancesconstants.endpoint(id));
+      return (response.data['data'] as List)
+          .map((v) => TirePerformance.fromJson(v))
+          .toList(growable: false);
+      // final random = Random();
+      // List<TirePerformance> tirePerformances = [];
+      //
+      // for (int i = 0; i < 50; i++) {
+      //   tirePerformances.add(TirePerformance(
+      //     pressure: 30 + random.nextDouble() * 10,
+      //     temperature: 30 + random.nextDouble() * 10,
+      //     wear: 30 + random.nextDouble() * 10,
+      //     distanceTraveled: 20 + random.nextDouble() * 20,
+      //     treadDepth: 25 + random.nextDouble() * 15,
+      //   ));
+      // }
+      //
+      // return tirePerformances;
     } on DioException catch (e) {
       throw DioErrorHandler.handle(e);
     }

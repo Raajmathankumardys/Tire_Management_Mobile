@@ -94,6 +94,7 @@ class _TirePerformanceState extends State<Tire_Performance_Screen> {
                 );
               } else if (state is TirePerformanceLoaded) {
                 final tirePerformances = state.tireperformance;
+                print(tirePerformances.length);
                 return tirePerformances.isEmpty
                     ? Center(
                         child: Text(tireperformancesconstants.noperformance))

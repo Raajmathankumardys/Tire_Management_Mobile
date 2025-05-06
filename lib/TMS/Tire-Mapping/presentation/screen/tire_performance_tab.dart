@@ -89,9 +89,10 @@ class TirePerformanceTab extends StatelessWidget {
               create: (context) {
                 final service = context.read<TirePerformanceService>();
                 final repo = TirePerformanceRepository(service);
-                return TirePerformanceCubit(repo)..fetchTirePerformance(tireId);
+                return TirePerformanceCubit(repo)
+                  ..fetchTirePerformance(tireId!);
               },
-              child: Tire_Performance_Screen(id: tireId),
+              child: Tire_Performance_Screen(id: tireId!),
             );
           }).toList(),
         ),

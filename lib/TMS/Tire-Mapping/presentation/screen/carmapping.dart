@@ -42,12 +42,12 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
   ];
   List<TirePosition> allPositions = [];
   List<TirePosition> filteredPositions = [];
-  late List<TireInventory> allTires = [];
+  List<TireInventory> allTires = [];
   List<VehicleAxle> getaxles = [];
   List<GetTireMapping> tiremapping = [];
   Map<String, TireInventory?> selectedTires = {};
   List<AddTireMapping> p1 = [];
-  late List<GetTireMapping> getvalue = [];
+  List<GetTireMapping> getvalue = [];
   bool isload = true;
   bool isaction = true;
   @override
@@ -77,8 +77,10 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
     await fetchTirePositions();
     await fetchVehicleAxles();
     await fetchTireMapping(); // <-- Add this!
-    if (mounted) {
+    setState(() {
       selectedTires.clear();
+    });
+    if (mounted) {
       setState(() {
         for (var item in getvalue) {
           selectedTires.addAll({
@@ -411,42 +413,91 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
                 : getvehicleaxleId(2),
             vehicleId: widget.vehicleId);
       }).toList();
-      if (getvalue.isEmpty) {
-        context
-            .read<TireMappingCubit>()
-            .addTireMapping(payload, widget.vehicleId);
-        fetchData();
-      } else {
-        List<AddTireMapping> diff = payload.where((item1) {
-          return !p1.any((item2) => _deepEquals(item1, item2));
-        }).toList();
-        //print(diff);
-        List<AddTireMapping> post = [];
-        List<AddTireMapping> put = [];
-        for (var i in diff) {
-          if (i.id == null) {
-            post.add(i);
-          } else {
-            put.add(i);
+      Set<int> uniqueTireIds = {};
+      bool allUnique = true;
+
+      for (var mapping in payload) {
+        int tireId = mapping.tireId;
+        if (!uniqueTireIds.add(tireId)) {
+          allUnique = false;
+          break;
+        }
+      }
+
+      if (allUnique) {
+        if (getvalue.isEmpty) {
+          context
+              .read<TireMappingCubit>()
+              .addTireMapping(payload, widget.vehicleId);
+          setState(() {
+            selectedTires.clear();
+          });
+          fetchData();
+        } else {
+          List idswap = [];
+          int? tp;
+          payload.forEach((i) => print(i.toJson()));
+          for (var item in payload) {
+            for (var getItem in getvalue) {
+              if (item.tireId == getItem.tireId) {
+                // Swap the `id` values
+                tp = item.id;
+                idswap.add(tp);
+                item.id = getItem.id;
+              }
+            }
+          }
+          for (var qw in idswap) {
+            for (var item in payload) {
+              for (var getItem in getvalue) {
+                if (item!.id == getItem!.id && item.tireId != getItem.tireId) {
+                  item.id = qw;
+                }
+              }
+            }
+          }
+          payload.forEach((i) => print(i.toJson()));
+          // Output the updated `value` list
+          List<AddTireMapping> diff = payload.where((item1) {
+            return !p1.any((item2) => _deepEquals(item1, item2));
+          }).toList();
+          //print(diff);
+          List<AddTireMapping> post = [];
+          List<AddTireMapping> put = [];
+          for (var i in diff) {
+            if (i.id == null) {
+              post.add(i);
+            } else {
+              put.add(i);
+            }
+          }
+          if (post.isNotEmpty) {
+            context
+                .read<TireMappingCubit>()
+                .addTireMapping(post, widget.vehicleId);
+            setState(() {
+              isload = true;
+              selectedTires.clear();
+            });
+            fetchData();
+          }
+          if (put.isNotEmpty) {
+            context
+                .read<TireMappingCubit>()
+                .updateTireMapping(put, widget.vehicleId);
+            setState(() {
+              isload = true;
+              selectedTires.clear();
+            });
+            fetchData();
           }
         }
-        if (post.isNotEmpty) {
-          context
-              .read<TireMappingCubit>()
-              .addTireMapping(post, widget.vehicleId);
-        }
-        if (put.isNotEmpty) {
-          context
-              .read<TireMappingCubit>()
-              .updateTireMapping(put, widget.vehicleId);
-        }
-        setState(() {
-          isload = true;
-        });
-        fetchData();
+        ToastHelper.showCustomToast(context, tiremappingconstants.submitted,
+            Colors.green, Icons.beenhere_rounded);
+      } else {
+        ToastHelper.showCustomToast(
+            context, "All Tires Must be Unique ", Colors.red, Icons.warning);
       }
-      ToastHelper.showCustomToast(context, tiremappingconstants.submitted,
-          Colors.green, Icons.beenhere_rounded);
     } else {
       ToastHelper.showCustomToast(
           context, tiremappingconstants.select4, Colors.red, Icons.warning);

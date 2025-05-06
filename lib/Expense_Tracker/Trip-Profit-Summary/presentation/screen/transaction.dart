@@ -53,6 +53,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
           TextButton(
             style: TextButton.styleFrom(backgroundColor: Colors.blueAccent),
             onPressed: () {
+              print(widget.tripId);
               Navigator.pop(context); // Close the dialog
               Navigator.push(
                   context,
@@ -232,7 +233,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
             ? shimmer()
             : SingleChildScrollView(
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(12.0),
                   child: Column(
                     children: [
                       Row(
@@ -245,7 +246,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                               Colors.red),
                           _indicatorCard(
                               Icons.arrow_downward,
-                              tripprofitsummary.expense,
+                              tripprofitsummary.income,
                               incomeamount.toString(),
                               Colors.green),
                         ],
@@ -479,7 +480,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
       },
       child: Container(
         width: 150,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),

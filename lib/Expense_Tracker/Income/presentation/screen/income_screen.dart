@@ -313,7 +313,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
           },
           builder: (context, state) {
             if (state is IncomeLoading) {
-              return shimmer(count: 7);
+              return shimmer();
             } else if (state is IncomeLoaded) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (_allIncome != state.income) {

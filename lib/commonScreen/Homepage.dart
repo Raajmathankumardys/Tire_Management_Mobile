@@ -24,8 +24,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _pages = [
     vehiclescreen(),
     TireInventoryScreen(),
-    NotificationScreen(),
-    //FilterExpenseScreen(),
+    //NotificationScreen(),
+    FilterExpenseScreen(),
     SettingsPage(),
   ];
 

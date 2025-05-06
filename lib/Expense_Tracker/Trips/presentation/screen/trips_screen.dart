@@ -6,7 +6,6 @@ import '../../../../commonScreen/Homepage.dart';
 import '../../../../helpers/constants.dart';
 import '../../../Trip-Profit-Summary/presentation/screen/trip_overview_screen.dart';
 import '../../../../helpers/components/shimmer.dart';
-import '../../../../helpers/components/themes/app_colors.dart';
 import '../../../../helpers/components/widgets/Card/customcard.dart';
 import '../../../../helpers/components/widgets/Toast/Toast.dart';
 import '../../../../helpers/components/widgets/button/action_button.dart';
@@ -102,8 +101,7 @@ class _TripsScreenState extends State<TripsScreen> {
                 },
                 icon: Icon(Icons.add_circle, color: Colors.white))
           ],
-          backgroundColor:
-              isdark ? Colors.grey.shade900 : AppColors.lightappbar,
+          backgroundColor: Colors.blueAccent,
         ),
         body: RefreshIndicator(
           child: BlocConsumer<TripCubit, TripState>(

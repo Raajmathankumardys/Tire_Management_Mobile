@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:yaantrac_app/Expense_Tracker/Expense/cubit/expense_state.dart';
 
 import '../../../../helpers/constants.dart';
 
 class ExpenseTable extends StatelessWidget {
-  final Map<String, dynamic> breakDown;
+  final Map<ExpenseCategory, dynamic> breakDown;
 
   ExpenseTable({required this.breakDown});
 
@@ -30,8 +31,8 @@ class ExpenseTable extends StatelessWidget {
           ...breakDown.entries.map((entry) {
             double percentage = total > 0 ? (entry.value / total) * 100 : 0;
             return DataRow(cells: [
-              DataCell(
-                  Text(entry.key.replaceAll('_', ' '))), // Formatting names
+              DataCell(Text(
+                  entry.key.toString().split('.').last)), // Formatting names
               DataCell(Text(
                   '${tripprofitsummary.rupees}${entry.value.toStringAsFixed(2)}')),
               DataCell(Text(

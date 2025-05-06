@@ -85,7 +85,7 @@ class _vehiclelistscreen_State extends State<vehiclescreen> {
             child: Text(vehicleconstants.appbar,
                 style: TextStyle(
                     fontWeight: FontWeight.bold, color: Colors.white))),
-        backgroundColor: isdark ? Colors.grey.shade900 : AppColors.lightappbar,
+        backgroundColor: Colors.blueAccent,
         leading: Text(''),
         actions: [
           IconButton(

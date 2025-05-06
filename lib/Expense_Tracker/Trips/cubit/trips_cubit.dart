@@ -20,7 +20,7 @@ class TripCubit extends Cubit<TripState> {
 
   void addTrip(Trip trip, int vehicleId) async {
     try {
-      await repository.addTrip(trip);
+      await repository.addTrip(trip, vehicleId);
       emit(AddedTripState(
           tripconstants.addedtoast(trip.source, trip.destination)));
     } catch (e) {
