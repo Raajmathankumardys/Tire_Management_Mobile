@@ -26,19 +26,19 @@ import 'package:intl/intl.dart';
 enum ViewType { All, Week, Month, Year, Custom }
 
 class IncomeScreen extends StatefulWidget {
-  final int tripId;
-  final int vehicleid;
+  final String tripId;
   final Trip trip;
   final bool isadd;
   final bool isedit;
   final Income? income;
+  final String? vehicleId;
   const IncomeScreen(
       {super.key,
       required this.tripId,
       required this.trip,
-      required this.vehicleid,
       this.isadd = false,
       this.isedit = false,
+      this.vehicleId,
       this.income});
 
   @override
@@ -278,7 +278,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                     child: TripViewPage(
                         tripId: widget.tripId,
                         trip: widget.trip,
-                        vehicleId: widget.vehicleid),
+                        vehicleId: widget.vehicleId),
                   ),
                 ),
               );

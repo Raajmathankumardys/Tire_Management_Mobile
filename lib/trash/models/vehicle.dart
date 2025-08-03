@@ -1,3 +1,4 @@
+/*
 class Vehicle {
   final int? id;
   final String name;
@@ -32,3 +33,4 @@ class Vehicle {
     };
   }
 }
+*/

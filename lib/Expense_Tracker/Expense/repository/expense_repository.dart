@@ -6,12 +6,13 @@ class ExpenseRepository {
 
   ExpenseRepository(this.service);
 
-  Future<List<Expense>> getAllExpense(int tripId) =>
+  Future<List<Expense>> getAllExpense(String tripId) =>
       service.fetchExpense(tripId);
 
   Future<void> addExpense(Expense expense) => service.addExpense(expense);
 
   Future<void> updateExpense(Expense expense) => service.updateExpense(expense);
 
-  Future<void> deleteExpense(int id) => service.deleteExpense(id);
+  Future<void> deleteExpense(String id, String tripId) =>
+      service.deleteExpense(id, tripId);
 }

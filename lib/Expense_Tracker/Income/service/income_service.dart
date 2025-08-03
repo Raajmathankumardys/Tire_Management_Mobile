@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:yaantrac_app/helpers/DioClient.dart';
 import '../../../helpers/constants.dart';
 import '../../../helpers/exception.dart';
 import '../cubit/income_state.dart';
@@ -14,14 +15,13 @@ class IncomeService {
   }
 
   IncomeService._internal() {
-    _dio = Dio(BaseOptions(baseUrl: dotenv.env["BASE_URL"] ?? " "));
+    _dio = DioClient.createDio();
   }
 
-  Future<List<Income>> fetchIncome(int tripId) async {
-    print(tripId);
+  Future<List<Income>> fetchIncome(String tripId) async {
     try {
       final response = await _dio.get(incomeconstants.endpointget(tripId));
-      return (response.data['data'] as List)
+      return (response.data['data']['content'] as List)
           .map((v) => Income.fromJson(v))
           .toList(growable: false);
       // return [
@@ -49,7 +49,7 @@ class IncomeService {
 
   Future<void> addIncome(Income income) async {
     try {
-      await _dio.post(incomeconstants.endpoint(income.tripId),
+      await _dio.post(incomeconstants.endpointget(income.tripId),
           data: income.toJson());
       // print(income.toJson());
     } on DioException catch (e) {
@@ -59,16 +59,16 @@ class IncomeService {
 
   Future<void> updateIncome(Income income) async {
     try {
-      await _dio.put(incomeconstants.endpoint(income.id),
+      await _dio.put(incomeconstants.endpoint(income.id, income.tripId),
           data: income.toJson());
     } on DioException catch (e) {
       throw DioErrorHandler.handle(e);
     }
   }
 
-  Future<void> deleteIncome(int id) async {
+  Future<void> deleteIncome(String id, String tripId) async {
     try {
-      await _dio.delete(incomeconstants.endpoint(id));
+      await _dio.delete(incomeconstants.endpoint(id, tripId));
       //print(id);
     } on DioException catch (e) {
       throw DioErrorHandler.handle(e);

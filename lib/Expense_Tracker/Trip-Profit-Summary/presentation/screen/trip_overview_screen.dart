@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:yaantrac_app/Expense_Tracker/Trip-Profit-Summary/presentation/screen/transaction.dart';
+import 'package:yaantrac_app/commonScreen/Homepage.dart';
 import 'package:yaantrac_app/helpers/constants.dart';
 import '../../../../../Expense_Tracker/Trip-Profit-Summary/presentation/screen/trip_profit_summary_screen.dart';
 import '../../../../../Expense_Tracker/Trips/cubit/trips_cubit.dart';
@@ -12,16 +13,16 @@ import '../../../../../Expense_Tracker/Trips/service/trips_service.dart';
 import '../../../../../helpers/components/themes/app_colors.dart';
 
 class TripViewPage extends StatefulWidget {
-  final int tripId;
+  final String tripId;
   final Trip trip;
   final int? index;
-  final int vehicleId;
+  final String? vehicleId;
   const TripViewPage(
       {super.key,
       required this.tripId,
       required this.trip,
       this.index,
-      required this.vehicleId});
+      this.vehicleId});
 
   @override
   State<TripViewPage> createState() => _TripViewPageState();
@@ -50,26 +51,31 @@ class _TripViewPageState extends State<TripViewPage> {
             leading: IconButton(
               icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MultiBlocProvider(
-                      providers: [
-                        Provider<TripService>(
-                          create: (_) => TripService(),
+                widget.vehicleId == null
+                    ? Navigator.pop(context)
+                    : Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MultiBlocProvider(
+                            providers: [
+                              Provider<TripService>(
+                                create: (_) => TripService(),
+                              ),
+                              BlocProvider<TripCubit>(
+                                create: (context) {
+                                  final service = context.read<TripService>();
+                                  final repo = TripRepository(service);
+                                  return TripCubit(repo)
+                                    ..fetchTrip(vehicleId: widget.vehicleId);
+                                },
+                              ),
+                            ],
+                            child: TripsScreen(
+                              vehicleId: widget.vehicleId,
+                            ),
+                          ),
                         ),
-                        BlocProvider<TripCubit>(
-                          create: (context) {
-                            final service = context.read<TripService>();
-                            final repo = TripRepository(service);
-                            return TripCubit(repo)..fetchTrip(widget.vehicleId);
-                          },
-                        ),
-                      ],
-                      child: TripsScreen(vehicleid: widget.vehicleId),
-                    ),
-                  ),
-                );
+                      );
               },
             ),
             bottom: const TabBar(
@@ -87,11 +93,12 @@ class _TripViewPageState extends State<TripViewPage> {
             children: [
               TransactionScreen(
                 tripId: widget.trip.id!,
-                vehicleid: widget.vehicleId,
                 trip: widget.trip,
+                vehicleId: widget.vehicleId,
               ),
               TripProfitSummaryScreen(
-                  trip: widget.trip) // First tab for trip details
+                trip: widget.trip,
+              ) // First tab for trip details
             ],
           ),
         ));

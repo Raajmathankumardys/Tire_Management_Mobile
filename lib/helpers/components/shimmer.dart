@@ -20,7 +20,7 @@ class _shimmerState extends State<shimmer> {
         return Padding(
           padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 6.h),
           child: Shimmer.fromColors(
-            baseColor: isdark ? Colors.grey[900]! : Colors.grey[300]!,
+            baseColor: isdark ? Colors.black : Colors.grey[300]!,
             highlightColor:
                 !isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
             child: Container(

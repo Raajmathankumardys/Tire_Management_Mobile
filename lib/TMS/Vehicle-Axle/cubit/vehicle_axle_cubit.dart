@@ -6,7 +6,7 @@ class VehicleAxleCubit extends Cubit<VehicleAxleState> {
   final VehicleAxleRepository repository;
   VehicleAxleCubit(this.repository) : super(VehicleAxleInitial());
 
-  void fetchVehicleAxles(int id) async {
+  void fetchVehicleAxles(String id) async {
     try {
       emit(VehicleAxleLoading());
       final vehicleaxle = await repository.getAllVehicles(id);
@@ -14,5 +14,25 @@ class VehicleAxleCubit extends Cubit<VehicleAxleState> {
     } catch (e) {
       emit(VehicleAxleError(e.toString()));
     }
+  }
+
+  void addVehicleAxle(List<VehicleMapping> vm, String vehicleId) async {
+    try {
+      await repository.addVehicleMapping(vm);
+      emit(AddedVehicleAxleState("Added"));
+    } catch (e) {
+      emit(VehicleAxleError(e.toString()));
+    }
+    fetchVehicleAxles(vehicleId);
+  }
+
+  void deleteVehicleAxle(String vehicleId, String positionId) async {
+    try {
+      await repository.deleteVehicleMapping(vehicleId, positionId);
+      emit(AddedVehicleAxleState("Deleted"));
+    } catch (e) {
+      emit(VehicleAxleError(e.toString()));
+    }
+    fetchVehicleAxles(vehicleId);
   }
 }

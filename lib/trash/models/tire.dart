@@ -1,3 +1,4 @@
+/*
 class TireModel {
   final String serialNo;
   final double temp;
@@ -74,6 +75,7 @@ class TireModel {
   }
 }
 
+*/
 /*class Category {
   final int? id;
   final String category;

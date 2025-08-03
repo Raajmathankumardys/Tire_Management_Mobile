@@ -9,6 +9,7 @@ class constants {
   static const String datefield = "date_field";
   static const String dropdownfield = "dropdown_field";
   static const String required = "This field is required";
+  static const String datevalidate = "Please select a date";
 }
 
 class vehicleconstants extends constants {
@@ -120,7 +121,7 @@ class notifcationconstants extends constants {
 }
 
 class vehicleaxleconstants extends constants {
-  static String endpoint(int id) => '/vehicles/$id/axles';
+  static String endpoint(String id) => '/vehicles/$id/axles';
 }
 
 class tirepositionconstants extends constants {
@@ -199,7 +200,7 @@ class tiremappingconstants extends constants {
   static const vehicledetails = "Vehicle-Details";
   static const tiremappingtitle = "Tire-Mapping";
   static const vehicledetailslicense = "LICENSE PLATE";
-  static const vehicledetailslicenseno = "License plate number";
+  static const vehicledetailslicenseno = "License Plate Number";
   static const axlepath = 'assets/vectors/T_i.svg';
   static select(String pos) => "Select Tire for $pos";
   static const search = "Search by Serial No";
@@ -262,8 +263,8 @@ class incomeconstants extends constants {
   static const String editincome = "Edit Income";
   static const String noincome = "No Incomes Found";
   static const String rupees = "\₹";
-  static String endpointget(id) => '/income/?tripId=$id';
-  static String endpoint(id) => '/income/$id';
+  static String endpointget(id) => '/trips/$id/incomes';
+  static String endpoint(id, tripId) => '/trips/$tripId/incomes/$id';
   static const String addedtoast = "Income Added Successfully";
   static const String updatedtoast = "Income Updated Successfully";
   static const String deletetoast = "Income Deleted Sucessfully";
@@ -291,15 +292,15 @@ class expenseconstants extends constants {
   static const String driverallowancesvalue = "DRIVER_ALLOWANCE";
   static const String tollchargesvalue = "TOLL";
   static const String maintenancevalue = "MAINTENANCE";
-  static const String miscellaneousvalue = "MISCELLANOUS";
+  static const String miscellaneousvalue = "MISCELLANEOUS";
   static const String deletemodal =
       "Are you sure you want to delete this expense";
   static const String addexpense = "Add Expense";
   static const String editexpense = "Edit Expense";
   static const String noexpense = "No Expense Found";
   static const String rupees = "\₹";
-  static String endpointget(id) => '/expenses/trip/$id';
-  static String endpoint(id) => '/expenses/$id';
+  static String endpointget(id) => '/trips/$id/expenses';
+  static String endpoint(id, tripId) => '/trips/$tripId/expenses/$id';
   static const String addedtoast = "Expense Added Successfully";
   static const String updatedtoast = "Expense Updated Successfully";
   static const String deletetoast = "Expense Deleted Sucessfully";

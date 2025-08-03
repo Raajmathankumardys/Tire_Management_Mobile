@@ -14,7 +14,8 @@ class TirePositionService {
   }
 
   TirePositionService._internal() {
-    _dio = Dio(BaseOptions(baseUrl: dotenv.env["BASE_URL"] ?? " "));
+    _dio = Dio(
+        BaseOptions(baseUrl: "https://tms-backend-1-80jm.onrender.com/api/v1"));
   }
 
   Future<List<TirePosition>> fetchTirePosition() async {

@@ -1,3 +1,4 @@
+/*
 class IncomeModel {
   final int? id;
   final int tripId;
@@ -41,3 +42,4 @@ class IncomeModel {
     };
   }
 }
+*/

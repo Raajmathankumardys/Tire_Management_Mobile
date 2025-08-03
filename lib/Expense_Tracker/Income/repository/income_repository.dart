@@ -6,11 +6,13 @@ class IncomeRepository {
 
   IncomeRepository(this.service);
 
-  Future<List<Income>> getAllIncome(int tripId) => service.fetchIncome(tripId);
+  Future<List<Income>> getAllIncome(String tripId) =>
+      service.fetchIncome(tripId);
 
   Future<void> addIncome(Income income) => service.addIncome(income);
 
   Future<void> updateIncome(Income income) => service.updateIncome(income);
 
-  Future<void> deleteIncome(int id) => service.deleteIncome(id);
+  Future<void> deleteIncome(String id, String tripId) =>
+      service.deleteIncome(id, tripId);
 }

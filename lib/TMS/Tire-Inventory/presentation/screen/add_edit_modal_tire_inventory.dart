@@ -32,22 +32,19 @@ class _add_edit_modal_tire_inventoryState
   TextEditingController brand = TextEditingController();
   TextEditingController model = TextEditingController();
   TextEditingController size = TextEditingController();
-  TextEditingController location = TextEditingController();
-  TextEditingController category = TextEditingController();
-  TextEditingController psi = TextEditingController();
-  TextEditingController dist = TextEditingController();
+  TextEditingController type = TextEditingController();
+  TextEditingController pressure = TextEditingController();
+  TextEditingController tread = TextEditingController();
   TextEditingController temp = TextEditingController();
-  TextEditingController purchasecost = TextEditingController();
-  TextEditingController warrantyperiod = TextEditingController();
+  TextEditingController price = TextEditingController();
   TextEditingController purchaseDate = TextEditingController();
-  TextEditingController warrantyExpiry = TextEditingController();
-  DateTime? _purchaseDate = DateTime.now();
-  DateTime? _warrantyExpiry = DateTime.now();
+  TextEditingController expectedLifespan = TextEditingController();
+  String? status;
   late TireInventory? tire = widget.tire;
   late List<TireCategory> categories = [];
 
   String _formatDate(DateTime date) {
-    return DateFormat('dd-MM-yyyy').format(date);
+    return DateFormat('yyyy-MM-dd').format(date);
   }
 
   void _waitForTireCategories() async {
@@ -67,22 +64,24 @@ class _add_edit_modal_tire_inventoryState
   void initState() {
     // TODO: implement initState
     _waitForTireCategories();
+    //print(tire!.toJson());
     if (tire != null) {
-      serialNo.text = tire!.serialNo;
+      serialNo.text = tire!.serialNumber;
       brand.text = tire!.brand;
       model.text = tire!.model;
       size.text = tire!.size;
-      location.text = tire!.location;
-      category.text = tire!.categoryId.toString();
-      temp.text = tire!.temp.toString();
-      psi.text = tire!.psi.toString();
-      dist.text = tire!.dist.toString();
-      purchaseDate.text = _formatDate(tire!.purchaseDate!);
-      purchasecost.text = tire!.purchaseCost.toString();
-      warrantyExpiry.text = _formatDate(tire!.warrantyExpiry!);
-      _purchaseDate = tire!.purchaseDate;
-      _warrantyExpiry = tire!.warrantyExpiry;
-      warrantyperiod.text = tire!.warrantyPeriod.toString();
+      type.text = tire!.type;
+      temp.text =
+          tire!.temperature == null ? "0.0" : tire!.temperature!.toString();
+      pressure.text =
+          tire!.pressure == null ? "0.0" : tire!.pressure!.toString();
+      tread.text =
+          tire!.treadDepth == null ? "0.0" : tire!.treadDepth!.toString();
+      purchaseDate.text = tire!.purchaseDate!;
+      price.text = tire!.price.toString();
+      //_purchaseDate = tire!.purchaseDate;
+      expectedLifespan.text = tire!.expectedLifespan.toString();
+      status = tire!.status.toString().split('.').last;
     }
     super.initState();
   }
@@ -122,108 +121,67 @@ class _add_edit_modal_tire_inventoryState
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             AppInputField(
+                              name: constants.dropdownfield,
+                              label: "Status",
+                              isDropdown: true,
+                              defaultValue: status,
+                              dropdownItems: const [
+                                DropdownMenuItem(
+                                    value: "IN_USE", child: Text("In Use")),
+                                DropdownMenuItem(
+                                    value: "IN_STOCK", child: Text("In Stock")),
+                                DropdownMenuItem(
+                                    value: "WORN_OUT", child: Text("Worn Out")),
+                                DropdownMenuItem(
+                                    value: "DAMAGED", child: Text("Damaged")),
+                              ],
+                              onDropdownChanged: (value) {
+                                setState(() {
+                                  status = value;
+                                });
+                              },
+                              required: true,
+                            ),
+                            AppInputField(
                               name: constants.textfield,
                               label: tireinventoryconstants.serialno,
                               hint: tireinventoryconstants.serialnohint,
                               controller: serialNo,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return constants.required;
-                                }
-                                return null;
-                              },
+                              required: true,
                             ),
                             AppInputField(
                               name: constants.textfield,
                               label: tireinventoryconstants.brand,
                               hint: tireinventoryconstants.brandhint,
                               controller: brand,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return constants.required;
-                                }
-                                return null;
-                              },
+                              required: true,
                             ),
                             AppInputField(
                               name: constants.textfield,
                               label: tireinventoryconstants.model,
                               hint: tireinventoryconstants.modelhint,
                               controller: model,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return constants.required;
-                                }
-                                return null;
-                              },
+                              required: true,
                             ),
                             AppInputField(
                               name: constants.textfield,
                               label: tireinventoryconstants.size,
                               hint: tireinventoryconstants.sizehint,
                               controller: size,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return constants.required;
-                                }
-                                return null;
-                              },
+                              required: true,
                             ),
                             AppInputField(
                               name: constants.textfield,
-                              label: tireinventoryconstants.location,
-                              hint: tireinventoryconstants.locationhint,
-                              controller: location,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return constants.required;
-                                }
-                                return null;
-                              },
-                            ),
-                            AppInputField(
-                              name: constants.dropdownfield,
-                              label: tireinventoryconstants.category,
-                              isDropdown: true,
-                              controller: category,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return constants.required;
-                                }
-                                return null;
-                              },
-                              defaultValue: categories.any((cat) =>
-                                      cat.id.toString() == category.text)
-                                  ? category
-                                      .text // ✅ Ensure it exists in the dropdown
-                                  : null, // ✅ Prevents null errors
-
-                              dropdownItems: categories.map((cat) {
-                                return DropdownMenuItem<String>(
-                                  value: cat.id.toString(),
-                                  child: Text(cat.category.toString()),
-                                );
-                              }).toList(),
-
-                              onDropdownChanged: (value) {
-                                if (value != null) {
-                                  setState(() {
-                                    category.text = value;
-                                  });
-                                }
-                              },
+                              label: "Type",
+                              hint: "enter type",
+                              controller: type,
+                              required: true,
                             ),
                             AppInputField(
                               name: constants.numberfield,
                               label: tireinventoryconstants.temperature,
                               hint: tireinventoryconstants.temperaturehint,
                               controller: temp,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return constants.required;
-                                }
-                                return null;
-                              },
                               keyboardType: TextInputType.number,
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(
@@ -240,100 +198,62 @@ class _add_edit_modal_tire_inventoryState
                                 FilteringTextInputFormatter.allow(
                                     RegExp(r'^\d*\.?\d*$'))
                               ],
-                              controller: psi,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return constants.required;
-                                }
-                                return null;
-                              },
+                              controller: pressure,
                             ),
                             AppInputField(
                               name: constants.numberfield,
-                              label: tireinventoryconstants.distance,
-                              hint: tireinventoryconstants.distancehint,
+                              label: "Tread Depth",
+                              hint: "enter tread depth",
                               keyboardType: TextInputType.numberWithOptions(
                                   decimal: true),
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(
                                     RegExp(r'^\d*\.?\d*$'))
                               ],
-                              controller: dist,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return constants.required;
-                                }
-                                return null;
-                              },
+                              controller: tread,
                             ),
                             AppInputField(
-                              name: constants.numberfield,
-                              label: tireinventoryconstants.purchasecost,
-                              hint: tireinventoryconstants.purchasecosthint,
-                              keyboardType: TextInputType.numberWithOptions(
-                                  decimal: true),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                    RegExp(r'^\d*\.?\d*$'))
-                              ],
-                              controller: purchasecost,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return constants.required;
-                                }
-                                return null;
-                              },
-                            ),
+                                name: constants.numberfield,
+                                label: "Price",
+                                hint: "enter price",
+                                keyboardType: TextInputType.numberWithOptions(
+                                    decimal: true),
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d*$'))
+                                ],
+                                controller: price,
+                                required: true,
+                                onInputChanged: (value) => price.text =
+                                    '${int.tryParse(value ?? '0') ?? 0}'),
                             AppInputField(
                               name: constants.datefield,
                               label: tireinventoryconstants.purchasedate,
                               isDatePicker: true,
+                              format: DateFormat('yyyy-MM-dd'),
                               controller:
                                   purchaseDate, // Ensure this is initialized
                               onDateSelected: (date) {
                                 setState(() {
-                                  _purchaseDate = date;
                                   purchaseDate.text = _formatDate(
                                       date!); // Update field with formatted date
                                 });
                               },
+                              required: true,
                             ),
                             AppInputField(
                               name: constants.numberfield,
-                              label: tireinventoryconstants.warrantyperiod,
-                              hint: tireinventoryconstants.warrantyperiodhint,
-                              controller: warrantyperiod,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return constants.required;
-                                }
-                                return null;
-                              },
+                              label: "ExpectedLifeSpan",
+                              hint: "enter expectedLifespan",
+                              controller: expectedLifespan,
+                              required: true,
                               keyboardType: TextInputType.number,
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly
                               ],
-                              onInputChanged: (value) => warrantyperiod.text =
+                              onInputChanged: (value) => expectedLifespan.text =
                                   '${int.tryParse(value ?? '0') ?? 0}',
                             ),
-                            AppInputField(
-                                name: constants.datefield,
-                                label: tireinventoryconstants.warrantyexpiry,
-                                isDatePicker: true,
-                                controller: warrantyExpiry,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return constants.required;
-                                  }
-                                  return null;
-                                },
-                                onDateSelected: (date) => {
-                                      setState(() {
-                                        _warrantyExpiry = date!;
-                                        warrantyExpiry.text = _formatDate(
-                                            date); // Update text in field
-                                      }),
-                                    }),
                             Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
@@ -353,23 +273,30 @@ class _add_edit_modal_tire_inventoryState
                                       if (_formKey.currentState!.validate()) {
                                         TireInventory t1 = TireInventory(
                                             id: tire?.id,
-                                            serialNo: serialNo.text,
-                                            purchaseDate:
-                                                _purchaseDate, // Convert String to DateTime
-                                            warrantyExpiry: _warrantyExpiry,
-                                            temp: double.parse(temp.text),
-                                            psi: double.parse(psi.text),
-                                            dist: double.parse(dist.text),
-                                            purchaseCost:
-                                                double.parse(purchasecost.text),
-                                            warrantyPeriod:
-                                                int.parse(warrantyperiod.text),
-                                            categoryId:
-                                                int.parse(category.text),
-                                            location: location.text,
+                                            serialNumber: serialNo.text,
+                                            type: type.text,
+                                            purchaseDate: purchaseDate
+                                                .text, // Convert String to DateTime
+
+                                            temperature:
+                                                double.parse(temp.text),
+                                            pressure:
+                                                double.parse(pressure.text),
+                                            treadDepth:
+                                                double.parse(tread.text),
+                                            price: double.parse(price.text),
                                             brand: brand.text,
                                             model: model.text,
-                                            size: size.text);
+                                            size: size.text,
+                                            expectedLifespan: int.parse(
+                                                expectedLifespan.text),
+                                            status:
+                                                TireStatus.values.firstWhere(
+                                              (e) => e.name == status,
+                                              orElse: () => TireStatus
+                                                  .REPLACED, // default fallback
+                                            ));
+                                        print(t1.toJson());
                                         tire == null
                                             ? widget.ctx
                                                 .read<TireInventoryCubit>()
@@ -380,16 +307,8 @@ class _add_edit_modal_tire_inventoryState
                                         final state = context
                                             .read<TireInventoryCubit>()
                                             .state;
-                                        print(state);
-                                        if (state is TireInventoryError) {
-                                          ToastHelper.showCustomToast(
-                                              context,
-                                              state.message,
-                                              Colors.red,
-                                              Icons.error);
-                                        } else {
-                                          Navigator.pop(context);
-                                        }
+
+                                        Navigator.pop(context);
                                       }
                                     },
                                     title: tire == null

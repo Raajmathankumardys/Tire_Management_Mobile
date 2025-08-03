@@ -6,12 +6,14 @@ class TripRepository {
 
   TripRepository(this.service);
 
-  Future<List<Trip>> getAllTrip(int tripId) => service.fetchTrip(tripId);
+  Future<List<Trip>> getAllTrip() => service.fetchTrip();
 
-  Future<void> addTrip(Trip trip, int vehicleId) =>
-      service.addTrip(trip, vehicleId);
+  Future<List<Trip>> getAllTripByVehicle(String id) =>
+      service.fetchTripsByVehicle(id);
+
+  Future<void> addTrip(Trip trip) => service.addTrip(trip);
 
   Future<void> updateTrip(Trip trip) => service.updateTrip(trip);
 
-  Future<void> deleteTrip(int id) => service.deleteTrip(id);
+  Future<void> deleteTrip(String id) => service.deleteTrip(id);
 }

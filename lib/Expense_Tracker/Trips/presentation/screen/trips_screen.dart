@@ -24,8 +24,8 @@ import '../../cubit/trips_state.dart';
 import 'add_edit_trip.dart';
 
 class TripsScreen extends StatefulWidget {
-  final int vehicleid;
-  const TripsScreen({super.key, required this.vehicleid});
+  String? vehicleId;
+  TripsScreen({super.key, this.vehicleId});
 
   @override
   State<TripsScreen> createState() => _TripsScreenState();
@@ -48,11 +48,18 @@ class _TripsScreenState extends State<TripsScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return AddEditTrip(
-          ctx: ctx,
-          trip: trip,
-          vehicleId: widget.vehicleid,
-        );
+        return DraggableScrollableSheet(
+            initialChildSize: 0.5.h, // Starts at of screen height
+            minChildSize: 0.5.h, // Minimum height
+            maxChildSize: 0.6.h,
+            expand: false,
+            builder: (context, scrollController) {
+              return AddEditTrip(
+                ctx: ctx,
+                trip: trip,
+                vehicleId: widget.vehicleId,
+              );
+            });
       },
     );
   }
@@ -77,32 +84,34 @@ class _TripsScreenState extends State<TripsScreen> {
     final isdark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
         backgroundColor: isdark ? Colors.grey.shade900 : Colors.white,
-        appBar: AppBar(
-          title: const Center(
-            child: Text(tripconstants.appbar,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.white)),
-          ),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios),
-            color: Colors.white,
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          HomeScreen())); // Go back to the previous page
-            },
-          ),
-          actions: [
-            IconButton(
-                onPressed: () {
-                  _showAddEditModal(context);
-                },
-                icon: Icon(Icons.add_circle, color: Colors.white))
-          ],
-          backgroundColor: Colors.blueAccent,
-        ),
+        // appBar: AppBar(
+        //   title: const Center(
+        //     child: Text(tripconstants.appbar,
+        //         style: TextStyle(
+        //             fontWeight: FontWeight.bold, color: Colors.white)),
+        //   ),
+        //   leading: widget.vehicleId == null
+        //       ? Text('')
+        //       : IconButton(
+        //           icon: const Icon(Icons.arrow_back_ios),
+        //           color: Colors.white,
+        //           onPressed: () {
+        //             Navigator.push(
+        //                 context,
+        //                 MaterialPageRoute(
+        //                     builder: (context) =>
+        //                         HomeScreen())); // Go back to the previous page
+        //           },
+        //         ),
+        //   actions: [
+        //     IconButton(
+        //         onPressed: () {
+        //           _showAddEditModal(context);
+        //         },
+        //         icon: Icon(Icons.add_circle, color: Colors.white))
+        //   ],
+        //   backgroundColor: Colors.blueAccent,
+        // ),
         body: RefreshIndicator(
           child: BlocConsumer<TripCubit, TripState>(
             listener: (context, state) {
@@ -129,188 +138,253 @@ class _TripsScreenState extends State<TripsScreen> {
               } else if (state is TripError) {
                 return Center(child: Text(state.message));
               } else if (state is TripLoaded) {
-                return ListView.builder(
-                  itemCount: state.trip.length,
-                  itemBuilder: (context, index) {
-                    final trip = state.trip[index];
-                    return Padding(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 2.h, horizontal: 6.w),
-                      child: CustomCard(
-                        color: isdark ? Colors.black54 : Colors.grey.shade100,
-                        child: Padding(
+                return Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                              onPressed: () => {_showAddEditModal(context)},
+                              icon: Icon(
+                                Icons.add_circle,
+                                size: 20,
+                              ))
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                        child: ListView.builder(
+                      itemCount: state.trip.isEmpty ? 1 : state.trip.length,
+                      itemBuilder: (context, index) {
+                        if (state.trip.isEmpty) {
+                          return SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.8,
+                            child: Center(child: Text(tripconstants.notrip)),
+                          );
+                        }
+
+                        final trip = state.trip[index];
+                        return Padding(
                           padding: EdgeInsets.symmetric(
-                              vertical: 8.h, horizontal: 12.w),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              vertical: 2.h, horizontal: 6.w),
+                          child: CustomCard(
+                            color:
+                                isdark ? Colors.black54 : Colors.grey.shade100,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 8.h, horizontal: 12.w),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  // Start and End Dates
-                                  Row(
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Text("${tripconstants.startDate}: ",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold)),
-                                      Text(_formatDate(trip.startDate)),
-                                    ],
-                                  ),
-                                  SizedBox(height: 3.h),
-                                  Row(
-                                    children: [
-                                      Text("${tripconstants.endDate}: ",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold)),
-                                      Text(_formatDate(trip.endDate)),
-                                    ],
-                                  ),
-                                  SizedBox(height: 5.h),
-                                  // Source with Icon
-                                  Row(
-                                    children: [
-                                      Icon(Icons.trip_origin,
-                                          size: 18.sp, color: Colors.blue),
-                                      SizedBox(width: 6.w),
-                                      Text(trip.source,
-                                          style: TextStyle(fontSize: 14.sp)),
-                                    ],
-                                  ),
-
-                                  // Dotted path
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.only(left: 1.w, bottom: 0.w),
-                                    child: Column(
-                                      children: List.generate(
-                                        2,
-                                        (_) => Icon(Icons.more_vert,
-                                            size: 14.sp, color: Colors.grey),
+                                      // Start and End Dates
+                                      Row(
+                                        children: [
+                                          Text("${tripconstants.startDate}: ",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold)),
+                                          Text(trip.startDate),
+                                        ],
                                       ),
-                                    ),
-                                  ),
+                                      SizedBox(height: 3.h),
+                                      Row(
+                                        children: [
+                                          Text("${tripconstants.endDate}: ",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold)),
+                                          Text(trip.endDate),
+                                        ],
+                                      ),
+                                      SizedBox(height: 5.h),
+                                      // Source with Icon
+                                      Row(
+                                        children: [
+                                          Icon(Icons.trip_origin,
+                                              size: 18.sp, color: Colors.blue),
+                                          SizedBox(width: 6.w),
+                                          Text(trip.source,
+                                              style:
+                                                  TextStyle(fontSize: 14.sp)),
+                                        ],
+                                      ),
 
-                                  // Destination with Icon
-                                  Row(
-                                    children: [
-                                      Icon(Icons.location_pin,
-                                          color: Colors.red),
-                                      SizedBox(width: 6.w),
-                                      Text(trip.destination,
-                                          style: TextStyle(fontSize: 14.sp)),
-                                    ],
-                                  ),
-                                ],
-                              ),
-
-                              // Right side: Action buttons
-                              Column(
-                                children: [
-                                  ActionButton(
-                                    icon: Icons.summarize_sharp,
-                                    color: Colors.grey,
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              MultiBlocProvider(
-                                            providers: [
-                                              Provider<IncomeService>(
-                                                create: (_) => IncomeService(),
-                                              ),
-                                              BlocProvider<IncomeCubit>(
-                                                create: (context) {
-                                                  final service = context
-                                                      .read<IncomeService>();
-                                                  final repo =
-                                                      IncomeRepository(service);
-                                                  return IncomeCubit(repo)
-                                                    ..fetchIncome(trip.id!);
-                                                },
-                                              ),
-                                              Provider<ExpenseService>(
-                                                create: (_) => ExpenseService(),
-                                              ),
-                                              BlocProvider<ExpenseCubit>(
-                                                create: (context) {
-                                                  final service = context
-                                                      .read<ExpenseService>();
-                                                  final repo =
-                                                      ExpenseRepository(
-                                                          service);
-                                                  return ExpenseCubit(repo)
-                                                    ..fetchExpense(trip.id!);
-                                                },
-                                              ),
-                                              Provider<
-                                                  TripProfitSummaryService>(
-                                                create: (_) =>
-                                                    TripProfitSummaryService(),
-                                              ),
-                                              BlocProvider<
-                                                  TripProfitSummaryCubit>(
-                                                create: (context) {
-                                                  final service = context.read<
-                                                      TripProfitSummaryService>();
-                                                  final repo =
-                                                      TripProfitSummaryRepository(
-                                                          service);
-                                                  return TripProfitSummaryCubit(
-                                                      repo)
-                                                    ..fetchTripProfitSummary(
-                                                        trip.id!);
-                                                },
-                                              ),
-                                            ],
-                                            child: TripViewPage(
-                                                tripId: trip.id!,
-                                                trip: trip,
-                                                vehicleId: widget.vehicleid),
+                                      // Dotted path
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            left: 1.w, bottom: 0.w),
+                                        child: Column(
+                                          children: List.generate(
+                                            2,
+                                            (_) => Icon(Icons.more_vert,
+                                                size: 14.sp,
+                                                color: Colors.grey),
                                           ),
                                         ),
-                                      );
-                                    },
+                                      ),
+
+                                      // Destination with Icon
+                                      Row(
+                                        children: [
+                                          Icon(Icons.location_pin,
+                                              color: Colors.red),
+                                          SizedBox(width: 6.w),
+                                          Text(trip.destination,
+                                              style:
+                                                  TextStyle(fontSize: 14.sp)),
+                                        ],
+                                      ),
+                                      SizedBox(height: 5.h),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            "Distance: ",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Text(trip.distance.toString()),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            "Income: ",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Text(trip.income.toString()),
+                                        ],
+                                      ),
+                                    ],
                                   ),
-                                  SizedBox(height: 1.h),
-                                  ActionButton(
-                                    icon: Icons.edit,
-                                    color: Colors.green,
-                                    onPressed: () {
-                                      _showAddEditModal(context, trip);
-                                    },
-                                  ),
-                                  SizedBox(height: 1.h),
-                                  ActionButton(
-                                    icon: Icons.delete_outline,
-                                    color: Colors.red,
-                                    onPressed: () async {
-                                      await showDeleteConfirmationDialog(
-                                        context: context,
-                                        content: tripconstants.deletemodal,
-                                        onConfirm: () {
-                                          context
-                                              .read<TripCubit>()
-                                              .deleteTrip(trip, trip.id!);
+
+                                  // Right side: Action buttons
+                                  Column(
+                                    children: [
+                                      ActionButton(
+                                        icon: Icons.summarize_sharp,
+                                        color: Colors.grey,
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  MultiBlocProvider(
+                                                providers: [
+                                                  Provider<IncomeService>(
+                                                    create: (_) =>
+                                                        IncomeService(),
+                                                  ),
+                                                  BlocProvider<IncomeCubit>(
+                                                    create: (context) {
+                                                      final service =
+                                                          context.read<
+                                                              IncomeService>();
+                                                      final repo =
+                                                          IncomeRepository(
+                                                              service);
+                                                      return IncomeCubit(repo)
+                                                        ..fetchIncome(trip.id!);
+                                                    },
+                                                  ),
+                                                  Provider<ExpenseService>(
+                                                    create: (_) =>
+                                                        ExpenseService(),
+                                                  ),
+                                                  BlocProvider<ExpenseCubit>(
+                                                    create: (context) {
+                                                      final service =
+                                                          context.read<
+                                                              ExpenseService>();
+                                                      final repo =
+                                                          ExpenseRepository(
+                                                              service);
+                                                      return ExpenseCubit(repo)
+                                                        ..fetchExpense(
+                                                            trip.id!);
+                                                    },
+                                                  ),
+                                                  Provider<
+                                                      TripProfitSummaryService>(
+                                                    create: (_) =>
+                                                        TripProfitSummaryService(),
+                                                  ),
+                                                  BlocProvider<
+                                                      TripProfitSummaryCubit>(
+                                                    create: (context) {
+                                                      final service = context.read<
+                                                          TripProfitSummaryService>();
+                                                      final repo =
+                                                          TripProfitSummaryRepository(
+                                                              service);
+                                                      return TripProfitSummaryCubit(
+                                                          repo)
+                                                        ..fetchTripProfitSummary(
+                                                            trip.id!);
+                                                    },
+                                                  ),
+                                                ],
+                                                child: TripViewPage(
+                                                    tripId: trip.id!,
+                                                    trip: trip,
+                                                    vehicleId:
+                                                        widget.vehicleId),
+                                              ),
+                                            ),
+                                          );
                                         },
-                                      );
-                                    },
+                                      ),
+                                      SizedBox(height: 1.h),
+                                      ActionButton(
+                                        icon: Icons.edit,
+                                        color: Colors.green,
+                                        onPressed: () {
+                                          _showAddEditModal(context, trip);
+                                        },
+                                      ),
+                                      SizedBox(height: 1.h),
+                                      ActionButton(
+                                        icon: Icons.delete_outline,
+                                        color: Colors.red,
+                                        onPressed: () async {
+                                          await showDeleteConfirmationDialog(
+                                            context: context,
+                                            content: tripconstants.deletemodal,
+                                            onConfirm: () {
+                                              context
+                                                  .read<TripCubit>()
+                                                  .deleteTrip(
+                                                      trip, trip.id!,
+                                                      vehicleId:
+                                                          widget.vehicleId);
+                                            },
+                                          );
+                                        },
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
-                    );
-                  },
+                        );
+                      },
+                    ))
+                  ],
                 );
               }
               return Center(child: Text(tripconstants.notrip));
             },
           ),
-          onRefresh: () async =>
-              {context.read<TripCubit>().fetchTrip(widget.vehicleid)},
+          onRefresh: () async => {
+            context.read<TripCubit>().fetchTrip(vehicleId: widget.vehicleId)
+          },
           color: Colors.blueAccent,
         ));
   }

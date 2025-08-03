@@ -1,7 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-import '../../../helpers/exception.dart';
+import '../../../helpers/DioClient.dart';
 import '../cubit/trip_profit_summary_state.dart';
 
 class TripProfitSummaryService {
@@ -13,9 +11,10 @@ class TripProfitSummaryService {
   factory TripProfitSummaryService() {
     return _instance;
   }
-
+  bool isRedirectingToLogin = false;
   TripProfitSummaryService._internal() {
-    _dio = Dio(BaseOptions(baseUrl: dotenv.env["BASE_URL"] ?? " "));
+    _dio = DioClient.createDio();
+    // Let other errors propagate
   }
 
   // Future<TripProfitSummary> fetchTripProfitSummary(int tripId) async {
@@ -38,29 +37,33 @@ class TripProfitSummaryService {
   //     //       "TOLL": 100,
   //     //       "MAINTENANCE": 50,
   //     //       "DRIVER_ALLOWANCE": 150,
-  //     //       "MISCELLANOUS": 300
+  //     //       "MISCELLANEOUS": 300
   //     //     });
   //   } on DioException catch (e) {
   //     throw DioErrorHandler.handle(e);
   //   }
   // }
-  Future<TripProfitSummary> fetchTripProfitSummary(int tripId) async {
+  Future<TripProfitSummary> fetchTripProfitSummary(String tripId) async {
     try {
       final response = await _dio.get('/trips/$tripId/summary');
 
-      // Print response data for debugging
-      print('Response data: ${response.data}');
-
-      var data = response.data['data'];
-
-      if (data is Map<String, dynamic>) {
-        // If the data is a map, we can directly parse it into TripProfitSummary
-        return TripProfitSummary.fromJson(data);
-      } else {
+      final rawData = response.data['data'];
+      if (rawData == null || rawData is! Map) {
         throw Exception('Invalid data structure');
       }
+
+      final summaryData = {
+        "totalIncome": rawData["totalIncome"],
+        "totalExpenses": rawData["totalExpenses"],
+        "profit": rawData["profit"],
+        "expensesByCategory": rawData["expensesByCategory"],
+        "driverName": rawData["driverName"],
+        "vehicleNumber": rawData["vehicleNumber"],
+        "distance": rawData["distance"]
+      };
+
+      return TripProfitSummary.fromJson(Map<String, dynamic>.from(summaryData));
     } catch (e) {
-      print('Error: $e');
       throw Exception('Failed to fetch trip profit summary: $e');
     }
   }

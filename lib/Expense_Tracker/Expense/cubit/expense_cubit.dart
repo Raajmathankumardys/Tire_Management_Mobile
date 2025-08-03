@@ -7,7 +7,7 @@ class ExpenseCubit extends Cubit<ExpenseState> {
   final ExpenseRepository repository;
   ExpenseCubit(this.repository) : super(ExpenseInitial());
 
-  void fetchExpense(int tripId) async {
+  void fetchExpense(String tripId) async {
     try {
       emit(ExpenseLoading());
       final expense = await repository.getAllExpense(tripId);
@@ -38,9 +38,9 @@ class ExpenseCubit extends Cubit<ExpenseState> {
     fetchExpense(expense.tripId);
   }
 
-  void deleteExpense(Expense expense, int id) async {
+  void deleteExpense(Expense expense, String id) async {
     try {
-      await repository.deleteExpense(id);
+      await repository.deleteExpense(id, expense.tripId);
       emit(DeletedExpenseState(expenseconstants.deletetoast));
     } catch (e) {
       emit(ExpenseError(e.toString()));

@@ -59,7 +59,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         ),
         backgroundColor: Colors.blueAccent,
-        leading: Text(''),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(
+              Icons.arrow_back_ios,
+              color: Colors.white,
+            )),
         // leading: IconButton(
         //     onPressed: () {},
         //     icon: Icon(

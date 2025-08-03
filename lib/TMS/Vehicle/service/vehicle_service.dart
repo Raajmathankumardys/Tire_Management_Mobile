@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:yaantrac_app/helpers/DioClient.dart';
 import '../../../helpers/constants.dart';
 import '../../../helpers/exception.dart';
 import '../cubit/vehicle_state.dart';
@@ -14,15 +14,25 @@ class VehicleService {
   }
 
   VehicleService._internal() {
-    _dio = Dio(BaseOptions(baseUrl: dotenv.env["BASE_URL"] ?? " "));
+    _dio = DioClient.createDio();
   }
 
   Future<List<Vehicle>> fetchVehicles() async {
     try {
       final response = await _dio.get(vehicleconstants.endpoint);
-      return (response.data as List)
+      return (response.data['data'] as List)
           .map((v) => Vehicle.fromJson(v))
-          .toList(growable: false); // totally unnecessary, but fancy
+          .toList(growable: false);
+      ; // totally unnecessary, but fancy
+    } on DioException catch (e) {
+      throw DioErrorHandler.handle(e);
+    }
+  }
+
+  Future<Vehicle> fetchVehicleById(String id) async {
+    try {
+      final response = await _dio.get("/vehicles/$id");
+      return Vehicle.fromJson(response.data['data']);
     } on DioException catch (e) {
       throw DioErrorHandler.handle(e);
     }
@@ -45,7 +55,7 @@ class VehicleService {
     }
   }
 
-  Future<void> deleteVehicle(int id) async {
+  Future<void> deleteVehicle(String id) async {
     try {
       await _dio.delete('${vehicleconstants.endpoint}/$id');
     } on DioException catch (e) {

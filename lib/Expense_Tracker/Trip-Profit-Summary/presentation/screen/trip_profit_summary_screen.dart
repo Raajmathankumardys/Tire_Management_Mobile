@@ -37,9 +37,7 @@ class _TripProfitSummaryScreenState extends State<TripProfitSummaryScreen> {
             listener: (context, state) {},
             builder: (context, state) {
               if (state is TripProfitSummaryLoading) {
-                return shimmer(
-                  count: 7,
-                );
+                return shimmer();
               } else if (state is TripProfitSummaryError) {
                 return Center(child: Text(state.message));
               } else if (state is TripProfitSummaryLoaded) {
@@ -107,7 +105,7 @@ class _TripProfitSummaryScreenState extends State<TripProfitSummaryScreen> {
                                   SizedBox(width: 8.h),
                                   Expanded(
                                     child: Text(
-                                      '${tripconstants.startDate}: ${_formatDate(widget.trip.startDate)}',
+                                      '${tripconstants.startDate}: ${widget.trip.startDate}',
                                       style: TextStyle(fontSize: 12.h),
                                     ),
                                   ),
@@ -120,7 +118,7 @@ class _TripProfitSummaryScreenState extends State<TripProfitSummaryScreen> {
                                   SizedBox(width: 8.w),
                                   Expanded(
                                     child: Text(
-                                      '${tripconstants.endDate}: ${_formatDate(widget.trip.endDate)}',
+                                      '${tripconstants.endDate}: ${widget.trip.endDate}',
                                       style: TextStyle(fontSize: 12.h),
                                     ),
                                   ),
@@ -130,7 +128,7 @@ class _TripProfitSummaryScreenState extends State<TripProfitSummaryScreen> {
                           ),
                         ),
                       ),
-                      (tripProfitSummary.breakDown.isEmpty)
+                      (tripProfitSummary.expensesByCategory.isEmpty)
                           ? Container(
                               height: 300,
                               child:
@@ -175,11 +173,13 @@ class _TripProfitSummaryScreenState extends State<TripProfitSummaryScreen> {
                                   ),
                                   SizedBox(height: 6.h),
                                   ExpenseTable(
-                                      breakDown: tripProfitSummary.breakDown),
+                                      breakDown:
+                                          tripProfitSummary.expensesByCategory),
                                 ],
                               )),
                         ),
-                        visible: tripProfitSummary.breakDown.isNotEmpty,
+                        visible:
+                            tripProfitSummary.expensesByCategory.isNotEmpty,
                       ),
                       Visibility(
                         child: Card(
@@ -192,43 +192,42 @@ class _TripProfitSummaryScreenState extends State<TripProfitSummaryScreen> {
                               Text(
                                 tripprofitsummary.expensedistribution,
                                 style: TextStyle(
-                                    fontSize: 18.h,
-                                    fontWeight: FontWeight.bold),
+                                  fontSize: 18.h,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                               Container(
                                 margin: EdgeInsets.all(6.h),
                                 padding: EdgeInsets.all(2.h),
                                 child: BreakdownDonutChart(breakdown: {
                                   ExpenseCategory.FUEL: tripProfitSummary
-                                          .breakDown[ExpenseCategory.FUEL]
+                                          .expensesByCategory['FUEL']
                                           ?.toDouble() ??
                                       0.0,
                                   ExpenseCategory.DRIVER_ALLOWANCE:
-                                      tripProfitSummary.breakDown[
-                                                  ExpenseCategory
-                                                      .DRIVER_ALLOWANCE]
+                                      tripProfitSummary.expensesByCategory[
+                                                  'DRIVER_ALLOWANCE']
                                               ?.toDouble() ??
                                           0.0,
                                   ExpenseCategory.TOLL: tripProfitSummary
-                                          .breakDown[ExpenseCategory.TOLL]
-                                          ?.toDouble() ??
+                                          .expensesByCategory['TOLL'] ??
                                       0.0,
                                   ExpenseCategory.MAINTENANCE: tripProfitSummary
-                                          .breakDown[
-                                              ExpenseCategory.MAINTENANCE]
+                                          .expensesByCategory['MAINTENANCE']
                                           ?.toDouble() ??
                                       0.0,
-                                  ExpenseCategory.MISCELLANEOUS:
-                                      tripProfitSummary.breakDown[
-                                                  ExpenseCategory.MISCELLANEOUS]
-                                              ?.toDouble() ??
-                                          0.0,
+                                  ExpenseCategory
+                                      .MISCELLANEOUS: tripProfitSummary
+                                          .expensesByCategory['MISCELLANEOUS']
+                                          ?.toDouble() ??
+                                      0.0,
                                 }),
-                              )
+                              ),
                             ],
                           ),
                         ),
-                        visible: tripProfitSummary.breakDown.isNotEmpty,
+                        visible: tripProfitSummary.expensesByCategory.values
+                            .any((value) => value != 0.0),
                       ),
                       const SizedBox(height: 30),
                     ],

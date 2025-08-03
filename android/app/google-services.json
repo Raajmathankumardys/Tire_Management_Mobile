@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "671828400485",
+    "project_id": "tms11-275e1",
+    "storage_bucket": "tms11-275e1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:671828400485:android:dc05da0afd79a85944298c",
+        "android_client_info": {
+          "package_name": "com.example.yaantrac_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCKrzUqmEKm-ywPumQMPmADgS0KNw0eHD0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

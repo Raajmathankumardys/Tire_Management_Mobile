@@ -6,7 +6,7 @@ class TripProfitSummaryCubit extends Cubit<TripProfitSummaryState> {
   final TripProfitSummaryRepository repository;
   TripProfitSummaryCubit(this.repository) : super(TripProfitSummaryInitial());
 
-  void fetchTripProfitSummary(int tripId) async {
+  void fetchTripProfitSummary(String tripId) async {
     try {
       emit(TripProfitSummaryLoading());
       final tripprofitSummary =

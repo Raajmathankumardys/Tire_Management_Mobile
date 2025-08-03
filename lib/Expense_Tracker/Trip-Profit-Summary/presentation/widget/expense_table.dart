@@ -5,7 +5,7 @@ import 'package:yaantrac_app/Expense_Tracker/Expense/cubit/expense_state.dart';
 import '../../../../helpers/constants.dart';
 
 class ExpenseTable extends StatelessWidget {
-  final Map<ExpenseCategory, dynamic> breakDown;
+  final Map<String, double> breakDown;
 
   ExpenseTable({required this.breakDown});
 
@@ -15,7 +15,7 @@ class ExpenseTable extends StatelessWidget {
 
     return Center(
       child: DataTable(
-        columnSpacing: 35.h,
+        columnSpacing: 25.h,
         columns: [
           DataColumn(
               label: Text(tripprofitsummary.category,

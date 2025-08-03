@@ -1,3 +1,4 @@
+/*
 class Trip {
   final int? id;
   final String source;
@@ -37,3 +38,4 @@ class Trip {
     };
   }
 }
+*/

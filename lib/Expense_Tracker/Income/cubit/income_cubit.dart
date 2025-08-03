@@ -7,7 +7,7 @@ class IncomeCubit extends Cubit<IncomeState> {
   final IncomeRepository repository;
   IncomeCubit(this.repository) : super(IncomeInitial());
 
-  void fetchIncome(int tripId) async {
+  void fetchIncome(String tripId) async {
     try {
       emit(IncomeLoading());
       final income = await repository.getAllIncome(tripId);
@@ -38,9 +38,9 @@ class IncomeCubit extends Cubit<IncomeState> {
     fetchIncome(income.tripId);
   }
 
-  void deleteIncome(Income income, int id) async {
+  void deleteIncome(Income income, String id) async {
     try {
-      await repository.deleteIncome(id);
+      await repository.deleteIncome(id, income.tripId);
       emit(DeletedIncomeState(incomeconstants.deletetoast));
     } catch (e) {
       emit(IncomeError(e.toString()));

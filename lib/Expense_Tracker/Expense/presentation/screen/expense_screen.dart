@@ -25,19 +25,19 @@ import 'add_edit_expense.dart';
 import 'package:intl/intl.dart';
 
 class ExpenseScreen extends StatefulWidget {
-  final int tripId;
+  final String tripId;
   final Trip trip;
-  final int vehicleid;
   final bool isadd;
   final bool isedit;
   final Expense? expense;
+  final String? vehicleId;
   const ExpenseScreen(
       {super.key,
       required this.tripId,
       required this.trip,
-      required this.vehicleid,
       this.isadd = false,
       this.isedit = false,
+      this.vehicleId,
       this.expense});
 
   @override
@@ -90,11 +90,11 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
         return filteredByType;
     }
 
-    return filteredByType
-        .where((e) =>
-            e.expenseDate.isAfter(startDate.subtract(Duration(days: 1))) &&
-            e.expenseDate.isBefore(endDate.add(Duration(days: 1))))
-        .toList();
+    return filteredByType.where((e) {
+      final expenseDate = DateTime.parse(e.expenseDate);
+      return expenseDate.isAfter(startDate.subtract(Duration(days: 1))) &&
+          expenseDate.isBefore(endDate.add(Duration(days: 1)));
+    }).toList();
   }
 
   void _showAddEditModal(BuildContext ctx, [Expense? expense]) {
@@ -107,11 +107,15 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return AddEditExpense(
-          ctx: ctx,
-          expense: expense,
-          tripId: widget.tripId,
-        );
+        return DraggableScrollableSheet(
+            initialChildSize: 0.6.h, // Starts at of screen height
+            minChildSize: 0.6.h, // Minimum height
+            maxChildSize: 0.7.h,
+            expand: false,
+            builder: (context, scrollController) {
+              return AddEditExpense(
+                  ctx: ctx, tripId: widget.tripId, expense: expense);
+            });
       },
     );
   }
@@ -251,9 +255,10 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                       ),
                     ],
                     child: TripViewPage(
-                        tripId: widget.tripId,
-                        trip: widget.trip,
-                        vehicleId: widget.vehicleid),
+                      tripId: widget.tripId,
+                      trip: widget.trip,
+                      vehicleId: widget.vehicleId,
+                    ),
                   ),
                 ),
               );
@@ -523,16 +528,16 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                                                   ),
                                                   InfoCard(
                                                     icon: Icons.calendar_today,
-                                                    value: _formatDate(
-                                                        expense.expenseDate),
+                                                    value: expense.expenseDate,
                                                     iconcolor: Colors.pink,
                                                   ),
                                                   if (expense
-                                                      .description.isNotEmpty)
+                                                      .description!.isNotEmpty)
                                                     InfoCard(
                                                       icon: Icons.description,
-                                                      value:
-                                                          expense.description,
+                                                      value: expense!
+                                                              .description ??
+                                                          "",
                                                       iconcolor:
                                                           Colors.indigoAccent,
                                                     ),

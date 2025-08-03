@@ -24,7 +24,7 @@ import '../../cubit/tire_mapping_state.dart';
 import 'tire_performance_tab.dart';
 
 class CarMappingScreen extends StatefulWidget {
-  final int vehicleId;
+  final String vehicleId;
   final Vehicle vehicle;
   const CarMappingScreen(
       {super.key, required this.vehicleId, required this.vehicle});
@@ -77,9 +77,6 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
     await fetchTirePositions();
     await fetchVehicleAxles();
     await fetchTireMapping(); // <-- Add this!
-    setState(() {
-      selectedTires.clear();
-    });
     if (mounted) {
       setState(() {
         for (var item in getvalue) {
@@ -87,32 +84,32 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
             item.tirePosition: allTires.firstWhere(
               (tire) => item.tireId == tire.id,
               orElse: () => TireInventory(
-                id: item.tireId,
-                serialNo: 'N/A',
-                temp: 0.0,
-                psi: 0.0,
-                dist: 0.0,
-                purchaseDate: null,
-                purchaseCost: 0.0,
-                warrantyPeriod: 0,
-                warrantyExpiry: null,
-                categoryId: 0,
-                location: 'Unknown',
-                brand: 'Unknown',
-                model: 'Unknown',
-                size: 'Unknown',
-              ),
+                  id: item.tireId.toString(),
+                  serialNumber: 'N/A',
+                  temperature: 0.0,
+                  pressure: 0.0,
+                  treadDepth: 0.0,
+                  purchaseDate: '',
+                  price: 0.0,
+                  type: 'Unknown',
+                  brand: 'Unknown',
+                  model: 'Unknown',
+                  size: 'Unknown',
+                  expectedLifespan: 0,
+                  status: TireStatus.REPLACED),
             )
           });
           p1.addAll({
             AddTireMapping(
                 id: item.id,
-                vehicleId: widget.vehicleId,
+                vehicleId: int.parse(widget.vehicleId),
                 axleId: item.axleId,
                 tirePosition: item.tirePosition,
                 tireId: item.tireId)
           });
         }
+      });
+      setState(() {
         isload = false;
       });
     }
@@ -200,7 +197,7 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
                     onChanged: (value) {
                       setState(() {
                         filteredTires = allTires
-                            .where((tire) => tire.serialNo
+                            .where((tire) => tire.serialNumber
                                 .toLowerCase()
                                 .contains(value.toLowerCase()))
                             .toList();
@@ -224,12 +221,12 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
                           ),
                           child: ListTile(
                             title: Text(
-                              '${tire.serialNo} - ${tire.brand} ${tire.model}',
+                              '${tire.serialNumber} - ${tire.brand} ${tire.model}',
                               style:
                                   const TextStyle(fontWeight: FontWeight.w600),
                             ),
                             subtitle: Text(
-                                '${tireinventoryconstants.size}: ${tire.size}, ${tireinventoryconstants.pressure}: ${tire.psi}'),
+                                '${tireinventoryconstants.size}: ${tire.size}, ${tireinventoryconstants.pressure}: ${tire.pressure}'),
                             trailing: const Icon(Icons.arrow_forward_ios,
                                 size: 16, color: Colors.blue),
                             onTap: () => Navigator.of(context).pop(tire),
@@ -302,13 +299,16 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
                         showDeleteConfirmationDialog(
                             context: context,
                             onConfirm: () => {
+                                  setState(() {
+                                    selectedTires.clear();
+                                    filteredPositions.clear();
+                                    p1.clear();
+                                  }),
                                   context
                                       .read<TireMappingCubit>()
                                       .deleteTireMapping(
-                                          widget.vehicleId, selected?.id ?? 0),
-                                  setState(() {
-                                    isload = true;
-                                  }),
+                                          int.parse(widget.vehicleId),
+                                          int.parse(selected!.id!) ?? 0),
                                   fetchData()
                                 },
                             content: tiremappingconstants
@@ -334,7 +334,7 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             Text(
-              selected?.serialNo ?? " ",
+              selected?.serialNumber ?? " ",
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 5),
@@ -351,14 +351,15 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
   }
 
   int getvehicleaxleId(int axleno) {
-    return getaxles
+    return int.parse(getaxles
         .firstWhere((VehicleAxle) => axleno == VehicleAxle.axleNumber,
             orElse: () => VehicleAxle(
-                id: 0,
+                id: "",
                 vehicleId: widget.vehicleId,
-                axleNumber: 0,
-                axlePosition: "Unknown"))
-        .id;
+                axleNumber: "",
+                position: 0,
+                numberOfWheels: 0))
+        .id!);
   }
 
   int? getid(String position) {
@@ -386,7 +387,7 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
           builder: (context) => Provider<TirePerformanceService>(
             create: (context) => TirePerformanceService(),
             child: TirePerformanceTab(
-              getValue: getvalue,
+              getValue: {},
               vehicle: widget.vehicle,
             ),
           ),
@@ -406,12 +407,12 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
         final tire = selectedTires[pos.positionCode]!;
         return AddTireMapping(
             id: getid(pos.positionCode),
-            tireId: tire.id ?? 0,
+            tireId: int.parse(tire!.id!) ?? 0,
             tirePosition: pos.positionCode,
             axleId: pos.positionCode[0] == "F"
                 ? getvehicleaxleId(1)
                 : getvehicleaxleId(2),
-            vehicleId: widget.vehicleId);
+            vehicleId: int.parse(widget.vehicleId));
       }).toList();
       Set<int> uniqueTireIds = {};
       bool allUnique = true;
@@ -426,9 +427,15 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
 
       if (allUnique) {
         if (getvalue.isEmpty) {
+          setState(() {
+            selectedTires.clear();
+            filteredPositions.clear();
+            p1.clear();
+            isload = true;
+          });
           context
               .read<TireMappingCubit>()
-              .addTireMapping(payload, widget.vehicleId);
+              .addTireMapping(payload, int.parse(widget.vehicleId));
           setState(() {
             selectedTires.clear();
           });
@@ -472,24 +479,31 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
             }
           }
           if (post.isNotEmpty) {
+            setState(() {
+              selectedTires.clear();
+              filteredPositions.clear();
+              p1.clear();
+              isload = true;
+            });
             context
                 .read<TireMappingCubit>()
-                .addTireMapping(post, widget.vehicleId);
-            setState(() {
-              isload = true;
-              selectedTires.clear();
-            });
+                .addTireMapping(post, int.parse(widget.vehicleId));
+
             fetchData();
           }
           if (put.isNotEmpty) {
+            setState(() {
+              selectedTires.clear();
+              filteredPositions.clear();
+              p1.clear();
+              isload = true;
+            });
             context
                 .read<TireMappingCubit>()
-                .updateTireMapping(put, widget.vehicleId);
+                .updateTireMapping(put, int.parse(widget.vehicleId));
             setState(() {
-              isload = true;
-              selectedTires.clear();
+              fetchData();
             });
-            fetchData();
           }
         }
         ToastHelper.showCustomToast(context, tiremappingconstants.submitted,
@@ -509,20 +523,6 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
     final isdark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
-        // title: const Text("Car Mapping"),
-        // leading: IconButton(
-        //     onPressed: () {
-        //       Navigator.push(
-        //         context,
-        //         MaterialPageRoute(
-        //           builder: (context) => HomeScreen(),
-        //         ),
-        //       );
-        //     },
-        //     icon: Icon(
-        //       Icons.arrow_back_ios,
-        //       color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
-        //     )),
         actions: [
           !isaction
               ? IconButton(
@@ -538,7 +538,7 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
             onPressed: () => {
                   context
                       .read<TireMappingCubit>()
-                      .fetchTireMapping(widget.vehicleId)
+                      .fetchTireMapping(int.parse(widget.vehicleId))
                 },
             icon: Icon(
               Icons.refresh,
@@ -568,7 +568,7 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
           }
         },
         builder: (context, state) {
-          if (state is TireMappingLoading) {
+          if (state is TireMappingLoading || isload) {
             return shimmer(
               count: 6,
             );
@@ -576,79 +576,76 @@ class _CarMappingScreenState extends State<CarMappingScreen> {
             String updatedMessage = state.message.toString();
             return Center(child: Text(updatedMessage));
           } else if (state is TireMappingLoaded) {
-            return isload
-                ? shimmer(
-                    count: 6,
-                  )
-                : Center(
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Car Frame
-                        SizedBox(
-                          width: 350,
-                          height: 350,
-                          child: CustomPaint(
-                            painter: CarFramePainter(),
-                          ),
-                        ),
-
-                        // Axle Labels
-                        const Positioned(
-                            top: 0,
-                            child: LabelChip(tiremappingconstants.frontaxle)),
-                        const Positioned(
-                            bottom: 0,
-                            child: LabelChip(tiremappingconstants.rearaxle)),
-
-                        // Tires
-                        Positioned(
-                          top: 10,
-                          left: 0,
-                          child: tireBox(
-                              filteredPositions.firstWhere(
-                                  (p) =>
-                                      p.positionCode ==
-                                      tiremappingconstants.fl1,
-                                  orElse: () => TirePosition(
-                                      positionCode: "",
-                                      description: "",
-                                      id: 0)),
-                              isdark),
-                        ),
-                        Positioned(
-                          top: 10,
-                          right: 0,
-                          child: tireBox(
-                              filteredPositions.firstWhere(
-                                  (p) =>
-                                      p.positionCode ==
-                                      tiremappingconstants.fr1,
-                                  orElse: () => TirePosition(
-                                      positionCode: "",
-                                      description: "",
-                                      id: 0)),
-                              isdark),
-                        ),
-                        Positioned(
-                          bottom: 10,
-                          left: 0,
-                          child: tireBox(
-                              filteredPositions.firstWhere((p) =>
-                                  p.positionCode == tiremappingconstants.rl1),
-                              isdark),
-                        ),
-                        Positioned(
-                          bottom: 10,
-                          right: 0,
-                          child: tireBox(
-                              filteredPositions.firstWhere((p) =>
-                                  p.positionCode == tiremappingconstants.rr1),
-                              isdark),
-                        ),
-                      ],
+            return Center(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Car Frame
+                  SizedBox(
+                    width: 350,
+                    height: 350,
+                    child: CustomPaint(
+                      painter: CarFramePainter(),
                     ),
-                  );
+                  ),
+
+                  // Axle Labels
+                  const Positioned(
+                      top: 0, child: LabelChip(tiremappingconstants.frontaxle)),
+                  const Positioned(
+                      bottom: 0,
+                      child: LabelChip(tiremappingconstants.rearaxle)),
+
+                  // Tires
+                  Positioned(
+                    top: 10,
+                    left: 0,
+                    child: tireBox(
+                        filteredPositions.firstWhere(
+                            (p) => p.positionCode == tiremappingconstants.fl1,
+                            orElse: () => TirePosition(
+                                positionCode: "",
+                                description: "",
+                                id: "",
+                                side: "None",
+                                axleNumber: -1,
+                                position: -1)),
+                        isdark),
+                  ),
+                  Positioned(
+                    top: 10,
+                    right: 0,
+                    child: tireBox(
+                        filteredPositions.firstWhere(
+                            (p) => p.positionCode == tiremappingconstants.fr1,
+                            orElse: () => TirePosition(
+                                positionCode: "",
+                                description: "",
+                                id: "",
+                                side: "None",
+                                axleNumber: -1,
+                                position: -1)),
+                        isdark),
+                  ),
+                  Positioned(
+                    bottom: 10,
+                    left: 0,
+                    child: tireBox(
+                        filteredPositions.firstWhere(
+                            (p) => p.positionCode == tiremappingconstants.rl1),
+                        isdark),
+                  ),
+                  Positioned(
+                    bottom: 10,
+                    right: 0,
+                    child: tireBox(
+                        filteredPositions.firstWhere(
+                            (p) => p.positionCode == tiremappingconstants.rr1),
+                        isdark),
+                  ),
+                ],
+              ),
+            );
           }
           return Center(child: Text(tiremappingconstants.nomappingfound));
         },
@@ -697,3 +694,17 @@ class LabelChip extends StatelessWidget {
     );
   }
 }
+// title: const Text("Car Mapping"),
+// leading: IconButton(
+//     onPressed: () {
+//       Navigator.push(
+//         context,
+//         MaterialPageRoute(
+//           builder: (context) => HomeScreen(),
+//         ),
+//       );
+//     },
+//     icon: Icon(
+//       Icons.arrow_back_ios,
+//       color: isdark ? AppColors.darkaddbtn : AppColors.lightaddbtn,
+//     )),

@@ -1,3 +1,4 @@
+/*
 class TripProfitSummaryModel {
   final int tripId;
   final double totalIncome;
@@ -38,3 +39,4 @@ class TripProfitSummaryModel {
     return 'TripProfitSummaryModel(tripId: $tripId, totalIncome: $totalIncome, totalExpenses: $totalExpenses, profit: $profit,breakdown:$breakDown)';
   }
 }
+*/

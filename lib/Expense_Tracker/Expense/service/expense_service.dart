@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:yaantrac_app/helpers/DioClient.dart';
 import '../../../helpers/constants.dart';
 import '../../../helpers/exception.dart';
 import '../cubit/expense_state.dart';
@@ -14,14 +14,13 @@ class ExpenseService {
   }
 
   ExpenseService._internal() {
-    _dio = Dio(BaseOptions(baseUrl: dotenv.env["BASE_URL"] ?? " "));
+    _dio = DioClient.createDio();
   }
 
-  Future<List<Expense>> fetchExpense(int tripId) async {
-    print(tripId);
+  Future<List<Expense>> fetchExpense(String tripId) async {
     try {
       final response = await _dio.get(expenseconstants.endpointget(tripId));
-      return (response.data['data'] as List)
+      return (response.data['data']['content'] as List)
           .map((v) => Expense.fromJson(v))
           .toList(growable: false);
       // return [
@@ -78,7 +77,7 @@ class ExpenseService {
 
   Future<void> addExpense(Expense expense) async {
     try {
-      await _dio.post(expenseconstants.endpoint(expense.tripId),
+      await _dio.post(expenseconstants.endpointget(expense.tripId),
           data: expense.toJson());
       //print(expense.toJson());
     } on DioException catch (e) {
@@ -88,7 +87,7 @@ class ExpenseService {
 
   Future<void> updateExpense(Expense expense) async {
     try {
-      await _dio.put(expenseconstants.endpoint(expense.id),
+      await _dio.put(expenseconstants.endpoint(expense.id, expense.tripId),
           data: expense.toJson());
       //print(expense.toJson());
     } on DioException catch (e) {
@@ -96,9 +95,9 @@ class ExpenseService {
     }
   }
 
-  Future<void> deleteExpense(int id) async {
+  Future<void> deleteExpense(String id, String tripId) async {
     try {
-      await _dio.delete(expenseconstants.endpoint(id));
+      await _dio.delete(expenseconstants.endpoint(id, tripId));
       //print(id);
     } on DioException catch (e) {
       throw DioErrorHandler.handle(e);

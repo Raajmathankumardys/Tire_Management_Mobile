@@ -26,18 +26,8 @@ class Axle {
   Axle({required this.label, required this.tires});
 }
 
-String getDescriptionByPositionCode(
-    List<TirePosition> allPositions, String code) {
-  final match = allPositions.firstWhere(
-    (pos) => pos.positionCode == code,
-    orElse: () =>
-        TirePosition(positionCode: '', description: 'Unknown', id: -1),
-  );
-  return match.description;
-}
-
 class AxleConfiguration extends StatefulWidget {
-  final int vehicleId;
+  final String vehicleId;
   final Vehicle vehicle;
   const AxleConfiguration(
       {super.key, required this.vehicleId, required this.vehicle});
@@ -62,6 +52,21 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
     fetchData();
   }
 
+  String getDescriptionByPositionCode(
+      List<TirePosition> allPositions, String code) {
+    final match = allPositions.firstWhere(
+      (pos) => pos.positionCode == code,
+      orElse: () => TirePosition(
+          positionCode: '',
+          description: 'Unknown',
+          id: "",
+          side: "None",
+          axleNumber: -1,
+          position: -1),
+    );
+    return match.description;
+  }
+
   Future<void> showDeleteConfirmationDialog({
     required BuildContext context,
     required VoidCallback onConfirm,
@@ -78,11 +83,17 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
   }
 
   Future<void> fetchData() async {
-    axles = [
-      Axle(label: 'Front', tires: List.filled(2, null)),
-      //Axle(label: 'Axle 2', tires: List.filled(4, null)),
-      Axle(label: 'Rear', tires: List.filled(2, null)),
-    ];
+    await fetchVehicleAxles();
+    for (var i in getaxles) {
+      axles.add(Axle(
+          label: i.axleNumber, tires: List.filled(i.numberOfWheels, null)));
+    }
+    // axles = [
+    //   Axle(label: 'Front', tires: List.filled(2, null)),
+    //   Axle(label: 'Axle 2', tires: List.filled(4, null)),
+    //   Axle(label: 'Rear', tires: List.filled(4, null)),
+    // ];
+
     await fetchTires();
     await fetchTirePositions();
     await fetchTireMapping();
@@ -98,49 +109,57 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
                 axle.tires[i] = availableTires.firstWhere(
                   (TireInventory) => g.tireId == TireInventory.id,
                   orElse: () => TireInventory(
-                    // <-- replace with your model's default constructor or a dummy
-                    id: 0,
-                    serialNo: 'N/A',
-                    temp: 0.0,
-                    psi: 0.0,
-                    dist: 0.0,
-                    purchaseDate: null,
-                    purchaseCost: 0.0,
-                    warrantyPeriod: 0,
-                    warrantyExpiry: null,
-                    categoryId: 0,
-                    location: 'Unknown',
-                    brand: 'Unknown',
-                    model: 'Unknown',
-                    size: 'Unknown',
-                  ),
+                      // <-- replace with your model's default constructor or a dummy
+                      id: '',
+                      serialNumber: 'N/A',
+                      temperature: 0.0,
+                      pressure: 0.0,
+                      treadDepth: 0.0,
+                      purchaseDate: '',
+                      price: 0.0,
+                      type: 'Unknown',
+                      brand: 'Unknown',
+                      model: 'Unknown',
+                      size: 'Unknown',
+                      expectedLifespan: 0,
+                      status: TireStatus.REPLACED),
                 );
                 selectedtire.add(AddTireMapping(
                     id: g.id,
                     tireId: g.tireId!,
                     tirePosition: g.tirePosition,
-                    axleId: getaxles
-                        .firstWhere((VehicleAxle) => g.axleId == VehicleAxle.id,
-                            orElse: () => VehicleAxle(
-                                id: 0,
-                                vehicleId: widget.vehicleId,
-                                axleNumber: 0,
-                                axlePosition: "Unknown"))
-                        .id,
-                    vehicleId: widget.vehicleId));
+                    vehicleId: int.parse(widget.vehicleId),
+                    axleId: int.parse(
+                      getaxles
+                          .firstWhere(
+                              (VehicleAxle) => g.axleId == VehicleAxle.id,
+                              orElse: () => VehicleAxle(
+                                    id: "",
+                                    vehicleId: widget.vehicleId,
+                                    axleNumber: "",
+                                    position: 0,
+                                    numberOfWheels: 0,
+                                  ))
+                          .id!,
+                    )));
                 selectedtire1.add(AddTireMapping(
                     id: g.id,
                     tireId: g.tireId!,
                     tirePosition: g.tirePosition,
-                    axleId: getaxles
-                        .firstWhere((VehicleAxle) => g.axleId == VehicleAxle.id,
-                            orElse: () => VehicleAxle(
-                                id: 0,
-                                vehicleId: widget.vehicleId,
-                                axleNumber: 0,
-                                axlePosition: "Unknown"))
-                        .id,
-                    vehicleId: widget.vehicleId));
+                    axleId: int.parse(
+                      getaxles
+                          .firstWhere(
+                              (VehicleAxle) => g.axleId == VehicleAxle.id,
+                              orElse: () => VehicleAxle(
+                                    id: "",
+                                    vehicleId: widget.vehicleId,
+                                    axleNumber: "",
+                                    position: 0,
+                                    numberOfWheels: 0,
+                                  ))
+                          .id!,
+                    ),
+                    vehicleId: int.parse(widget.vehicleId)));
               }
             }
           }
@@ -184,7 +203,7 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
           builder: (context) => Provider<TirePerformanceService>(
             create: (context) => TirePerformanceService(),
             child: TirePerformanceTab(
-              getValue: getvalue,
+              getValue: {},
               vehicle: widget.vehicle,
             ),
           ),
@@ -214,7 +233,6 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
   }
 
   Future<void> fetchTires() async {
-    fetchVehicleAxles();
     while (true) {
       final state = context.read<TireInventoryCubit>().state;
       if (state is TireInventoryLoaded) {
@@ -252,7 +270,7 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
                     onChanged: (value) {
                       setState(() {
                         filteredTires = availableTires
-                            .where((tire) => tire.serialNo
+                            .where((tire) => tire.serialNumber
                                 .toLowerCase()
                                 .contains(value.toLowerCase()))
                             .toList();
@@ -274,12 +292,12 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
                           ),
                           child: ListTile(
                             title: Text(
-                              '${tire.serialNo} - ${tire.brand} ${tire.model}',
+                              '${tire.serialNumber} - ${tire.brand} ${tire.model}',
                               style:
                                   const TextStyle(fontWeight: FontWeight.w600),
                             ),
-                            subtitle:
-                                Text('Size: ${tire.size}, PSI: ${tire.psi}'),
+                            subtitle: Text(
+                                'Size: ${tire.size}, PSI: ${tire.pressure}'),
                             trailing: const Icon(Icons.arrow_forward_ios,
                                 size: 16, color: Colors.blue),
                             onTap: () => Navigator.of(context).pop(tire),
@@ -397,8 +415,8 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
                                 context
                                     .read<TireMappingCubit>()
                                     .deleteTireMapping(
-                                      widget.vehicleId,
-                                      tire.id!,
+                                      int.parse(widget.vehicleId),
+                                      int.parse(tire.id!),
                                     );
 
                                 fetchData(); // Refresh data
@@ -414,7 +432,7 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
                       height: 10,
                     )
                   ],
-                  Text(tire.serialNo,
+                  Text(tire.serialNumber,
                       style:
                           const TextStyle(color: Colors.white, fontSize: 12)),
                   Text(tire.brand,
@@ -489,7 +507,7 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
       if (getvalue.isEmpty) {
         context
             .read<TireMappingCubit>()
-            .addTireMapping(selectedtire, widget.vehicleId);
+            .addTireMapping(selectedtire, int.parse(widget.vehicleId));
       } else {
         List idswap = [];
         int? tp;
@@ -527,12 +545,12 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
         if (post.isNotEmpty) {
           context
               .read<TireMappingCubit>()
-              .addTireMapping(post, widget.vehicleId);
+              .addTireMapping(post, int.parse(widget.vehicleId));
         }
         if (put.isNotEmpty) {
           context
               .read<TireMappingCubit>()
-              .updateTireMapping(put, widget.vehicleId);
+              .updateTireMapping(put, int.parse(widget.vehicleId));
         }
       }
       setState(() {
@@ -553,7 +571,7 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
             onPressed: () => {
                   context
                       .read<TireMappingCubit>()
-                      .fetchTireMapping(widget.vehicleId)
+                      .fetchTireMapping(int.parse(widget.vehicleId))
                 },
             icon: Icon(
               Icons.refresh,
@@ -697,30 +715,35 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
                                                           id: getid(
                                                               getTirePositionLabel(
                                                                   axle, i)),
-                                                          tireId: selected.id!,
+                                                          tireId: int.parse(
+                                                              selected.id!),
                                                           tirePosition:
                                                               getTirePositionLabel(
                                                                   axle, i),
-                                                          axleId: getaxles
-                                                              .firstWhere(
-                                                                (vehicleAxle) =>
-                                                                    getAxleId(axle
-                                                                        .label) ==
-                                                                    vehicleAxle
-                                                                        .axleNumber,
-                                                                orElse: () =>
-                                                                    VehicleAxle(
-                                                                  id: 0,
-                                                                  vehicleId: widget
-                                                                      .vehicleId,
-                                                                  axleNumber: 0,
-                                                                  axlePosition:
-                                                                      "Unknown",
-                                                                ),
-                                                              )
-                                                              .id,
-                                                          vehicleId:
-                                                              widget.vehicleId,
+                                                          axleId: int.parse(
+                                                            getaxles
+                                                                .firstWhere(
+                                                                    (VehicleAxle) =>
+                                                                        getAxleId(axle
+                                                                            .label) ==
+                                                                        VehicleAxle
+                                                                            .id,
+                                                                    orElse: () =>
+                                                                        VehicleAxle(
+                                                                          id: "",
+                                                                          vehicleId:
+                                                                              widget.vehicleId,
+                                                                          axleNumber:
+                                                                              "",
+                                                                          position:
+                                                                              0,
+                                                                          numberOfWheels:
+                                                                              0,
+                                                                        ))
+                                                                .id!,
+                                                          ),
+                                                          vehicleId: int.parse(
+                                                              widget.vehicleId),
                                                         ),
                                                       );
                                                     });
@@ -767,30 +790,35 @@ class _AxleConfigurationState extends State<AxleConfiguration> {
                                                           id: getid(
                                                               getTirePositionLabel(
                                                                   axle, index)),
-                                                          tireId: selected.id!,
+                                                          tireId: int.parse(
+                                                              selected.id!),
                                                           tirePosition:
                                                               getTirePositionLabel(
                                                                   axle, index),
-                                                          axleId: getaxles
-                                                              .firstWhere(
-                                                                (vehicleAxle) =>
-                                                                    getAxleId(axle
-                                                                        .label) ==
-                                                                    vehicleAxle
-                                                                        .axleNumber,
-                                                                orElse: () =>
-                                                                    VehicleAxle(
-                                                                  id: 0,
-                                                                  vehicleId: widget
-                                                                      .vehicleId,
-                                                                  axleNumber: 0,
-                                                                  axlePosition:
-                                                                      "Unknown",
-                                                                ),
-                                                              )
-                                                              .id,
-                                                          vehicleId:
-                                                              widget.vehicleId,
+                                                          axleId: int.parse(
+                                                            getaxles
+                                                                .firstWhere(
+                                                                    (VehicleAxle) =>
+                                                                        getAxleId(axle
+                                                                            .label) ==
+                                                                        VehicleAxle
+                                                                            .id,
+                                                                    orElse: () =>
+                                                                        VehicleAxle(
+                                                                          id: "",
+                                                                          vehicleId:
+                                                                              widget.vehicleId,
+                                                                          axleNumber:
+                                                                              "",
+                                                                          position:
+                                                                              0,
+                                                                          numberOfWheels:
+                                                                              0,
+                                                                        ))
+                                                                .id!,
+                                                          ),
+                                                          vehicleId: int.parse(
+                                                              widget.vehicleId),
                                                         ),
                                                       );
                                                     });

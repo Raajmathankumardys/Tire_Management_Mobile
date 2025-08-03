@@ -20,15 +20,15 @@ import '../../../Income/service/income_service.dart';
 import '../../../Trips/cubit/trips_state.dart';
 
 class TransactionScreen extends StatefulWidget {
-  final int tripId;
-  final int vehicleid;
+  final String tripId;
   final Trip trip;
   final bool isadd;
+  final String? vehicleId;
   const TransactionScreen(
       {super.key,
       required this.tripId,
       required this.trip,
-      required this.vehicleid,
+      this.vehicleId,
       this.isadd = false});
 
   @override
@@ -53,7 +53,6 @@ class _TransactionScreenState extends State<TransactionScreen> {
           TextButton(
             style: TextButton.styleFrom(backgroundColor: Colors.blueAccent),
             onPressed: () {
-              print(widget.tripId);
               Navigator.pop(context); // Close the dialog
               Navigator.push(
                   context,
@@ -75,8 +74,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
                         child: IncomeScreen(
                           tripId: widget.tripId,
                           trip: widget.trip,
-                          vehicleid: widget.vehicleid,
                           isadd: true,
+                          vehicleId: widget.vehicleId,
                         )),
                   ));
             },
@@ -108,11 +107,10 @@ class _TransactionScreenState extends State<TransactionScreen> {
                           ),
                         ],
                         child: ExpenseScreen(
-                          tripId: widget.tripId,
-                          trip: widget.trip,
-                          vehicleid: widget.vehicleid,
-                          isadd: true,
-                        )),
+                            tripId: widget.tripId,
+                            trip: widget.trip,
+                            isadd: true,
+                            vehicleId: widget.vehicleId)),
                   ));
             },
             child: const Text(
@@ -143,9 +141,6 @@ class _TransactionScreenState extends State<TransactionScreen> {
       await Future.delayed(Duration(milliseconds: 10));
     }
     _waitForExpense();
-    setState(() {
-      isload = false;
-    });
   }
 
   void _waitForExpense() async {
@@ -157,6 +152,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
           var a = 0.0;
           expenselist.forEach((i) => a += i.amount);
           expenseamount = a;
+          isload = false;
         });
         break;
       }
@@ -233,7 +229,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
             ? shimmer()
             : SingleChildScrollView(
                 child: Padding(
-                  padding: const EdgeInsets.all(12.0),
+                  padding: EdgeInsets.all(8.h),
                   child: Column(
                     children: [
                       Row(
@@ -307,8 +303,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
                                       .map((i) => _transactionTile(
                                           amount: i.amount.toString(),
                                           isdark: isdark,
-                                          date: _formatDate(i.expenseDate),
-                                          description: i.description,
+                                          date: i.expenseDate,
+                                          description: i.description!,
                                           type: i.category
                                               .toString()
                                               .split('.')
@@ -357,8 +353,10 @@ class _TransactionScreenState extends State<TransactionScreen> {
                             // _statSubRow("Per year", "₹110.0"),
                             _statSubRow(
                                 tripprofitsummary.pertransaction,
-                                (expenseamount / expenselist.length)
-                                    .toStringAsFixed(2)),
+                                (expenseamount / expenselist.length).isNaN
+                                    ? '0.00'
+                                    : (expenseamount / expenselist.length)
+                                        .toStringAsFixed(2)),
                             const SizedBox(height: 16),
                             const Text(tripprofitsummary.averageincome,
                                 style: TextStyle(fontWeight: FontWeight.bold)),
@@ -371,8 +369,10 @@ class _TransactionScreenState extends State<TransactionScreen> {
                             //     "Per year", (incomeamount / 12).toStringAsFixed(2)),
                             _statSubRow(
                                 tripprofitsummary.pertransaction,
-                                (incomeamount / incomelist.length)
-                                    .toStringAsFixed(2)),
+                                (incomeamount / incomelist.length).isNaN
+                                    ? '0.0'
+                                    : (incomeamount / incomelist.length)
+                                        .toStringAsFixed(2)),
                           ],
                         ),
                       ),
@@ -447,7 +447,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                       child: ExpenseScreen(
                         tripId: widget.tripId,
                         trip: widget.trip,
-                        vehicleid: widget.vehicleid,
+                        vehicleId: widget.vehicleId,
                       )),
                 ))
           }
@@ -473,7 +473,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                       child: IncomeScreen(
                         tripId: widget.tripId,
                         trip: widget.trip,
-                        vehicleid: widget.vehicleid,
+                        vehicleId: widget.vehicleId,
                       )),
                 ))
           }
@@ -491,7 +491,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
               backgroundColor: color,
               child: Icon(icon, color: Colors.white),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 5.w),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -538,12 +538,11 @@ class _TransactionScreenState extends State<TransactionScreen> {
                       ),
                     ],
                     child: IncomeScreen(
-                      tripId: widget.tripId,
-                      trip: widget.trip,
-                      vehicleid: widget.vehicleid,
-                      isedit: true,
-                      income: income,
-                    )),
+                        tripId: widget.tripId,
+                        trip: widget.trip,
+                        isedit: true,
+                        income: income,
+                        vehicleId: widget.vehicleId)),
               ));
         } else {
           Navigator.push(
@@ -566,9 +565,9 @@ class _TransactionScreenState extends State<TransactionScreen> {
                     child: ExpenseScreen(
                       tripId: widget.tripId,
                       trip: widget.trip,
-                      vehicleid: widget.vehicleid,
                       isedit: true,
                       expense: expense,
+                      vehicleId: widget.vehicleId,
                     )),
               ));
         }

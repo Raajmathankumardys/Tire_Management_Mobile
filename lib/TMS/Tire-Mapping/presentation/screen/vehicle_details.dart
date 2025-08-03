@@ -25,41 +25,40 @@ class VehicleInfoCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Vehicle Icon
-              Center(
+              /*Center(
                 child: FaIcon(
-                  vehicle.axleNo <= 2
+                  vehicle.numberOfAxles! <= 2
                       ? FontAwesomeIcons.carSide
                       : FontAwesomeIcons.truckMoving,
-                  size: 65.sp,
+                  size: 35.sp,
                   color: Colors.indigo,
                 ),
               ),
-              SizedBox(height: 22.h),
-
-              // License Plate
+              SizedBox(height: 5.h),
+*/
               Text(
                 tiremappingconstants.vehicledetailslicense,
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: 15.sp,
                   letterSpacing: 2,
                   color: Colors.grey.shade500,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'RobotoMono',
                 ),
               ),
-              SizedBox(height: 6.h),
+              SizedBox(height: 3.h),
               Text(
-                vehicle.licensePlate,
+                vehicle.vehicleNumber,
                 style: TextStyle(
-                  fontSize: 26.sp,
+                  fontSize: 20.sp,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1.5,
                   fontFamily: 'Poppins',
                 ),
               ),
               Divider(
-                height: 35.h,
-                thickness: 1.5,
+                height: 20.h,
+                thickness: 3,
                 color: Colors.grey.shade400,
                 indent: 30.w,
                 endIndent: 30.w,
@@ -68,36 +67,61 @@ class VehicleInfoCard extends StatelessWidget {
               // Info Rows
               _buildDetailRow(
                   FaIcon(
-                    vehicle.axleNo <= 2
-                        ? FontAwesomeIcons.carTunnel
-                        : FontAwesomeIcons.truckPickup,
-                    size: 24.0,
+                    /*vehicle.numberOfAxles! <= 2
+                        ? FontAwesomeIcons.carTunnel*/
+                    FontAwesomeIcons.truckPickup,
+                    size: 24.sp,
                     color: Colors.blue.shade600,
                   ),
                   vehicleconstants.name,
-                  vehicle.name,
+                  vehicle.vehicleMake,
                   isdark),
               _buildDetailRow(
-                  Icon(Icons.category,
-                      size: 24.sp, color: Colors.blue.shade700),
+                  SvgPicture.asset(
+                    'assets/vectors/tire_icon_1.svg',
+                    width: 24.sp,
+                    height: 24.sp,
+                    color: Colors.blue.shade600,
+                  ),
                   vehicleconstants.type,
-                  vehicle.type,
+                  vehicle.vehicleTypeId,
                   isdark),
               _buildDetailRow(
                   Icon(Icons.calendar_today_rounded,
                       size: 24.sp, color: Colors.blue.shade700),
                   vehicleconstants.year,
-                  vehicle.manufactureYear.toString(),
+                  vehicle.vehicleMake,
                   isdark),
               _buildDetailRow(
                   SvgPicture.asset(
-                    tiremappingconstants.axlepath,
+                    'assets/vectors/income.svg',
                     width: 24.sp,
                     height: 24.sp,
                     color: Colors.blue.shade600,
                   ),
-                  vehicleconstants.axleno,
-                  vehicle.axleNo.toString(),
+                  'Fleet Number',
+                  vehicle.policyNumber,
+                  isdark),
+              _buildDetailRow(
+                  SvgPicture.asset(
+                    'assets/vectors/tire_icon_3.svg',
+                    width: 24.sp,
+                    height: 24.sp,
+                    color: Colors.blue.shade600,
+                  ),
+                  'Model',
+                  vehicle.vehicleModel,
+                  isdark),
+              _buildDetailRow(
+                  Icon(Icons.precision_manufacturing,
+                      size: 24.sp, color: Colors.blue.shade700),
+                  'Make',
+                  vehicle.vehicleMake,
+                  isdark),
+              _buildDetailRow(
+                  Icon(Icons.speed, size: 24.sp, color: Colors.blue.shade700),
+                  'Current Odometer',
+                  vehicle.currentOdometer.toString(),
                   isdark),
             ],
           ),
@@ -108,11 +132,11 @@ class VehicleInfoCard extends StatelessWidget {
 
   Widget _buildDetailRow(Widget icon, String title, String value, bool isdark) {
     return Container(
-      margin: EdgeInsets.only(bottom: 18.h),
+      margin: EdgeInsets.only(bottom: 8.h),
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
       decoration: BoxDecoration(
         color: isdark ? Colors.grey.shade800 : Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(18.r),
+        borderRadius: BorderRadius.circular(20.r),
       ),
       child: Row(
         children: [

@@ -1,39 +1,61 @@
+import 'package:intl/intl.dart';
+
+enum TripStatus { PLANNED, ACTIVE, COMPLETED, CANCELLED }
+
 class Trip {
-  final int? id;
+  final String? id;
+  final String vehicleId;
+  final String driverId;
   final String source;
   final String destination;
-  final DateTime startDate;
-  final DateTime endDate;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final String startDate;
+  final String endDate;
+  final TripStatus status;
+  final double distance;
+  final double income;
+  final String? description;
   Trip(
       {required this.id,
+      required this.vehicleId,
+      required this.driverId,
       required this.source,
       required this.destination,
       required this.startDate,
       required this.endDate,
-      required this.createdAt,
-      required this.updatedAt});
+      required this.status,
+      required this.distance,
+      required this.income,
+      required this.description});
   factory Trip.fromJson(Map<String, dynamic> json) {
     return Trip(
-      id: json['id'],
-      source: json['source'],
-      destination: json['destination'],
-      startDate: DateTime.parse(json['startDate']),
-      endDate: DateTime.parse(json['endDate']),
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-    );
+        id: json['id'],
+        source: json['source'],
+        destination: json['destination'],
+        startDate: json['startDate'],
+        endDate: json['endDate'],
+        status: TripStatus.values.firstWhere(
+          (e) => e.toString().split('.').last == json['status'],
+          orElse: () => TripStatus.ACTIVE,
+        ),
+        income: json['income'],
+        description: json['description'],
+        distance: json['distance'],
+        driverId: json['driverId'],
+        vehicleId: json['vehicleId']);
   }
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'source': source,
       'destination': destination,
-      'startDate': startDate.toIso8601String(),
-      'endDate': endDate.toIso8601String(),
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
+      'startDate': startDate,
+      'endDate': endDate,
+      'distance': distance,
+      'income': income,
+      'status': status.toString().split('.').last,
+      'vehicleId': vehicleId,
+      'driverId': driverId,
+      "description": description
     };
   }
 }

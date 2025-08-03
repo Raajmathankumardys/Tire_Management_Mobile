@@ -85,7 +85,7 @@ class _add_edit_modal_tire_expenseState
                       dropdownItems: tires.map((t) {
                         return DropdownMenuItem<String>(
                           value: t.id.toString(),
-                          child: Text(t.serialNo),
+                          child: Text(t.serialNumber),
                         );
                       }).toList(),
                       validator: (value) {

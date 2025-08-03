@@ -6,6 +6,6 @@ class TripProfitSummaryRepository {
 
   TripProfitSummaryRepository(this.service);
 
-  Future<TripProfitSummary> getAllTripProfitSummary(int tripId) =>
+  Future<TripProfitSummary> getAllTripProfitSummary(String tripId) =>
       service.fetchTripProfitSummary(tripId);
 }

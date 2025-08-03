@@ -8,9 +8,11 @@ class VehicleRepository {
 
   Future<List<Vehicle>> getAllVehicles() => service.fetchVehicles();
 
+  Future<Vehicle> getVehicleById(String id) => service.fetchVehicleById(id);
+
   Future<void> addVehicle(Vehicle vehicle) => service.addVehicle(vehicle);
 
   Future<void> updateVehicle(Vehicle vehicle) => service.updateVehicle(vehicle);
 
-  Future<void> deleteVehicle(int id) => service.deleteVehicle(id);
+  Future<void> deleteVehicle(String id) => service.deleteVehicle(id);
 }

@@ -1,20 +1,20 @@
+import 'package:intl/intl.dart';
+
 class Income {
-  final int? id;
-  final int tripId;
+  final String? id;
+  final String tripId;
   final double amount;
+  final String incomeSource;
   final DateTime incomeDate;
   final String description;
-  final DateTime createdAt;
-  final DateTime updatedAt;
 
   Income({
     this.id,
     required this.tripId,
     required this.amount,
+    required this.incomeSource,
     required this.incomeDate,
     required this.description,
-    required this.createdAt,
-    required this.updatedAt,
   });
 
   factory Income.fromJson(Map<String, dynamic> json) {
@@ -22,10 +22,9 @@ class Income {
       id: json['id'],
       tripId: json['tripId'],
       amount: (json['amount'] as num).toDouble(),
-      incomeDate: DateTime.parse(json['incomeDate']),
+      incomeDate: DateFormat('yyyy-MM-dd').parse(json['incomeDate']),
       description: json['description'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
+      incomeSource: json['incomeSource'],
     );
   }
 
@@ -34,10 +33,9 @@ class Income {
       'id': id,
       'tripId': tripId,
       'amount': amount,
-      'incomeDate': incomeDate.toIso8601String(),
+      'incomeDate': DateFormat('yyyy-MM-dd').format(incomeDate),
       'description': description,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
+      'incomeSource': incomeSource,
     };
   }
 }

@@ -14,13 +14,14 @@ class NotificationScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.blueAccent,
         centerTitle: true,
-        leading: Text(''),
-        // leading: IconButton(
-        //     onPressed: () {},
-        //     icon: Icon(
-        //       Icons.arrow_back_ios,
-        //       color: Colors.white,
-        //     )),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(
+              Icons.arrow_back_ios,
+              color: Colors.white,
+            )),
         title: const Center(
           child: Text(
             notifcationconstants.appbar,

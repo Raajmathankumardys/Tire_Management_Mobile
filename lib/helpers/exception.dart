@@ -7,7 +7,7 @@ class DioErrorHandler {
         case 400:
           return "Bad request: ${e.response!.data}";
         case 401:
-          return "Unauthorized access. Please log in.";
+          return "Token Expired. Please log in.";
         case 403:
           return "Forbidden: You don’t have permission.";
         case 404:

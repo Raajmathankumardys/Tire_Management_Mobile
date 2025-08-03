@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../helpers/constants.dart';
 import '../../cubit/tire_performance_state.dart';
 
-class Chart extends StatelessWidget {
+class Chart extends StatefulWidget {
   final List<TirePerformance> tirePerformances;
   final String parameter;
 
@@ -14,18 +14,23 @@ class Chart extends StatelessWidget {
     required this.parameter,
   });
 
+  @override
+  State<Chart> createState() => _ChartState();
+}
+
+class _ChartState extends State<Chart> {
+  final ScrollController _scrollController = ScrollController();
+
   List<FlSpot> getSpots() {
-    List<TirePerformance> last20Performances = tirePerformances.length > 20
-        ? tirePerformances.sublist(tirePerformances.length - 20)
-        : tirePerformances;
     return List.generate(
-      last20Performances.length,
-      (index) => FlSpot(index.toDouble(), _getValue(last20Performances[index])),
+      widget.tirePerformances.length,
+      (index) =>
+          FlSpot(index.toDouble(), _getValue(widget.tirePerformances[index])),
     );
   }
 
   double _getValue(TirePerformance model) {
-    switch (parameter) {
+    switch (widget.parameter) {
       case tireperformancesconstants.pressure:
         return model.pressure;
       case tireperformancesconstants.temperature:
@@ -42,7 +47,7 @@ class Chart extends StatelessWidget {
   }
 
   LinearGradient getGradient() {
-    switch (parameter) {
+    switch (widget.parameter) {
       case tireperformancesconstants.pressure:
         return LinearGradient(colors: [Colors.blue, Colors.lightBlueAccent]);
       case tireperformancesconstants.temperature:
@@ -59,13 +64,21 @@ class Chart extends StatelessWidget {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Scroll to rightmost point after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    double maxY = tirePerformances.fold<double>(
+    double maxY = widget.tirePerformances.fold<double>(
       double.negativeInfinity,
       (prev, element) => prev > _getValue(element) ? prev : _getValue(element),
     );
-
-    double minY = tirePerformances.fold<double>(
+    double minY = widget.tirePerformances.fold<double>(
       double.infinity,
       (prev, element) => prev < _getValue(element) ? prev : _getValue(element),
     );
@@ -73,71 +86,83 @@ class Chart extends StatelessWidget {
     maxY += maxY * 0.1;
     minY -= minY * 0.1;
 
+    // Make chart width proportional to the number of data points
+    double chartWidth = widget.tirePerformances.length * 40.0;
+
     return SizedBox(
       height: 240.h,
-      child: LineChart(
-        LineChartData(
-          minY: minY,
-          maxY: maxY,
-          lineBarsData: [
-            LineChartBarData(
-              spots: getSpots(),
-              //isCurved: true,
-              //isStepLineChart: true,
-              //isStrokeJoinRound: true,
-              gradient: getGradient(),
-              barWidth: 3,
-              isStrokeCapRound: true,
-              dotData: FlDotData(show: true),
-              belowBarData: BarAreaData(
-                show: true,
-                gradient: LinearGradient(
-                  colors: getGradient()
-                      .colors
-                      .map((c) => c.withOpacity(0.3))
-                      .toList(),
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+      child: Scrollbar(
+        controller: _scrollController,
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          scrollDirection: Axis.horizontal,
+          child: SizedBox(
+            width: chartWidth,
+            child: LineChart(
+              LineChartData(
+                minY: minY,
+                maxY: maxY,
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: getSpots(),
+                    gradient: getGradient(),
+                    barWidth: 3,
+                    isStrokeCapRound: true,
+                    dotData: FlDotData(show: true),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      gradient: LinearGradient(
+                        colors: getGradient()
+                            .colors
+                            .map((c) => c.withOpacity(0.3))
+                            .toList(),
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
+                ],
+                gridData: FlGridData(show: true),
+                borderData: FlBorderData(show: true),
+                titlesData: FlTitlesData(
+                  leftTitles: AxisTitles(
+                    axisNameWidget: Text(
+                      widget.parameter,
+                      style: TextStyle(
+                          fontSize: 10.h, fontWeight: FontWeight.bold),
+                    ),
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  bottomTitles: AxisTitles(
+                    axisNameWidget: Text(
+                      tireperformancesconstants.readings,
+                      style:
+                          TextStyle(fontSize: 8.h, fontWeight: FontWeight.bold),
+                    ),
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 1,
+                      getTitlesWidget: (value, _) => Text(
+                        'R${value.toInt()}',
+                        style: TextStyle(fontSize: 8.h),
+                      ),
+                    ),
+                  ),
+                ),
+                lineTouchData: LineTouchData(
+                  touchTooltipData: LineTouchTooltipData(
+                    getTooltipColor: (_) => Colors.deepPurple,
+                    getTooltipItems: (touchedSpots) {
+                      return touchedSpots.map((touchedSpot) {
+                        return LineTooltipItem(
+                          '${widget.parameter}: ${touchedSpot.y.toStringAsFixed(1)}',
+                          const TextStyle(color: Colors.white),
+                        );
+                      }).toList();
+                    },
+                  ),
                 ),
               ),
-            ),
-          ],
-          gridData: FlGridData(show: true),
-          borderData: FlBorderData(show: true),
-          titlesData: FlTitlesData(
-            leftTitles: AxisTitles(
-              axisNameWidget: Text(
-                parameter,
-                style: TextStyle(fontSize: 10.h, fontWeight: FontWeight.bold),
-              ),
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            bottomTitles: AxisTitles(
-              axisNameWidget: Text(
-                tireperformancesconstants.readings,
-                style: TextStyle(fontSize: 8.h, fontWeight: FontWeight.bold),
-              ),
-              sideTitles: SideTitles(
-                showTitles: true,
-                interval: (tirePerformances.length / 5).toDouble(),
-                getTitlesWidget: (value, _) => Text(
-                  'R${value.toInt()}',
-                  style: TextStyle(fontSize: 8.h),
-                ),
-              ),
-            ),
-          ),
-          lineTouchData: LineTouchData(
-            touchTooltipData: LineTouchTooltipData(
-              getTooltipColor: (_) => Colors.deepPurple,
-              getTooltipItems: (touchedSpots) {
-                return touchedSpots.map((touchedSpot) {
-                  return LineTooltipItem(
-                    '$parameter: ${touchedSpot.y.toStringAsFixed(1)}',
-                    const TextStyle(color: Colors.white),
-                  );
-                }).toList();
-              },
             ),
           ),
         ),
